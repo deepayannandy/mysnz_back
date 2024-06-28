@@ -38,7 +38,7 @@ const userSchema= new mongoos.Schema({
         type:String,
         required:true
     },
-    shopId:{
+    storeId:{
         type:String,
         required:true
     },

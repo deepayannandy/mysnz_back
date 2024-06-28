@@ -20,9 +20,13 @@ app.use(express.json())
 app.use(cors());
 
 const userRouter= require("./routes/user_auth")
+const storeRouter= require("./routes/store")
+const clientRouter= require("./routes/client")
 
 
 app.use("/api/user",userRouter)
+app.use("/api/store",storeRouter)
+app.use("/api/client",clientRouter)
 
 app.listen(6622,()=>{
     console.log("Http Server is listning!")
