@@ -10,7 +10,7 @@ const schema=joi.object().keys({
     isSuperAdmin:joi.boolean(),
     profileImage:joi.string(),
     password:joi.string().required(),
-    shopId:joi.string().required(),
+    storeId:joi.string().required(),
     userDesignation:joi.string().required(),
 });
 return schema.validate(data);

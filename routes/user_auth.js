@@ -67,7 +67,7 @@ router.post('/register',async (req,res)=>{
         onBoardingDate:ts,
         profileImage:req.body.profileImage,
         password:hashedpassword,
-        shopId:req.body.shopId,
+        storeId:req.body.storeId,
         userDesignation:req.body.userDesignation,
     })
     try{
