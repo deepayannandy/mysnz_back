@@ -7,7 +7,7 @@ const notificationModel=require("../models/notificationModel")
 const userModel=require("../models/userModel")
 const jwt= require("jsonwebtoken")
 const verify_token= require("../validators/verifyToken")
-const clientModel=require("../models/clientsModel")
+const customerModel=require("../models/customersModel")
 
 
 router.get('/getUserDB/',verify_token, async (req,res)=>{
@@ -24,7 +24,7 @@ router.get('/getClientDB/',verify_token, async (req,res)=>{
     console.log(req.tokendata)
     if(!req.tokendata.isSuperAdmin)res.status(500).json({message: "Access Denied!"})
     try{
-        const clients=await clientModel.find();
+        const clients=await customerModel.find();
         res.status(201).json(clients)
     }catch(error){
         res.status(500).json({message: error.message})

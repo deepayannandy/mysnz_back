@@ -25,6 +25,8 @@ const clientRouter= require("./routes/client")
 const deviceRouter= require("./routes/device")
 const notificationRouter= require("./routes/notifications")
 const dbBackupRouter= require("./routes/dbBackup")
+const subscriptionRouter= require("./routes/subscription")
+const storeSubscriptionRouter= require("./routes/storeSubscription")
 
 app.use("/api/user",userRouter)
 app.use("/api/store",storeRouter)
@@ -32,6 +34,8 @@ app.use("/api/client",clientRouter)
 app.use("/api/devices",deviceRouter)
 app.use("/api/notification",notificationRouter)
 app.use("/api/dbBackup",dbBackupRouter)
+app.use("/api/subscription",subscriptionRouter)
+app.use("/api/storeSubscription",storeSubscriptionRouter)
 
 app.listen(6622,()=>{
     console.log("Http Server is listening!")
