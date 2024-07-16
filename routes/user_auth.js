@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
   host:"smtp.gmail.com"
 });
 
-const verifie_token= require("../validators/verifyToken")
+const verify_token= require("../validators/verifyToken")
 
 //login user
 router.post('/login',async (req,res)=>{
@@ -82,7 +82,7 @@ router.post('/register',async (req,res)=>{
 
 
 //get all user
-router.get('/', verifie_token, async (req,res)=>{
+router.get('/', verify_token, async (req,res)=>{
     console.log(req.tokendata)
     if(!req.tokendata.isSuperAdmin)res.status(500).json({message: "Access Denied!"})
     try{
@@ -118,7 +118,7 @@ router.patch('/:id', getUser,async(req,res)=>{
 })
 
 
-router.delete("/:id",verifie_token,async (req,res)=>{
+router.delete("/:id",verify_token,async (req,res)=>{
     if(!req.tokendata.isSuperAdmin)res.status(500).json({message: "Access Denied!"})
     console.log("Deleting user: "+req.params.id)
     user=await usermodel.findById(req.params.id)
@@ -126,8 +126,8 @@ router.delete("/:id",verifie_token,async (req,res)=>{
             return res.status(404).json({message:"User unavailable!"})
         }
     try{
-        const reasult= await usermodel.deleteOne({_id: new mongodb.ObjectId(req.params.id)})
-        res.json(reasult)
+        const result= await usermodel.deleteOne({_id: new mongodb.ObjectId(req.params.id)})
+        res.json(result)
     }catch(error){
         res.status(500).json({message: error.message})
     }

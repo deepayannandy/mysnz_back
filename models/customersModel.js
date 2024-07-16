@@ -1,6 +1,6 @@
 const mongoos=require("mongoose")
 
-const clientSchema= new mongoos.Schema({
+const customerSchema= new mongoos.Schema({
     fullName:{
         type:String,
         required:true
@@ -46,4 +46,4 @@ const clientSchema= new mongoos.Schema({
         required:true
     }
 })
-module.exports=mongoos.model('Client',clientSchema )
+module.exports=mongoos.model('Customer',customerSchema )
