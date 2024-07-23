@@ -56,4 +56,13 @@ router.get("/:sid",async(req,res)=>{
         res.status(400).json({message:error.message})
     }
 })
+router.get("/",async(req,res)=>{
+    try{
+        const Store=await storeModel.find();
+        res.status(201).json(Store)
+    }
+    catch(error){
+        res.status(400).json({message:error.message})
+    }
+})
 module.exports=router
