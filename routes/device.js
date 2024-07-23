@@ -14,7 +14,8 @@ router.post('/',async (req,res)=>{
         nodes:req.body.nodes,
         nodeStatus:req.body.nodeStatus,
         onboarding:new Date(),
-        deviceType:req.body.deviceType
+        deviceType:req.body.deviceType,
+        isActive:true
     })
     try{
         const dvs=await newDevice.save()
@@ -56,6 +57,13 @@ router.patch('/:did',async (req,res)=>{
     }
     if(req.body.nodes!=null){
         Device.nodes=req.body.nodes;
+    }
+    if(req.body.isActive!=null){
+        Device.isActive=req.body.isActive;
+    }
+    if(req.body.warrantyAvailingDate!=null){
+        console.log( Device.warrantyAvailingDate)
+        Device.warrantyAvailingDate=[...Device.warrantyAvailingDate,req.body.warrantyAvailingDate]
     }
     try{
         const dvs=await Device.save();

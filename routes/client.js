@@ -39,6 +39,16 @@ router.get("/byStore/:sid",async (req,res)=>{
     }
 })
 
+router.get("/",async (req,res)=>{
+    try{
+        const customers=await customerModel.find();
+        res.status(201).json(customers)
+
+    }catch{
+        res.status(500).json({message: error.message})
+    }
+})
+
 router.patch("/:cid",async (req,res)=>{
     const customers=await customerModel.findOne({_id:req.params.cid});
     if(!customers) return res.status(400).send({"message":"Customer dose not exist!"});

@@ -25,6 +25,15 @@ const deviceSchema= new mongoos.Schema({
     deviceType:{
         type: String,
         required: true
+    },
+    isActive:{
+        type: Boolean,
+        required: true
+    },
+    warrantyAvailingDate:{
+        type:Array,
+        required: false
     }
+
 })
 module.exports=mongoos.model('Device',deviceSchema)
