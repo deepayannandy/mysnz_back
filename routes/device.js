@@ -36,6 +36,16 @@ router.get('/:did',async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+router.get('/',async (req,res)=>{
+    
+    try{
+        const Device=await deviceModel.find();
+        res.status(201).json(Device)
+
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
 router.get('/byStore/:sid',async (req,res)=>{
     try{
         const devices=await deviceModel.find({storeId:req.params.sid});
