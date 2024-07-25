@@ -15,7 +15,8 @@ router.post('/',async (req,res)=>{
         nodeStatus:req.body.nodeStatus,
         onboarding:new Date(),
         deviceType:req.body.deviceType,
-        isActive:true
+        isActive:true,
+        warrantyExpiryDate:new Date(new Date().setFullYear(new Date().getFullYear() + 1))
     })
     try{
         const dvs=await newDevice.save()

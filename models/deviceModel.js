@@ -22,6 +22,10 @@ const deviceSchema= new mongoos.Schema({
         type:Date,
         required:true
     },
+    warrantyExpiryDate:{
+        type:Date,
+        required:true
+    },
     deviceType:{
         type: String,
         required: true
