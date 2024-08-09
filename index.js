@@ -21,21 +21,25 @@ app.use(cors());
 
 const userRouter= require("./routes/user_auth")
 const storeRouter= require("./routes/store")
-const clientRouter= require("./routes/client")
+const customerRouter= require("./routes/customer")
 const deviceRouter= require("./routes/device")
 const notificationRouter= require("./routes/notifications")
 const dbBackupRouter= require("./routes/dbBackup")
 const subscriptionRouter= require("./routes/subscription")
 const storeSubscriptionRouter= require("./routes/storeSubscription")
+const historyRouter= require("./routes/history")
+const tableRouter= require("./routes/tables")
 
 app.use("/api/user",userRouter)
 app.use("/api/store",storeRouter)
-app.use("/api/client",clientRouter)
+app.use("/api/customer",customerRouter)
 app.use("/api/devices",deviceRouter)
 app.use("/api/notification",notificationRouter)
 app.use("/api/dbBackup",dbBackupRouter)
 app.use("/api/subscription",subscriptionRouter)
 app.use("/api/storeSubscription",storeSubscriptionRouter)
+app.use("/api/history",historyRouter)
+app.use("/api/table",tableRouter)
 
 app.listen(6622,()=>{
     console.log("Http Server is listening!")
