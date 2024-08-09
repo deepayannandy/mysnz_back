@@ -29,7 +29,7 @@ router.post('/login',async (req,res)=>{
     if(valid.error){
         return res.status(400).send({"message":valid.error.details[0].message});
     };
-    let user=await usermodel.findOne({$or:[{userId:req.body.email},{userId:req.body.email}]});
+    let user=await usermodel.findOne({$or:[{email:req.body.userId},{mobile:req.body.userId}]});
     if(!user) return res.status(400).send({"message":"User dose not exist!"});
 
     // validate password
@@ -41,7 +41,27 @@ router.post('/login',async (req,res)=>{
     const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation},process.env.SECREAT_TOKEN);
     res.header('auth-token',token).send(token);
 })
+//ClientLogin 
+router.post('/clientLogin',async (req,res)=>{
+    //validate the data
+    const valid=validator.login_validation(req.body);
+    if(valid.error){
+        return res.status(400).send({"message":valid.error.details[0].message});
+    };
+    let user=await usermodel.findOne({$or:[{email:req.body.userId},{mobile:req.body.userId}]});
+    if(!user) return res.status(400).send({"message":"User dose not exist!"});
+    console.log(user)
+    if(user.userDesignation=="SuperAdmin") return res.status(400).send({"message":"SuperAdmin Login is not possible!"});
 
+    // validate password
+    const validPass=await bcrypt.compare(req.body.password,user.password);
+    if(!validPass) return res.status(400).send({"message":"Email id or password is invalid!"});
+    if (!user.userStatus) return res.status(400).send({"message":"User is not an active user!"});
+
+    //create and assign token
+    const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation},process.env.SECREAT_TOKEN);
+    res.header('auth-token',token).send(token);
+})
 //create user
 router.post('/register',async (req,res)=>{
     let ts =new Date();
@@ -128,6 +148,21 @@ router.delete("/:id",verify_token,async (req,res)=>{
     try{
         const result= await usermodel.deleteOne({_id: new mongodb.ObjectId(req.params.id)})
         res.json(result)
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+
+//get all user
+router.get('/getMyStaffs', verify_token, async (req,res)=>{
+    console.log("I am called")
+    console.log(req.tokendata)
+    const loggedInUser= await usermodel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+        console.log(loggedInUser)
+    try{
+        const users=await usermodel.find({storeId:loggedInUser.storeId, userDesignation:"staff"});
+        res.status(201).json(users)
     }catch(error){
         res.status(500).json({message: error.message})
     }

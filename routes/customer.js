@@ -3,6 +3,8 @@ const router= express.Router()
 const mongodb=require("mongodb");
 const customerModel=require("../models/customersModel")
 const storeModel=require("../models/storesModel")
+const verify_token= require("../validators/verifyToken")
+const userModel=require("../models/userModel")
 
 router.post('/',async (req,res)=>{
     let store=await storeModel.findOne({_id:req.body.storeId});
@@ -32,6 +34,19 @@ router.post('/',async (req,res)=>{
 router.get("/byStore/:sid",async (req,res)=>{
     try{
         const customers=await customerModel.find({storeId:req.params.sid});
+        res.status(201).json(customers)
+
+    }catch{
+        res.status(500).json({message: error.message})
+    }
+})
+
+router.get("/myCustomers/",verify_token,async (req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+    console.log(loggedInUser)
+    try{
+        const customers=await customerModel.find({storeId:loggedInUser.storeId});
         res.status(201).json(customers)
 
     }catch{
