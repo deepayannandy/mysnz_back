@@ -38,4 +38,54 @@ router.patch("/stopGame/:tableId",verify_token,async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
+    console.log(req.params.tableId)
+    try{
+        const loggedInUser= await userModel.findById(req.tokendata._id)
+        const selectedTable= await tableModel.findById(req.params.tableId);
+        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+        console.log(selectedTable.gameData.gameType)
+        if(selectedTable.gameData.gameType=="Minute Billing"){
+            let bills=[]
+            let totalBillAmt=0;
+            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
+            const totalGameTime=timeDelta;
+            console.log(timeDelta)
+            const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata'});
+            console.log(indianStartTime)
+            if((indianStartTime.split(":")[0]>8 && indianStartTime.includes("PM"))|| (indianStartTime.split(":")[0]<6 && indianStartTime.includes("AM"))||(indianStartTime.split(":")[0]==12 && indianStartTime.includes("AM"))){
+              if(timeDelta<selectedTable.minuteWiseRules.nightUptoMin){
+                bills.push({"title":"Night Minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.nightMinAmt})
+                totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt;
+              }
+              else{
+                    bills.push({"title":"Night Minimum","time":selectedTable.minuteWiseRules.nightUptoMin,"amount":selectedTable.minuteWiseRules.nightMinAmt})
+                    totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt;
+                    timeDelta=timeDelta-selectedTable.minuteWiseRules.nightUptoMin;
+                    bills.push({"title":`Night perMin(${timeDelta} * ${selectedTable.minuteWiseRules.nightPerMin})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.nightPerMin*timeDelta})
+                   totalBillAmt=totalBillAmt+selectedTable.minuteWiseRules.nightPerMin*timeDelta;
+              }
+            }
+            else{
+                if(timeDelta<selectedTable.minuteWiseRules.dayUptoMin){
+                    bills.push({"title":"Day Minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
+                    totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt;
+                  }
+                  else{
+                        bills.push({"title":"Day Minimum","time":selectedTable.minuteWiseRules.dayUptoMin,"amount":selectedTable.minuteWiseRules.dayMinAmt})
+                        totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt;
+                        timeDelta=timeDelta-selectedTable.minuteWiseRules.nightUptoMin;
+                        bills.push({"title":`Day perMin(${timeDelta} * ${selectedTable.minuteWiseRules.dayPerMin})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.dayPerMin*timeDelta})
+                       totalBillAmt=totalBillAmt+selectedTable.minuteWiseRules.dayPerMin*timeDelta;
+                  }
+            }
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
+        }
+        res.status(502).json({message: "Billing not supported"})
+
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
 module.exports=router
