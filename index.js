@@ -29,6 +29,7 @@ const subscriptionRouter= require("./routes/subscription")
 const storeSubscriptionRouter= require("./routes/storeSubscription")
 const historyRouter= require("./routes/history")
 const tableRouter= require("./routes/tables")
+const gamesRouter= require("./routes/games")
 
 app.use("/api/user",userRouter)
 app.use("/api/store",storeRouter)
@@ -40,6 +41,7 @@ app.use("/api/subscription",subscriptionRouter)
 app.use("/api/storeSubscription",storeSubscriptionRouter)
 app.use("/api/history",historyRouter)
 app.use("/api/table",tableRouter)
+app.use("/api/games",gamesRouter)
 
 app.listen(6622,()=>{
     console.log("Http Server is listening!")
