@@ -82,10 +82,10 @@ router.post('/register',async (req,res)=>{
         fullName:req.body.fullName,
         mobile:req.body.mobile,
         email:req.body.email,
-        userStatus:req.body.userStatus,
+        userStatus:true,
         isSuperAdmin:req.body.isSuperAdmin,
         onBoardingDate:ts,
-        profileImage:req.body.profileImage,
+        profileImage:req.body.profileImage ?? "-",
         password:hashedpassword,
         storeId:req.body.storeId,
         userDesignation:req.body.userDesignation,
@@ -104,7 +104,7 @@ router.post('/register',async (req,res)=>{
 //get all user
 router.get('/', verify_token, async (req,res)=>{
     console.log(req.tokendata)
-    if(!req.tokendata.isSuperAdmin)res.status(500).json({message: "Access Denied!"})
+    if(!req.tokendata.isSuperAdmin)return res.status(500).json({message: "Access Denied!"})
     try{
         const users=await usermodel.find();
         res.status(201).json(users)
@@ -113,7 +113,16 @@ router.get('/', verify_token, async (req,res)=>{
     }
 })
 
-
+router.get('/whoAmI', verify_token, async (req,res)=>{
+    console.log(req.tokendata)
+    try{
+        const loggedInUser= await usermodel.findById(req.tokendata._id)
+        if(!loggedInUser)return res.status(500).json({message: "User Not found!"})
+        res.status(201).json(loggedInUser)
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
 
 //update user
 router.patch('/:id', getUser,async(req,res)=>{
