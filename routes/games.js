@@ -13,7 +13,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         selectedTable.gameData.players=req.body.players;
         selectedTable.isOccupied=true;
-        selectedTable.gameData.startTime=new Date(req.body.startTime);
+        selectedTable.gameData.startTime=new Date();
         selectedTable.gameData.gameType=req.body.gameType;
 
         const updatedTable = await selectedTable.save();
