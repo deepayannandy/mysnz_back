@@ -16,7 +16,7 @@ const userSchema= new mongoos.Schema({
     },
     userStatus:{
         type:Boolean,
-        required:true
+        required:false
     },
     userDesignation:{
         type:String,
