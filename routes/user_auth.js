@@ -85,7 +85,7 @@ router.post('/register',async (req,res)=>{
         userStatus:true,
         isSuperAdmin:req.body.isSuperAdmin,
         onBoardingDate:ts,
-        profileImage:req.body.profileImage ?? "-",
+        profileImage:req.body.profileImage==null ? "-":req.body.profileImage,
         password:hashedpassword,
         storeId:req.body.storeId,
         userDesignation:req.body.userDesignation,
