@@ -170,7 +170,7 @@ router.get('/getMyStaffs', verify_token, async (req,res)=>{
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
         console.log(loggedInUser)
     try{
-        const users=await usermodel.find({storeId:loggedInUser.storeId,$or:[{userDesignation:"staff"},{userDesignation:"Staff"}]});
+        const users=await usermodel.find({storeId:loggedInUser.storeId,$or:[{userDesignation:"staff"}, {userDesignation:"Staff"}]});
         res.status(201).json(users)
     }catch(error){
         res.status(500).json({message: error.message})
