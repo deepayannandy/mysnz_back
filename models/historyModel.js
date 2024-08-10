@@ -1,5 +1,4 @@
 const mongoos=require("mongoose")
-
 const historySchema= new mongoos.Schema({
     storeId:{
         type:String,
@@ -26,7 +25,7 @@ const historySchema= new mongoos.Schema({
         required:true
     },
     time:{
-        type:Date,
+        type:Number,
         required:true
     },
     booking:{

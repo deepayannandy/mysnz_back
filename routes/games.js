@@ -4,6 +4,7 @@ const mongodb=require("mongodb");
 const tableModel=require("../models/tablesModel")
 const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
+const historyModel= require("../models/historyModel")
 
 
 router.post("/startGame/:tableId",async (req,res)=>{
@@ -83,6 +84,44 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
         }
         res.status(502).json({message: "Billing not supported"})
+
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+
+router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
+    console.log(req.params.tableId)
+    try{
+        const loggedInUser= await userModel.findById(req.tokendata._id)
+        const selectedTable= await tableModel.findById(req.params.tableId);
+        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+        
+            const gHistory= new historyModel({
+                storeId:selectedTable._id,
+                date:new Date(),
+                customerName:selectedTable.gameData.players.map((player)=>{
+                    return player.fullName;
+                }).join(","),
+                description:req.body.paymentMethod,
+                startTime:selectedTable.gameData.startTime,
+                endTime:selectedTable.gameData.endTime,
+                time:req.body.timeDelta,
+                booking:req.body.totalBillAmt,
+                meal:0,
+                discount:req.body.discount,
+                netPay:req.body.totalBillAmt-req.body.discount,
+                status:"Paid"
+            })
+        const newGameHistory= await gHistory.save();
+        selectedTable.gameData.startTime=undefined;
+        selectedTable.gameData.endTime=undefined;
+        selectedTable.gameData.players=[];
+        selectedTable.gameData.gameType=undefined;
+        selectedTable.isOccupied=false;
+        const updatedTable = await selectedTable.save();
+        res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id})
 
     }catch(error){
         res.status(500).json({message: error.message})
