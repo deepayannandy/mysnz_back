@@ -22,7 +22,8 @@ router.post("/startGame/:tableId",async (req,res)=>{
                 const newCustomer= new customerModel({
                     fullName:getdata.fullName,
                     storeId:selectedTable.storeId,
-                    isBlackListed:false
+                    isBlackListed:false,
+                    credit:0
                 })
                 const cli=await newCustomer.save();
                 getdata.customerId=cli._id.toString();
