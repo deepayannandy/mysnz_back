@@ -17,13 +17,15 @@ router.post("/startGame/:tableId",async (req,res)=>{
         for(count in req.body.players){
             let getdata=req.body.players[count]
             console.log(getdata)
-            if(getdata.customerId==undefined){
+            console.log( getdata.fullName!="CASH")
+            if(getdata.customerId==undefined && getdata.fullName!="CASH"){
                 console.log(`creating userid for ${getdata.fullName}`)
                 const newCustomer= new customerModel({
                     fullName:getdata.fullName,
                     storeId:selectedTable.storeId,
                     isBlackListed:false,
-                    credit:0
+                    credit:0,
+                    contact:"+910000000000"
                 })
                 const cli=await newCustomer.save();
                 getdata.customerId=cli._id.toString();
@@ -116,7 +118,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         const selectedTable= await tableModel.findById(req.params.tableId);
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
-        
+            let dis= req.body.discount==undefined?0:req.body.discount
             const gHistory= new historyModel({
                 storeId:selectedTable.storeId,
                 date:new Date(),
@@ -129,8 +131,8 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 time:req.body.timeDelta,
                 booking:req.body.totalBillAmt,
                 meal:0,
-                discount:req.body.discount,
-                netPay:req.body.totalBillAmt-(req.body.discount==undefined?0:req.body.discount),
+                discount:dis,
+                netPay:req.body.totalBillAmt-dis,
                 status:"Paid"
             })
         const newGameHistory= await gHistory.save();
