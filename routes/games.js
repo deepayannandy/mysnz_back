@@ -111,7 +111,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 booking:req.body.totalBillAmt,
                 meal:0,
                 discount:req.body.discount,
-                netPay:req.body.totalBillAmt-req.body.discount??0,
+                netPay:req.body.totalBillAmt-(req.body.discount==undefined?0:req.body.discount),
                 status:"Paid"
             })
         const newGameHistory= await gHistory.save();
