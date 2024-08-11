@@ -8,7 +8,7 @@ const userModel=require("../models/userModel")
 router.get("/",verify_token,async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
-    console.log(loggedInUser)
+    console.log(loggedInUser.storeId)
     try{
         const storeHistory= await historyModel.find({storeId:loggedInUser.storeId})
         res.status(201).json(storeHistory)
