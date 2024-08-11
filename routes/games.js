@@ -99,7 +99,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         
             const gHistory= new historyModel({
-                storeId:selectedTable._id,
+                storeId:selectedTable.storeId,
                 date:new Date(),
                 customerName:selectedTable.gameData.players.map((player)=>{
                     return player.fullName;
