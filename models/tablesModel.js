@@ -39,7 +39,7 @@ const tablesSchema= new mongoos.Schema({
                     },
                     customerId:{
                         type:String,
-                        required:true
+                        required:false
                     }
                 }
             ],
