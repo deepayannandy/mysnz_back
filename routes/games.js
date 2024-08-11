@@ -38,7 +38,6 @@ router.post("/startGame/:tableId",async (req,res)=>{
 
         const updatedTable = await selectedTable.save();
         res.status(201).json({"_id":updatedTable._id})
-        res.status(201).json({"message":"I am working"})
 
     }catch(error){
         res.status(500).json({message: error.message})
