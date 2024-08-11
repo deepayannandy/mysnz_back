@@ -5,6 +5,7 @@ const tableModel=require("../models/tablesModel")
 const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
 const historyModel= require("../models/historyModel")
+const customerModel=require("../models/customersModel")
 
 
 router.post("/startGame/:tableId",async (req,res)=>{
@@ -12,13 +13,31 @@ router.post("/startGame/:tableId",async (req,res)=>{
     try{
         const selectedTable= await tableModel.findById(req.params.tableId);
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
-        selectedTable.gameData.players=req.body.players;
+        let finalPlayerList=[];
+        for(count in req.body.players){
+            let getdata=req.body.players[count]
+            console.log(getdata)
+            if(getdata.customerId==undefined){
+                console.log(`creating userid for ${getdata.fullName}`)
+                const newCustomer= new customerModel({
+                    fullName:getdata.fullName,
+                    storeId:selectedTable.storeId,
+                    isBlackListed:false
+                })
+                const cli=await newCustomer.save();
+                getdata.customerId=cli._id.toString();
+            }
+            finalPlayerList.push(getdata)
+        }
+        console.log(finalPlayerList)
+        selectedTable.gameData.players=finalPlayerList;
         selectedTable.isOccupied=true;
         selectedTable.gameData.startTime=new Date();
         selectedTable.gameData.gameType=req.body.gameType;
 
         const updatedTable = await selectedTable.save();
         res.status(201).json({"_id":updatedTable._id})
+        res.status(201).json({"message":"I am working"})
 
     }catch(error){
         res.status(500).json({message: error.message})
