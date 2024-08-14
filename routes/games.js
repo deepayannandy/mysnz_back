@@ -126,7 +126,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 customerName:selectedTable.gameData.players.map((player)=>{
                     return player.fullName;
                 }).join(","),
-                description:req.body.paymentMethod,
+                description:selectedTable.tableName,
                 startTime:selectedTable.gameData.startTime,
                 endTime:selectedTable.gameData.endTime,
                 time:req.body.timeDelta,
