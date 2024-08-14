@@ -44,7 +44,7 @@ router.get("/",verify_token,async(req,res)=>{
 router.patch("/:tableId",verify_token,async (req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
-    const table=await tableModel.findOne({_id:req.params.tId});
+    const table=await tableModel.findById(req.params.tableId);
     if(!table) return res.status(404).json({message: "Table not found"})
         if(req.body.tableName!=null){
             table.tableName=req.body.tableName;
