@@ -129,6 +129,12 @@ router.patch('/:id', getUser,async(req,res)=>{
     if(req.body.fullName!=null){
         res.user.fullName=req.body.fullName;
     }
+    if(req.body.email!=null){
+        res.user.email=req.body.email;
+    }
+    if(req.body.mobile!=null){
+        res.user.mobile=req.body.mobile;
+    }
     if(req.body.profileImage!=null){
         res.user.profileImage=req.body.profileImage;
     }
