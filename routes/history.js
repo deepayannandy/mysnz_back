@@ -11,7 +11,7 @@ router.get("/",verify_token,async(req,res)=>{
     console.log(loggedInUser.storeId)
     try{
         const storeHistory= await historyModel.find({storeId:loggedInUser.storeId})
-        res.status(201).json(storeHistory)
+        res.status(201).json(storeHistory.reverse())
     }catch(e){
         res.status(500).json({message: e.message})
     }
