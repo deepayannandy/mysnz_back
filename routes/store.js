@@ -17,6 +17,7 @@ router.post('/',async (req,res)=>{
         onboarding: new Date(),
         validTill:today,
         profileImage:req.body.profileImage,
+        transactionCounter:1
     })
     try{
         const str=await newStore.save()

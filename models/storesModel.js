@@ -29,5 +29,9 @@ const storeSchema= new mongoos.Schema({
         type:String,
         required:false
     },
+    transactionCounter:{
+        type:Number,
+        required:false
+    }
 })
 module.exports=mongoos.model('Store',storeSchema )

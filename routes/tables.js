@@ -40,6 +40,8 @@ router.get("/",verify_token,async(req,res)=>{
         res.status(500).json({message: e.message})
     }
 })
+
+
 router.delete("/:tId",verify_token,async (req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     const table=await tableModel.findOne({_id:req.params.tId});

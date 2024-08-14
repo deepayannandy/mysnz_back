@@ -6,7 +6,7 @@ const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
 const historyModel= require("../models/historyModel")
 const customerModel=require("../models/customersModel")
-
+const storeModel=require("../models/storesModel")
 
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
@@ -116,6 +116,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
     try{
         const loggedInUser= await userModel.findById(req.tokendata._id)
         const selectedTable= await tableModel.findById(req.params.tableId);
+        const selectedStore= await storeModel.findById(req.selectedTable.storeId)
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
             let dis= req.body.discount==undefined?0:req.body.discount
@@ -133,8 +134,11 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 meal:0,
                 discount:dis,
                 netPay:req.body.totalBillAmt-dis,
-                status:"Paid"
+                status:"Paid",
+                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3)}-${selectedStore.transactionCounter}`
             })
+        selectedStore.transactionCounter= selectedStore.transactionCounter+1;
+        const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
         selectedTable.gameData.startTime=undefined;
         selectedTable.gameData.endTime=undefined;
@@ -142,7 +146,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         selectedTable.gameData.gameType=undefined;
         selectedTable.isOccupied=false;
         const updatedTable = await selectedTable.save();
-        res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id})
+        res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id,"UpdatedStoreData":updatedStore._id})
 
     }catch(error){
         res.status(500).json({message: error.message})
