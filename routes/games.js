@@ -116,7 +116,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
     try{
         const loggedInUser= await userModel.findById(req.tokendata._id)
         const selectedTable= await tableModel.findById(req.params.tableId);
-        const selectedStore= await storeModel.findById(req.selectedTable.storeId)
+        const selectedStore= await storeModel.findById(selectedTable.storeId)
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
             let dis= req.body.discount==undefined?0:req.body.discount
@@ -135,7 +135,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 discount:dis,
                 netPay:req.body.totalBillAmt-dis,
                 status:"Paid",
-                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3)}-${selectedStore.transactionCounter}`
+                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toLowerCase()}-${selectedStore.transactionCounter}`
             })
         selectedStore.transactionCounter= selectedStore.transactionCounter+1;
         const updatedStore =await selectedStore.save()
