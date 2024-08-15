@@ -20,7 +20,8 @@ router.post('/',async (req,res)=>{
         rewardPoint:!req.body.rewardPoint>0?req.body.rewardPoint:0,
         coin:!req.body.coin>0?req.body.coin:0,
         storeId:req.body.storeId,
-        isBlackListed:false
+        isBlackListed:false,
+        isDeleted:false
     })
     try{
         const cli=await newCustomer.save()
@@ -33,7 +34,7 @@ router.post('/',async (req,res)=>{
 
 router.get("/byStore/:sid",async (req,res)=>{
     try{
-        const customers=await customerModel.find({storeId:req.params.sid});
+        const customers=await customerModel.find({storeId:req.params.sid,isDeleted: {$ne:true}});
         res.status(201).json(customers)
 
     }catch{
@@ -56,7 +57,7 @@ router.get("/myCustomers/",verify_token,async (req,res)=>{
 
 router.get("/",async (req,res)=>{
     try{
-        const customers=await customerModel.find();
+        const customers=await customerModel.find({});
         res.status(201).json(customers)
 
     }catch{
@@ -93,8 +94,9 @@ router.delete("/:cid",async (req,res)=>{
     const customer=await customerModel.findOne({_id:req.params.cid});
     if(!customer) return res.status(400).send({"message":"customer dose not exist!"});
     try{
-        const reasult= await customerModel.deleteOne({_id: new mongodb.ObjectId(req.params.cid)})
-        res.json(reasult)
+        customer.isDeleted=true;
+        const cli=await customer.save();
+        res.status(201).json(cli)
     }catch{
         res.status(500).json({message: error.message})
     }

@@ -2,6 +2,7 @@ const express = require("express")
 const router= express.Router()
 const mongodb=require("mongodb");
 const storeModel=require("../models/storesModel")
+const storeSubscriptionModel= require("../models/storeSubscriptionModel")
 
 router.post('/',async (req,res)=>{
     var today = new Date();
@@ -50,8 +51,9 @@ router.patch('/renew/:sid',async (req,res)=>{
 router.get("/:sid",async(req,res)=>{
     const Store=await storeModel.findOne({_id:req.params.sid});
     if(!Store) return res.status(400).send({"message":"Store dose not exist!"});
+    const StoreSubs= await storeSubscriptionModel.find({storeId:Store._id,isActive:true})
     try{
-        res.status(201).json(Store)
+        res.status(201).json({"StoreData":Store,"SubscriptionData":StoreSubs.length>0?StoreSubs[0]:"No active Subscription found"})
     }
     catch(error){
         res.status(400).json({message:error.message})

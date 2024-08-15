@@ -3,21 +3,24 @@ const router= express.Router()
 const mongodb=require("mongodb");
 const subscriptionModel=require("../models/subscriptionModel")
 const storeSubscriptionModel= require("../models/storeSubscriptionModel")
+const storeModel=require("../models/storesModel")
 
 router.post("/",async(req,res)=>{
     let store=await storeModel.findOne({_id:req.body.storeId});
     if(!store) return res.status(400).send({"message":"Store dose not exist!"});
-    let subs=await subscriptionModel.findOne({_id:req.body.subscriptionId});
-    if(!subs)res.status(500).json({"message":"Subscription dose not exist!"})
+    // let subs=await subscriptionModel.findOne({_id:req.body.subscriptionId});
+    // if(!subs)res.status(500).json({"message":"Subscription dose not exist!"})
 
     const storeSubs= new storeSubscriptionModel({
         storeId:req.body.storeId,
         isActive:req.body.isActive,
-        subscriptionName:req.res.subscriptionName,
-        subscriptionId:req.res.subscriptionId,
+        subscriptionName:req.body.subscriptionName,
+        subscriptionId:req.body.subscriptionId,
         subscriptionValidity:req.body.subscriptionValidity,
         startDate:req.body.startDate,
-        endDate:req.body.endDate
+        endDate:req.body.endDate,
+        isYearly:req.body.isYearly,
+        subscriptionAmount:req.body.subscriptionAmount
     })
     try{
         const newSSubs=await storeSubs.save()

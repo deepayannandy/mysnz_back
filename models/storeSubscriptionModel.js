@@ -10,8 +10,16 @@ const storeSubscriptionSchema= new mongoos.Schema({
         type:Boolean,
         required:true
     },
+    isYearly:{
+        type:Boolean,
+        required:true
+    },
     subscriptionName:{
         type:String,
+        required:true
+    },
+    subscriptionAmount:{
+        type:Number,
         required:true
     },
     subscriptionId:{

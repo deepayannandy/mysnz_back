@@ -168,6 +168,21 @@ router.delete("/:id",verify_token,async (req,res)=>{
     }
 })
 
+router.patch("/updatePassword/:id",getUser,async(req,res)=>{
+    if(req.body.newPassword){
+        //hash the password
+        const salt= await bcrypt.genSalt(10);
+        const hashedpassword= await bcrypt.hash(req.body.newPassword,salt);
+        res.user.password=hashedpassword;
+    }
+    try{
+        const newUser=await res.user.save()
+        res.status(201).json({"_id":newUser.id})
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+
 //get all user
 router.get('/getMyStaffs', verify_token, async (req,res)=>{
     console.log("I am called")
@@ -177,6 +192,21 @@ router.get('/getMyStaffs', verify_token, async (req,res)=>{
         console.log(loggedInUser)
     try{
         const users=await usermodel.find({storeId:loggedInUser.storeId,$or:[{userDesignation:"staff"}, {userDesignation:"Staff"}]});
+        res.status(201).json(users)
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+
+//get all user
+router.get('/getAllAdmins', verify_token, async (req,res)=>{
+    console.log("I am called")
+    console.log(req.tokendata)
+    const loggedInUser= await usermodel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+        console.log(loggedInUser)
+    try{
+        const users=await usermodel.find({storeId:loggedInUser.storeId,$or:[{userDesignation:"Admin"}, {userDesignation:"admin"}]});
         res.status(201).json(users)
     }catch(error){
         res.status(500).json({message: error.message})
