@@ -44,6 +44,10 @@ const customerSchema= new mongoos.Schema({
     isBlackListed:{
         type:Boolean,
         required:true
+    },
+    isDeleted:{
+        type:Boolean,
+        required:false
     }
 })
 module.exports=mongoos.model('Customer',customerSchema )
