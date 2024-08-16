@@ -57,7 +57,7 @@ router.get("/myCustomers/",verify_token,async (req,res)=>{
 
 router.get("/",async (req,res)=>{
     try{
-        const customers=await customerModel.find({});
+        const customers=await customerModel.find({isDeleted: {$ne:true}});
         res.status(201).json(customers)
 
     }catch{
