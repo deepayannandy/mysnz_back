@@ -3,6 +3,7 @@ const router= express.Router()
 const mongodb=require("mongodb");
 const storeModel=require("../models/storesModel")
 const storeSubscriptionModel= require("../models/storeSubscriptionModel")
+const verify_token= require("../validators/verifyToken")
 
 router.post('/',async (req,res)=>{
     var today = new Date();
@@ -66,6 +67,17 @@ router.get("/",async(req,res)=>{
     }
     catch(error){
         res.status(400).json({message:error.message})
+    }
+})
+
+router.delete("/:sid",verify_token,async(req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(loggedInUser!="SuperAdmin")return res.status(404).json({message: "Access denied!"})
+    try{
+        const result= await storeModel.deleteOne({_id: new mongodb.ObjectId(req.params.sid)})
+        res.json(result)
+    }catch{
+        res.status(500).json({message: error.message})
     }
 })
 module.exports=router
