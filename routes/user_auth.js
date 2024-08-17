@@ -62,7 +62,7 @@ router.post('/clientLogin',async (req,res)=>{
     //create and assign token
     const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation},process.env.SECREAT_TOKEN);
     // res.header('auth-token',token).send(token);
-    res.status(201).json({"auth-token":token,"storeId":user.storeId})
+    res.status(201).json({"auth_token":token,"storeId":user.storeId})
 })
 //create user
 router.post('/register',async (req,res)=>{
