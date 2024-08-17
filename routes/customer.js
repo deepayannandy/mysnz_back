@@ -47,7 +47,7 @@ router.get("/myCustomers/",verify_token,async (req,res)=>{
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     console.log(loggedInUser)
     try{
-        const customers=await customerModel.find({storeId:loggedInUser.storeId});
+        const customers=await customerModel.find({storeId:loggedInUser.storeId,isDeleted: {$ne:true}});
         res.status(201).json(customers)
 
     }catch{
@@ -57,9 +57,8 @@ router.get("/myCustomers/",verify_token,async (req,res)=>{
 
 router.get("/",async (req,res)=>{
     try{
-        const customers=await customerModel.find({isDeleted: {$ne:true}});
+        const customers=await customerModel.find();
         res.status(201).json(customers)
-
     }catch{
         res.status(500).json({message: error.message})
     }

@@ -40,6 +40,7 @@ router.post('/login',async (req,res)=>{
     //create and assign token
     const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation},process.env.SECREAT_TOKEN);
     res.header('auth-token',token).send(token);
+    
 })
 //ClientLogin 
 router.post('/clientLogin',async (req,res)=>{
@@ -60,7 +61,8 @@ router.post('/clientLogin',async (req,res)=>{
 
     //create and assign token
     const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation},process.env.SECREAT_TOKEN);
-    res.header('auth-token',token).send(token);
+    // res.header('auth-token',token).send(token);
+    res.status(201).json({"auth-token":token,"storeId":user.storeId})
 })
 //create user
 router.post('/register',async (req,res)=>{
@@ -210,7 +212,7 @@ router.get('/getAllAdmins', verify_token, async (req,res)=>{
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
         console.log(loggedInUser)
     try{
-        const users=await userModel.find({storeId:loggedInUser.storeId,$or:[{userDesignation:"Admin"}, {userDesignation:"admin"}]});
+        const users=await userModel.find({$or:[{userDesignation:"Admin"}, {userDesignation:"admin"}]});
         res.status(201).json(users)
     }catch(error){
         res.status(500).json({message: error.message})
