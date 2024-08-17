@@ -49,7 +49,7 @@ router.post('/clientLogin',async (req,res)=>{
     if(valid.error){
         return res.status(400).send({"message":valid.error.details[0].message});
     };
-    let user=await userModel.findOne({$or:[{email:req.body.userId},{mobile:req.body.userId}]});
+    let user=await userModel.findOne({$or:[{email:req.body.userId},{mobile:req.body.userId}],userDesignation: {$ne:"SuperAdmin"}});
     if(!user) return res.status(400).send({"message":"User dose not exist!"});
     console.log(user)
     if(user.userDesignation=="SuperAdmin") return res.status(400).send({"message":"SuperAdmin Login is not possible!"});
