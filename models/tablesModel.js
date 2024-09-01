@@ -11,11 +11,11 @@ const tablesSchema= new mongoos.Schema({
     },
     deviceId:{
         type:String,
-        required:true
+        required:false
     },
     nodeID:{
         type:String,
-        required:true
+        required:false
     },
     isOccupied:{
         type:Boolean,
