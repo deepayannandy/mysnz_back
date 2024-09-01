@@ -19,7 +19,8 @@ router.post("/",verify_token,async(req,res)=>{
         gameTypes:req.body.gameTypes,
         netAmount:0,
         isBooked:false,
-        minuteWiseRules:req.body.minuteWiseRules
+        minuteWiseRules:req.body.minuteWiseRules,
+        slotWiseRules:req.body.slotWiseRules
     })
     try{
         const table=await newTable.save()
