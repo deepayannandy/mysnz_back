@@ -82,6 +82,22 @@ const tablesSchema= new mongoos.Schema({
             required:false
         },
     },
+    slotWiseRules:[
+        {
+            uptoMin:{
+                type:Number,
+                required:false
+            },
+            slotCharge:{
+                type:Number,
+                required:false
+            },
+            nightSlotCharge:{
+                type:Number,
+                required:false
+            }
+        }
+    ],
     isBooked:{
         type:Boolean,
         required:true

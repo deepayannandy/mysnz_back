@@ -159,8 +159,7 @@ router.patch('/:id', getUser,async(req,res)=>{
 })
 
 
-router.delete("/:id",verify_token,async (req,res)=>{
-    if(!req.tokendata.isSuperAdmin)res.status(500).json({message: "Access Denied!"})
+router.delete("/:id",verify_token,async (req,res)=>{  
     console.log("Deleting user: "+req.params.id)
     user=await userModel.findById(req.params.id)
         if(user==null){
