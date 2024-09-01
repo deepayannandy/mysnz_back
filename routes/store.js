@@ -50,6 +50,26 @@ router.patch('/renew/:sid',async (req,res)=>{
         res.status(400).json({message:error.message})
     }
 })
+
+router.patch('/:sid',async (req,res)=>{
+    //todo validate the payment id
+    const Store=await storeModel.findOne({_id:req.params.sid});
+    if(!Store) return res.status(400).send({"message":"Store dose not exist!"});
+    if(req.body.nightStartTime!=null){
+        Store.nightStartTime=req.body.nightStartTime;
+    }
+    if(req.body.nightEndTime!=null){
+        Store.nightEndTime=req.body.nightEndTime;
+    }
+    try{
+        const str=await Store.save();
+        res.status(201).json(str)
+    }
+    catch(error){
+        res.status(400).json({message:error.message})
+    }
+})
+
 router.get("/:sid",async(req,res)=>{
     const Store=await storeModel.findOne({_id:req.params.sid});
     if(!Store) return res.status(400).send({"message":"Store dose not exist!"});

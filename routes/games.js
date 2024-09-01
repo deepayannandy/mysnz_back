@@ -76,18 +76,33 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata'});
             console.log(indianStartTime)
-            if((indianStartTime.split(":")[0]>8 && indianStartTime.includes("PM"))|| (indianStartTime.split(":")[0]<6 && indianStartTime.includes("AM"))||(indianStartTime.split(":")[0]==12 && indianStartTime.includes("AM"))){
-              if(timeDelta<selectedTable.minuteWiseRules.nightUptoMin){
-                bills.push({"title":"Night Minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.nightMinAmt})
-                totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt;
-              }
-              else{
-                    bills.push({"title":"Night Minimum","time":selectedTable.minuteWiseRules.nightUptoMin,"amount":selectedTable.minuteWiseRules.nightMinAmt})
+            if(selectedTable.minuteWiseRules.nightMinAmt>0||selectedTable.minuteWiseRules.nightPerMin>0){
+                if((indianStartTime.split(":")[0]>8 && indianStartTime.includes("PM"))|| (indianStartTime.split(":")[0]<6 && indianStartTime.includes("AM"))||(indianStartTime.split(":")[0]==12 && indianStartTime.includes("AM"))){
+                if(timeDelta<selectedTable.minuteWiseRules.nightUptoMin){
+                    bills.push({"title":"Night Minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.nightMinAmt})
                     totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt;
-                    timeDelta=timeDelta-selectedTable.minuteWiseRules.nightUptoMin;
-                    bills.push({"title":`Night perMin(${timeDelta} * ${selectedTable.minuteWiseRules.nightPerMin})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.nightPerMin*timeDelta})
-                   totalBillAmt=totalBillAmt+selectedTable.minuteWiseRules.nightPerMin*timeDelta;
-              }
+                }
+                else{
+                        bills.push({"title":"Night Minimum","time":selectedTable.minuteWiseRules.nightUptoMin,"amount":selectedTable.minuteWiseRules.nightMinAmt})
+                        totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt;
+                        timeDelta=timeDelta-selectedTable.minuteWiseRules.nightUptoMin;
+                        bills.push({"title":`Night perMin(${timeDelta} * ${selectedTable.minuteWiseRules.nightPerMin})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.nightPerMin*timeDelta})
+                    totalBillAmt=totalBillAmt+selectedTable.minuteWiseRules.nightPerMin*timeDelta;
+                }
+                }
+                else{
+                    if(timeDelta<selectedTable.minuteWiseRules.dayUptoMin){
+                        bills.push({"title":"Day Minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
+                        totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt;
+                      }
+                      else{
+                            bills.push({"title":"Day Minimum","time":selectedTable.minuteWiseRules.dayUptoMin,"amount":selectedTable.minuteWiseRules.dayMinAmt})
+                            totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt;
+                            timeDelta=timeDelta-selectedTable.minuteWiseRules.nightUptoMin;
+                            bills.push({"title":`Day perMin(${timeDelta} * ${selectedTable.minuteWiseRules.dayPerMin})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.dayPerMin*timeDelta})
+                           totalBillAmt=totalBillAmt+selectedTable.minuteWiseRules.dayPerMin*timeDelta;
+                      }
+                }
             }
             else{
                 if(timeDelta<selectedTable.minuteWiseRules.dayUptoMin){

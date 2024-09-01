@@ -32,6 +32,14 @@ const storeSchema= new mongoos.Schema({
     transactionCounter:{
         type:Number,
         required:false
+    },
+    nightStartTime:{
+        type:Number,
+        required:false
+    },
+    nightEndTime:{
+        type:Number,
+        required:false
     }
 })
 module.exports=mongoos.model('Store',storeSchema )
