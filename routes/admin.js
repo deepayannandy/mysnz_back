@@ -8,12 +8,12 @@ router.get("/Dashboard/:sid",async(req,res)=>{
     try{
         res.status(201).json({
             storeName:Store.storeName,
-            sales: 446,
+            sales: 0,
             transactions: {
-              cash: 400,
-              card: 500,
-              upi: 3045,
-              prime: 209
+              cash: 0,
+              card: 0,
+              upi: 0,
+              prime: 0
             }
     })
     }
