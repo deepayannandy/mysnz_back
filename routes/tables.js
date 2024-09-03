@@ -65,6 +65,9 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
         if(req.body.slotWiseRules!=null){
             table.slotWiseRules=req.body.slotWiseRules
         }
+        if(req.body.gameTypes!=null){
+            table.gameTypes=req.body.gameTypes
+        }
         try{
             const tab=await table.save();
             res.status(201).json(tab)

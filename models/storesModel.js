@@ -34,11 +34,11 @@ const storeSchema= new mongoos.Schema({
         required:false
     },
     nightStartTime:{
-        type:Number,
+        type:String,
         required:false
     },
     nightEndTime:{
-        type:Number,
+        type:String,
         required:false
     }
 })
