@@ -95,6 +95,9 @@ router.patch("/:cid",async (req,res)=>{
     if(req.body.email!=null){
         customers.email=req.body.email;
     }
+    if(req.body.dob!=null){
+        customers.dob=req.body.dob;
+    }
     if(req.body.credit!=null){
         if(!customers.contact.length>0) return res.status(400).send({"message":"Please update the contact details for this user"});
         customers.credit=req.body.credit;

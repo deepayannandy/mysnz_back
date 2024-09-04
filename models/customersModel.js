@@ -48,6 +48,10 @@ const customerSchema= new mongoos.Schema({
     isDeleted:{
         type:Boolean,
         required:false
+    },
+    onBoardingDate:{
+        type:Date,
+        required:false
     }
 })
 module.exports=mongoos.model('Customer',customerSchema )

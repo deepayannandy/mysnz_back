@@ -65,6 +65,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
     try{
         const loggedInUser= await userModel.findById(req.tokendata._id)
         const selectedTable= await tableModel.findById(req.params.tableId);
+        const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         console.log(selectedTable.gameData.gameType)
@@ -74,49 +75,67 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
             const totalGameTime=timeDelta;
             console.log(timeDelta)
-            const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata'});
+            const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata',hour12: false});
             console.log(indianStartTime)
-            if(selectedTable.minuteWiseRules.nightMinAmt>0||selectedTable.minuteWiseRules.nightPerMin>0){
-                if((indianStartTime.split(":")[0]>8 && indianStartTime.includes("PM"))|| (indianStartTime.split(":")[0]<6 && indianStartTime.includes("AM"))||(indianStartTime.split(":")[0]==12 && indianStartTime.includes("AM"))){
-                if(timeDelta<selectedTable.minuteWiseRules.nightUptoMin){
-                    bills.push({"title":"Night Minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.nightMinAmt})
-                    totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt;
-                }
-                else{
-                        bills.push({"title":"Night Minimum","time":selectedTable.minuteWiseRules.nightUptoMin,"amount":selectedTable.minuteWiseRules.nightMinAmt})
-                        totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt;
-                        timeDelta=timeDelta-selectedTable.minuteWiseRules.nightUptoMin;
-                        bills.push({"title":`Night perMin(${timeDelta} * ${selectedTable.minuteWiseRules.nightPerMin})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.nightPerMin*timeDelta})
-                    totalBillAmt=totalBillAmt+selectedTable.minuteWiseRules.nightPerMin*timeDelta;
-                }
-                }
-                else{
-                    if(timeDelta<selectedTable.minuteWiseRules.dayUptoMin){
-                        bills.push({"title":"Day Minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
-                        totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt;
-                      }
-                      else{
-                            bills.push({"title":"Day Minimum","time":selectedTable.minuteWiseRules.dayUptoMin,"amount":selectedTable.minuteWiseRules.dayMinAmt})
-                            totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt;
-                            timeDelta=timeDelta-selectedTable.minuteWiseRules.nightUptoMin;
-                            bills.push({"title":`Day perMin(${timeDelta} * ${selectedTable.minuteWiseRules.dayPerMin})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.dayPerMin*timeDelta})
-                           totalBillAmt=totalBillAmt+selectedTable.minuteWiseRules.dayPerMin*timeDelta;
-                      }
+            if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.minuteWiseRules.nightMinAmt>0){
+                console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
+                if(selectedStore.nightStartTime < indianStartTime && selectedStore.nightEndTime < indianStartTime){
+                    if(selectedTable.minuteWiseRules.nightUptoMin < timeDelta){
+                        let uptoTime=selectedTable.minuteWiseRules.nightUptoMin 
+                        let restTime=timeDelta-uptoTime
+                        console.log(uptoTime,restTime)
+                        bills.push({"title":"Night minimum","time":uptoTime,"amount":selectedTable.minuteWiseRules.nightMinAmt})
+                        totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt
+                        bills.push({"title":"Night per minute","time":restTime,"amount":(selectedTable.minuteWiseRules.nightPerMin*restTime)})
+                        totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.nightPerMin*restTime)
+                    }
+                    else{
+                        bills.push({"title":"Night minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.nightMinAmt})
+                        totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt
+                    }
+                }else {
+                    if(selectedTable.minuteWiseRules.dayUptoMin < timeDelta){
+                        let uptoTime=selectedTable.minuteWiseRules.dayUptoMin 
+                        let restTime=timeDelta-uptoTime
+                        console.log(uptoTime,restTime)
+                        bills.push({"title":"Day minimum","time":uptoTime,"amount":selectedTable.minuteWiseRules.dayMinAmt})
+                        totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
+                        bills.push({"title":"Day per minute","time":restTime,"amount":(selectedTable.minuteWiseRules.dayPerMin*restTime)})
+                        totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayPerMin*restTime)
+                    }
+                    else{
+                        bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
+                        totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt
+                    }
                 }
             }
             else{
-                if(timeDelta<selectedTable.minuteWiseRules.dayUptoMin){
-                    bills.push({"title":"Day Minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
-                    totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt;
-                  }
-                  else{
-                        bills.push({"title":"Day Minimum","time":selectedTable.minuteWiseRules.dayUptoMin,"amount":selectedTable.minuteWiseRules.dayMinAmt})
-                        totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt;
-                        timeDelta=timeDelta-selectedTable.minuteWiseRules.nightUptoMin;
-                        bills.push({"title":`Day perMin(${timeDelta} * ${selectedTable.minuteWiseRules.dayPerMin})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.dayPerMin*timeDelta})
-                       totalBillAmt=totalBillAmt+selectedTable.minuteWiseRules.dayPerMin*timeDelta;
-                  }
+                console.log("only day time billing applicable")
+                if(selectedTable.minuteWiseRules.dayUptoMin < timeDelta){
+                    let uptoTime=selectedTable.minuteWiseRules.dayUptoMin 
+                    let restTime=timeDelta-uptoTime
+                    console.log(uptoTime,restTime)
+                    bills.push({"title":"Day minimum","time":uptoTime,"amount":selectedTable.minuteWiseRules.dayMinAmt})
+                    totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
+                    bills.push({"title":"Day per minute","time":restTime,"amount":(selectedTable.minuteWiseRules.dayPerMin*restTime)})
+                    totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayPerMin*restTime)
+                }
+                else{
+                    bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
+                    totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt
+                }
             }
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
+        }
+        if(selectedTable.gameData.gameType=="Slot Billing"){
+            let bills=[]
+            let totalBillAmt=0;
+            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
+            const totalGameTime=timeDelta;
+            console.log(timeDelta)
+            const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata'});
+            console.log(indianStartTime)
+            
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
         }
         res.status(502).json({message: "Billing not supported"})
