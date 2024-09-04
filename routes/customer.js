@@ -63,6 +63,24 @@ router.get("/",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+router.get("/:cid",async (req,res)=>{
+    try{
+        const customers=await customerModel.findOne({_id:req.params.cid});
+        if(!customers) return res.status(400).send({"message":"Customer dose not exist!"});
+        const tableCredit=0
+        const cafeCredit=0
+        const gameWin=0
+        const orders=0
+        const totalSpend=0
+        const membership={
+            "membershipName":"NA",
+            "membershipMin":"0",
+        }
+        res.status(200).json({customers,tableCredit,cafeCredit,gameWin,orders,totalSpend,membership})
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
 
 router.patch("/:cid",async (req,res)=>{
     const customers=await customerModel.findOne({_id:req.params.cid});
@@ -80,6 +98,10 @@ router.patch("/:cid",async (req,res)=>{
     if(req.body.credit!=null){
         if(!customers.contact.length>0) return res.status(400).send({"message":"Please update the contact details for this user"});
         customers.credit=req.body.credit;
+    }
+    if(req.body.maxCredit!=null){
+        if(!customers.contact.length>0) return res.status(400).send({"message":"Please update the contact details for this user"});
+        customers.maxCredit=req.body.maxCredit;
     }
     try{
         const cli=await customers.save();

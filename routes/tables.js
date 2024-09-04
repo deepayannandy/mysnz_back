@@ -59,9 +59,6 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
         if(req.body.nodeID!=null){
             table.nodeID=req.body.nodeID;
         }
-        if(req.body.tableName!=null){
-            table.tableName=req.body.tableName;
-        }
         if(req.body.slotWiseRules!=null){
             table.slotWiseRules=req.body.slotWiseRules
         }
