@@ -122,7 +122,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                 }
                 else{
                     bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
-                    totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt
+                    totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
                 }
             }
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
@@ -133,9 +133,20 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
             const totalGameTime=timeDelta;
             console.log(timeDelta)
-            const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata'});
+            const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata',hour12: false});
             console.log(indianStartTime)
-            
+            if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.slotWiseRules[0].nightSlotCharge>0){
+                console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
+                if(selectedStore.nightStartTime < indianStartTime && selectedStore.nightEndTime < indianStartTime){
+                    
+
+                }else{
+                    console.log("day time billing")
+                }
+            }
+            else{
+                console.log("Only day time billing")
+            }
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
         }
         res.status(502).json({message: "Billing not supported"})
