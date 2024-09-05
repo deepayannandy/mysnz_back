@@ -5,6 +5,7 @@ const customerModel=require("../models/customersModel")
 const storeModel=require("../models/storesModel")
 const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
+const customerHistoryModel=require("../models/customerHistoryModel")
 
 router.post('/',async (req,res)=>{
     let store=await storeModel.findOne({_id:req.body.storeId});
@@ -100,6 +101,15 @@ router.patch("/:cid",async (req,res)=>{
     }
     if(req.body.credit!=null){
         if(!customers.contact.length>0) return res.status(400).send({"message":"Please update the contact details for this user"});
+        const newCustomerHistory= new customerHistoryModel({
+            customerId:req.params.cid,
+            date:new Date(),
+            customerName:customers.fullName,
+            description:req.body.description,
+            paid:req.body.description=="Pay Dues"? customers.credit-req.body.credit:0,
+            due:req.body.description=="Add Old Credit"? req.body.credit-customers.credit:0
+        })
+        const savedHistory= await newCustomerHistory.save()
         customers.credit=req.body.credit;
     }
     if(req.body.maxCredit!=null){
