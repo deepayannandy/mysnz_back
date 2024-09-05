@@ -18,19 +18,19 @@ const customerHistorySchema= new mongoos.Schema({
     },
     quantity:{
         type:Number,
-        required:true
+        required:false
     },
     discount:{
         type:Number,
-        require:true
+        require:false
     },
     netPay:{
         type:Number,
-        required:true
+        required:false
     },
     paid:{
         type:Number,
-        required:true
+        required:false
     },
     due:{
         type:Number,
@@ -38,11 +38,11 @@ const customerHistorySchema= new mongoos.Schema({
     },
     startTime:{
         type:Date,
-        required:true
+        required:false
     },
     endTime:{
         type:Date,
-        required:true
+        required:false
     },
 })
 module.exports=mongoos.model('CustomerHistory',customerHistorySchema)
