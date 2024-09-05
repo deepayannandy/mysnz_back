@@ -79,7 +79,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(indianStartTime)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.minuteWiseRules.nightMinAmt>0){
                 console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
-                if(selectedStore.nightStartTime < indianStartTime && selectedStore.nightEndTime < indianStartTime){
+                if(selectedStore.nightStartTime < indianStartTime && selectedStore.nightEndTime > indianStartTime){
                     if(selectedTable.minuteWiseRules.nightUptoMin < timeDelta){
                         let uptoTime=selectedTable.minuteWiseRules.nightUptoMin 
                         let restTime=timeDelta-uptoTime
@@ -104,6 +104,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                         totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayPerMin*restTime)
                     }
                     else{
+                        console.log("I am called")
                         bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
                         totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
                     }
