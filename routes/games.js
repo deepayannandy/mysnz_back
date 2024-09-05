@@ -105,7 +105,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     }
                     else{
                         bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
-                        totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt
+                        totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
                     }
                 }
             }
