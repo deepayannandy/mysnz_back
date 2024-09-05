@@ -125,7 +125,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
                 }
             }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2), selectedTable})
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
             let bills=[]
