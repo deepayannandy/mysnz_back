@@ -49,8 +49,8 @@ router.post("/startGame/:tableId",async (req,res)=>{
         selectedTable.gameData.gameType=req.body.gameType;
 
         const updatedTable = await selectedTable.save();
-        console.log("sending message to: "+selectedTable.deviceId+"/"+nodeID )
-        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,1)
+        console.log("sending message to: "+selectedTable.deviceId+"/"+selectedTable.nodeID )
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"1")
         res.status(201).json({"_id":updatedTable._id})
 
     }catch(error){
@@ -67,7 +67,7 @@ router.patch("/stopGame/:tableId",verify_token,async (req,res)=>{
         if(selectedTable.gameData.endTime!=undefined) return res.status(401).json({message: "Game already stopped"})
         selectedTable.gameData.endTime=new Date();
         const updatedTable = await selectedTable.save();
-        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,0)
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
         res.status(201).json({"_id":updatedTable._id})
 
     }catch(error){
