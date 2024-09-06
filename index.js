@@ -15,7 +15,8 @@ const db= mongoos.connection
 db.on('error',(error)=> console.error(error))
 db.once('open',()=> console.log('Connected to Database!'))
 
-
+const mqttAgent= require("./utils/mqtt")
+mqttAgent.connectMQTT();
 app.use(express.json())
 app.use(cors());
 

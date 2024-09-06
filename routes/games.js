@@ -7,7 +7,7 @@ const userModel=require("../models/userModel")
 const historyModel= require("../models/historyModel")
 const customerModel=require("../models/customersModel")
 const storeModel=require("../models/storesModel")
-
+const mqttAgent=require("../utils/mqtt")
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
     try{
@@ -39,6 +39,8 @@ router.post("/startGame/:tableId",async (req,res)=>{
         selectedTable.gameData.gameType=req.body.gameType;
 
         const updatedTable = await selectedTable.save();
+        console.log("sending message to: "+selectedTable.deviceId+"/"+nodeID )
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+nodeID,1)
         res.status(201).json({"_id":updatedTable._id})
 
     }catch(error){
@@ -52,8 +54,10 @@ router.patch("/stopGame/:tableId",verify_token,async (req,res)=>{
         const selectedTable= await tableModel.findById(req.params.tableId);
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+        if(selectedTable.gameData.endTime!=undefined) return res.status(401).json({message: "Game already stopped"})
         selectedTable.gameData.endTime=new Date();
         const updatedTable = await selectedTable.save();
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+nodeID,1)
         res.status(201).json({"_id":updatedTable._id})
 
     }catch(error){
