@@ -109,7 +109,11 @@ router.patch("/:cid",async (req,res)=>{
             paid:req.body.description=="Pay Dues"? customers.credit-req.body.credit:0,
             due:req.body.description=="Add Old Credit"? req.body.credit-customers.credit:0
         })
+        try{
         const savedHistory= await newCustomerHistory.save()
+        }catch(error){
+            console.log(error)
+        }
         customers.credit=req.body.credit;
     }
     if(req.body.maxCredit!=null){
