@@ -60,6 +60,23 @@ router.patch("/stopGame/:tableId",verify_token,async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+function isNight(storeData, gameStartTime){
+    
+    if(storeData.nightStartTime>storeData.nightEndTime){
+        console.log("next day")
+        if(storeData.nightStartTime < gameStartTime && storeData.nightEndTime < gameStartTime){
+            return true
+        }
+    }
+    else{
+        console.log("same day")
+        console.log(storeData.nightStartTime,storeData.nightEndTime,gameStartTime)
+        if(storeData.nightStartTime < gameStartTime && storeData.nightEndTime > gameStartTime){
+            return true
+        }
+    }
+    return false
+}
 router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
     console.log(req.params.tableId)
     try{
@@ -77,9 +94,11 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata',hour12: false});
             console.log(indianStartTime)
+            const isnightTime=isNight(selectedStore, indianStartTime)
+            console.log(isnightTime)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.minuteWiseRules.nightMinAmt>0){
                 console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
-                if(selectedStore.nightStartTime < indianStartTime && selectedStore.nightEndTime > indianStartTime){
+                if(isnightTime){
                     if(selectedTable.minuteWiseRules.nightUptoMin < timeDelta){
                         let uptoTime=selectedTable.minuteWiseRules.nightUptoMin 
                         let restTime=timeDelta-uptoTime
