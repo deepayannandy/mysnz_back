@@ -8,6 +8,16 @@ const historyModel= require("../models/historyModel")
 const customerModel=require("../models/customersModel")
 const storeModel=require("../models/storesModel")
 const mqttAgent=require("../utils/mqtt")
+
+
+router.post("/testMqtt",async (req,res)=>{
+    try{
+        mqttAgent.client.publish("test",req.body.message)
+        res.status(200).json({message: "message sent"})
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
     try{
