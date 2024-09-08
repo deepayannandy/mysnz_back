@@ -162,6 +162,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2), selectedTable})
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
+            return res.status(502).json({message: "Cannot read the property cashIn"})
             let bills=[]
             let totalBillAmt=0;
             let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
@@ -233,14 +234,15 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 startTime:selectedTable.gameData.startTime,
                 endTime:selectedTable.gameData.endTime,
             })
-            const newCustomerHistory =await custHistory.save()
-            console.log(newCustomerHistory.id);
             if(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn>0)
             {
                 const pickedCustomer= await userModel.findById(req.body.checkoutPlayers[index].customerId)
-                pickedCustomer.credit=pickedCustomer.credit+(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)
+                if(pickedCustomer.credit) pickedCustomer.credit=pickedCustomer.credit+(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)
+                else pickedCustomer.credit=(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)
                 const updatedCustomer =await pickedCustomer.save()
             }
+            const newCustomerHistory =await custHistory.save()
+            console.log(newCustomerHistory.id);
             
         }
         }
