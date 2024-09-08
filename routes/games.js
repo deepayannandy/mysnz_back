@@ -219,7 +219,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
             })
         selectedStore.transactionCounter= selectedStore.transactionCounter+1;
         for(let index in req.body.checkoutPlayers){
-            if(!req.body.checkoutPlayers[index].customerId){
+            if(req.body.checkoutPlayers[index].customerId){
             const custHistory=new customerHistoryModel({
                 customerId:req.body.checkoutPlayers[index].customerId,
                 date:new Date(),
