@@ -233,6 +233,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                     due:req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn,
                     startTime:selectedTable.gameData.startTime,
                     endTime:selectedTable.gameData.endTime,
+                    transactionId:gHistory.transactionId
                 })
                 if(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn>0)
                     {
