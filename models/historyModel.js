@@ -51,6 +51,10 @@ const historySchema= new mongoos.Schema({
     transactionId:{
         type:String,
         required:false
+    },
+    credit:{
+        type:Number,
+        required:false
     }
 })
 module.exports=mongoos.model('History',historySchema )

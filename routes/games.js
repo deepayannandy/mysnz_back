@@ -8,7 +8,7 @@ const historyModel= require("../models/historyModel")
 const customerModel=require("../models/customersModel")
 const storeModel=require("../models/storesModel")
 const mqttAgent=require("../utils/mqtt")
-
+const customerHistoryModel= require("../models/customerHistoryModel")
 
 router.post("/testMqtt",async (req,res)=>{
     try{
@@ -214,9 +214,29 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 discount:dis,
                 netPay:req.body.totalBillAmt-dis,
                 status:"Paid",
+                credit:(req.body.totalBillAmt-dis)-req.body.cashIn,
                 transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toLowerCase()}-${selectedStore.transactionCounter}`
             })
         selectedStore.transactionCounter= selectedStore.transactionCounter+1;
+        for(let index in req.body.checkoutPlayers){
+            if(!req.body.checkoutPlayers[index].customerId){
+            const custHistory=new customerHistoryModel({
+                customerId:req.body.checkoutPlayers[index].customerId,
+                date:new Date(),
+                customerName:req.body.checkoutPlayers[index].fullName.split("(")[0],
+                description:selectedTable.tableName+" "+req.body.checkoutPlayers[index].paymentMethod,
+                quantity:0,
+                discount:0,
+                netPay:req.body.checkoutPlayers[index].amount,
+                paid:req.body.checkoutPlayers[index].cashIn,
+                due:req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn,
+                startTime:selectedTable.gameData.startTime,
+                endTime:selectedTable.gameData.endTime,
+            })
+            const newCustomerHistory =await custHistory.save()
+            console.log(newCustomerHistory.id);
+        }
+        }
         const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
         selectedTable.gameData.startTime=undefined;
