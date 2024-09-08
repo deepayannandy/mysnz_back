@@ -221,30 +221,34 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         selectedStore.transactionCounter= selectedStore.transactionCounter+1;
         for(let index in req.body.checkoutPlayers){
             if(req.body.checkoutPlayers[index].customerId){
-            const custHistory=new customerHistoryModel({
-                customerId:req.body.checkoutPlayers[index].customerId,
-                date:new Date(),
-                customerName:req.body.checkoutPlayers[index].fullName.split("(")[0],
-                description:selectedTable.tableName+" "+req.body.checkoutPlayers[index].paymentMethod,
-                quantity:0,
-                discount:0,
-                netPay:req.body.checkoutPlayers[index].amount,
-                paid:req.body.checkoutPlayers[index].cashIn,
-                due:req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn,
-                startTime:selectedTable.gameData.startTime,
-                endTime:selectedTable.gameData.endTime,
-            })
-            if(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn>0)
-            {
-                const pickedCustomer= await userModel.findById(req.body.checkoutPlayers[index].customerId)
-                if(pickedCustomer.credit) pickedCustomer.credit=pickedCustomer.credit+(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)
-                else pickedCustomer.credit=(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)
-                const updatedCustomer =await pickedCustomer.save()
+                const custHistory=new customerHistoryModel({
+                    customerId:req.body.checkoutPlayers[index].customerId,
+                    date:new Date(),
+                    customerName:req.body.checkoutPlayers[index].fullName.split("(")[0],
+                    description:selectedTable.tableName+" "+req.body.checkoutPlayers[index].paymentMethod,
+                    quantity:0,
+                    discount:0,
+                    netPay:req.body.checkoutPlayers[index].amount,
+                    paid:req.body.checkoutPlayers[index].cashIn,
+                    due:req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn,
+                    startTime:selectedTable.gameData.startTime,
+                    endTime:selectedTable.gameData.endTime,
+                })
+                if(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn>0)
+                    {
+                    const pickedCustomer= await customerModel.findById(req.body.checkoutPlayers[index].customerId)
+                    if(pickedCustomer)
+                    {
+                    console.log("I am called")
+                    pickedCustomer.credit=pickedCustomer.credit+(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)}
+                    const updatedCustomer =await pickedCustomer.save()
+                    }
+
+                const newCustomerHistory =await custHistory.save()
+                console.log(newCustomerHistory.id);
             }
-            const newCustomerHistory =await custHistory.save()
-            console.log(newCustomerHistory.id);
+           
             
-        }
         }
         const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
