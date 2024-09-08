@@ -162,6 +162,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2), selectedTable})
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
+            return res.status(502).json({message: "Cannot read the property cashIn"})
             let bills=[]
             let totalBillAmt=0;
             let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
