@@ -242,6 +242,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                     console.log("I am called")
                     pickedCustomer.credit=pickedCustomer.credit+(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)}
                     const updatedCustomer =await pickedCustomer.save()
+                    gHistory.credit=gHistory.credit+(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)
                     }
 
                 const newCustomerHistory =await custHistory.save()
