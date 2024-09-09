@@ -8,7 +8,7 @@ router.get("/:cid",async(req,res)=>{
     if(!customers) return res.status(400).send({"message":"Customer dose not exist!"});
     try{
         const customerHistory= await customerHistoryModel.find({customerId:req.params.cid})
-        res.status(201).json(customerHistory)
+        res.status(201).json(customerHistory.reverse())
     }
     catch(error){
         res.status(400).json({message:error.message})
