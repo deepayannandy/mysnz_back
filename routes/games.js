@@ -162,7 +162,6 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2), selectedTable})
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
-            return res.status(502).json({message: "Cannot read the property UserDetails"})
             let bills=[]
             let totalBillAmt=0;
             let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
@@ -170,14 +169,11 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata',hour12: false});
             console.log(indianStartTime)
+            const isNightTime=isNight(selectedStore, indianStartTime)
+            console.log(isNightTime)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.slotWiseRules[0].nightSlotCharge>0){
                 console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
-                if(selectedStore.nightStartTime < indianStartTime && selectedStore.nightEndTime < indianStartTime){
-                    
-
-                }else{
-                    console.log("day time billing")
-                }
+                
             }
             else{
                 console.log("Only day time billing")
