@@ -77,6 +77,7 @@ router.patch("/stopGame/:tableId",verify_token,async (req,res)=>{
 function isNight(storeData, gameStartTime){
     
     if(storeData.nightStartTime>storeData.nightEndTime){
+        console.log(storeData.nightStartTime < gameStartTime,storeData.nightEndTime < gameStartTime,storeData.nightStartTime, storeData.nightEndTime, gameStartTime)
         console.log("next day")
         if(storeData.nightStartTime < gameStartTime && storeData.nightEndTime < gameStartTime){
             return true
