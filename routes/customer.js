@@ -49,7 +49,7 @@ router.get("/myCustomers/",verify_token,async (req,res)=>{
     console.log(loggedInUser)
     try{
         const customers=await customerModel.find({storeId:loggedInUser.storeId,isDeleted: {$ne:true}});
-        res.status(201).json(customers)
+        res.status(201).json(customers.reverse())
 
     }catch{
         res.status(500).json({message: error.message})

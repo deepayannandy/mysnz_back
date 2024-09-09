@@ -171,9 +171,47 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(indianStartTime)
             const isNightTime=isNight(selectedStore, indianStartTime)
             console.log(isNightTime)
+            const slotRule=selectedTable.slotWiseRules.sort((a, b) => b.uptoMin - a.uptoMin)
+            console.log(slotRule)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.slotWiseRules[0].nightSlotCharge>0){
                 console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
-                
+                while (timeDelta!=0){
+                    if(timeDelta<slotRule[slotRule.length-1].uptoMin){
+                        console.log("I am called when time delta is :",timeDelta)
+                        if(isNightTime){
+                            bills.push({"title":"Night Slot","time":timeDelta,"amount":slotRule[slotRule.length-1].nightSlotCharge})
+                            timeDelta=0
+                            totalBillAmt=totalBillAmt+slotRule[slotRule.length-1].nightSlotCharge
+                            
+                        }else{
+                            bills.push({"title":"Day Slot","time":timeDelta,"amount":slotRule[slotRule.length-1].slotCharge})
+                            timeDelta=0
+                            totalBillAmt=totalBillAmt+slotRule[slotRule.length-1].slotCharge
+                           
+                        }
+                    }
+                    else{
+                    for(let index in slotRule){
+                        console.log(timeDelta," Copairing with ", slotRule[index].uptoMin, timeDelta>slotRule[index].uptoMin, timeDelta==slotRule[index].uptoMin)
+                        if(timeDelta>slotRule[index].uptoMin || timeDelta==slotRule[index].uptoMin){
+                            if(isNightTime){
+                                bills.push({"title":"Night Slot","time":slotRule[index].uptoMin,"amount":slotRule[index].nightSlotCharge})
+                                timeDelta=timeDelta-slotRule[index].uptoMin
+                                totalBillAmt=totalBillAmt+slotRule[index].nightSlotCharge
+                                break
+                            }else{
+                                bills.push({"title":"Day Slot","time":slotRule[index].uptoMin,"amount":slotRule[index].slotCharge})
+                                timeDelta=timeDelta-slotRule[index].uptoMin
+                                totalBillAmt=totalBillAmt+slotRule[index].slotCharge
+                                break
+                            }
+                           
+                        }
+                    }
+                }
+                    console.log(timeDelta,totalBillAmt,bills)
+                    // await delay(2000);
+                }
             }
             else{
                 console.log("Only day time billing")
@@ -186,6 +224,9 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+  }
 
 router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
     console.log(req.params.tableId)
