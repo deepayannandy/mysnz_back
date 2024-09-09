@@ -172,7 +172,6 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             const isNightTime=isNight(selectedStore, indianStartTime)
             console.log(isNightTime)
             const slotRule=selectedTable.slotWiseRules.sort((a, b) => b.uptoMin - a.uptoMin)
-            console.log(slotRule)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.slotWiseRules[0].nightSlotCharge>0){
                 console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
                 while (timeDelta!=0){
