@@ -253,7 +253,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 netPay:req.body.totalBillAmt-dis,
                 status:"Paid",
                 credit:(req.body.totalBillAmt-dis)-req.body.cashIn,
-                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toLowerCase()}-${selectedStore.transactionCounter}`
+                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}-${selectedStore.transactionCounter}`
             })
         selectedStore.transactionCounter= selectedStore.transactionCounter+1;
         for(let index in req.body.checkoutPlayers){
