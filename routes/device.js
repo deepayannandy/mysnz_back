@@ -11,7 +11,7 @@ router.post('/',async (req,res)=>{
     const newDevice= new deviceModel({
         deviceId:req.body.deviceId,
         storeId:req.body.storeId,
-        nodes:req.body.nodes,
+        nodes:["l1","l2","l3","l4","l5","l6","l7","l8"],
         nodeStatus:req.body.nodeStatus,
         onboarding:new Date(),
         deviceType:req.body.deviceType,

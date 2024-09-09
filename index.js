@@ -48,4 +48,5 @@ app.use("/api/admin",adminRouter)
 app.use("/api/customerHistory",customerHistoryRouter)
 app.listen(4455,()=>{
     console.log("Http Server is listening!")
+    console.log(new Date())
 })
