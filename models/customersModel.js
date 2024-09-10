@@ -56,6 +56,10 @@ const customerSchema= new mongoos.Schema({
     onBoardingDate:{
         type:Date,
         required:false
+    },
+    isPlaying:{
+        type:Boolean,
+        required:false
     }
 })
 module.exports=mongoos.model('Customer',customerSchema )
