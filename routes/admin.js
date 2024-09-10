@@ -41,18 +41,18 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         for(let index in filteredTransactions){
             console.log(filteredTransactions[index].netPay)
             sales=sales+filteredTransactions[index].netPay==undefined?0:filteredTransactions[index].netPay
-            credit=credit+filteredTransactions[index].due??0
+            credit=credit+filteredTransactions[index].due
             if(filteredTransactions[index].description.includes("undefined")||filteredTransactions[index].description.includes("CASH")){
-                cash=cash+filteredTransactions[index].paid??0
+                cash=cash+filteredTransactions[index].paid
             }
             if(filteredTransactions[index].description.includes("UPI")){
-                upi=upi+filteredTransactions[index].paid??0
+                upi=upi+filteredTransactions[index].paid
             }
             if(filteredTransactions[index].description.includes("CARD")){
-                card=card+filteredTransactions[index].paid??0
+                card=card+filteredTransactions[index].paid
             }
             if(filteredTransactions[index].description.includes("PRIME")){
-                prime=prime+filteredTransactions[index].paid??0
+                prime=prime+filteredTransactions[index].paid
             }
             
         }
