@@ -72,7 +72,8 @@ router.post("/startGame/:tableId",async (req,res)=>{
         }
         console.log(finalPlayerList)
         for(let index in finalPlayerList){
-            updateCustomerDetails(finalPlayerList[index].customerId,true)
+            await  updateCustomerDetails(finalPlayerList[index].customerId,true)
+            console.log(finalPlayerList[index].customerId)
         }
         selectedTable.gameData.players=finalPlayerList;
         selectedTable.isOccupied=true;
@@ -281,7 +282,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
             for(let index in selectedTable.gameData.players){
-                updateCustomerDetails(selectedTable.gameData.players[index].customerId,false)
+                await  updateCustomerDetails(selectedTable.gameData.players[index].customerId,false)
             }
             let dis= req.body.discount==undefined?0:req.body.discount
             const gHistory= new historyModel({
