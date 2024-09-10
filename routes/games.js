@@ -80,16 +80,26 @@ function isNight(storeData, gameStartTime){
         gameStartTime=gameStartTime.replace("00","24")
     }
     if(storeData.nightStartTime>storeData.nightEndTime){
-        console.log(storeData.nightStartTime > gameStartTime,storeData.nightEndTime > gameStartTime,storeData.nightEndTime > gameStartTime,storeData.nightStartTime, storeData.nightEndTime, gameStartTime)
-        console.log("next day")
-        if(storeData.nightStartTime > gameStartTime && storeData.nightEndTime > gameStartTime){
-            return true
+        console.log(storeData.nightStartTime, storeData.nightEndTime, gameStartTime)
+        console.log("next day",gameStartTime<storeData.nightEndTime)
+        if((gameStartTime>"01:00"||gameStartTime=="01:00") && gameStartTime<storeData.nightEndTime ){
+            console.log("Game after 12",storeData.nightStartTime > gameStartTime , storeData.nightEndTime > gameStartTime)
+            if(storeData.nightStartTime > gameStartTime && storeData.nightEndTime > gameStartTime){
+                return true
         }
+    }
+        else{
+            console.log("Game Before 12",storeData.nightStartTime < gameStartTime , storeData.nightEndTime < gameStartTime)
+            if(storeData.nightStartTime < gameStartTime && storeData.nightEndTime < gameStartTime){
+                return true
+            }
+        }
+    
     }
     else{
         console.log("same day")
         console.log(storeData.nightStartTime,storeData.nightEndTime,gameStartTime)
-        if(storeData.nightStartTime < gameStartTime && storeData.nightEndTime > gameStartTime){
+        if(storeData.nightStartTime < gameStartTime &&  gameStartTime < storeData.nightEndTime ){
             return true
         }
     }
@@ -177,10 +187,10 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(isNightTime)
             const slotRule=selectedTable.slotWiseRules.sort((a, b) => b.uptoMin - a.uptoMin)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.slotWiseRules[0].nightSlotCharge>0){
-                console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
+                // console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
                 while (timeDelta!=0){
                     if(timeDelta<slotRule[slotRule.length-1].uptoMin){
-                        console.log("I am called when time delta is :",timeDelta)
+                        // console.log("I am called when time delta is :",timeDelta)
                         if(isNightTime){
                             bills.push({"title":"Night Slot","time":timeDelta,"amount":slotRule[slotRule.length-1].nightSlotCharge})
                             timeDelta=0
@@ -195,7 +205,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     }
                     else{
                     for(let index in slotRule){
-                        console.log(timeDelta," Copairing with ", slotRule[index].uptoMin, timeDelta>slotRule[index].uptoMin, timeDelta==slotRule[index].uptoMin)
+                        // console.log(timeDelta," Copairing with ", slotRule[index].uptoMin, timeDelta>slotRule[index].uptoMin, timeDelta==slotRule[index].uptoMin)
                         if(timeDelta>slotRule[index].uptoMin || timeDelta==slotRule[index].uptoMin){
                             if(isNightTime){
                                 bills.push({"title":"Night Slot","time":slotRule[index].uptoMin,"amount":slotRule[index].nightSlotCharge})
@@ -212,7 +222,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                         }
                     }
                 }
-                    console.log(timeDelta,totalBillAmt,bills)
+                    // console.log(timeDelta,totalBillAmt,bills)
                     // await delay(2000);
                 }
             }
@@ -254,7 +264,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 meal:0,
                 discount:dis,
                 netPay:req.body.totalBillAmt-dis,
-                status:"Paid",
+                status:(req.body.totalBillAmt-dis)-req.body.cashIn>0?"Credit":"Paid",
                 credit:(req.body.totalBillAmt-dis)-req.body.cashIn,
                 transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}-${selectedStore.transactionCounter}`
             })

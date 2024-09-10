@@ -2,6 +2,7 @@ const express = require("express")
 const router= express.Router()
 const storeModel=require("../models/storesModel")
 const customerHistoryModel=require("../models/customerHistoryModel")
+const customerModel=require("../models/customersModel")
 
 router.get("/Dashboard/:sid",async(req,res)=>{
     const Store=await storeModel.findOne({_id:req.params.sid});
@@ -20,6 +21,17 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         }})
         const filteredTransactions=allTransactionToday.filter((transactions)=>{return (transactions.description.includes("Table"))})
         const creditUserList=filteredTransactions.filter((transactions)=>{return (transactions.due>0)})
+        let finalCreditUserList=[]
+        for(let index in creditUserList){
+            console.log(creditUserList[index].customerId)
+            const cData= await customerModel.find({_id:creditUserList[index].customerId})
+            console.log(cData)
+            if(cData.credit<1){
+                finalCreditUserList.push(creditUserList[index])
+            }
+        }
+        console.log(finalCreditUserList)
+
         let sales=0 
         let cash=0 
         let card=0
