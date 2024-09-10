@@ -298,7 +298,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                     quantity:0,
                     discount:0,
                     netPay:req.body.checkoutPlayers[index].amount,
-                    paid:req.body.checkoutPlayers[index].cashIn,
+                    paid:req.body.checkoutPlayers[index].cashIn==null?0:req.body.checkoutPlayers[index].cashIn,
                     due:req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn,
                     startTime:selectedTable.gameData.startTime,
                     endTime:selectedTable.gameData.endTime,

@@ -40,8 +40,12 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let credit=0 
         for(let index in filteredTransactions){
             console.log(filteredTransactions[index].netPay)
-            sales=sales+filteredTransactions[index].netPay==undefined?0:filteredTransactions[index].netPay
+            filteredTransactions[index].netPay!=undefined?sales=sales+filteredTransactions[index].netPay==undefined?0:filteredTransactions[index].netPay:console.log("pass")
             credit=credit+filteredTransactions[index].due
+            if(filteredTransactions[index].description.includes("Pay Dues")){
+                console.log("Credit settelment",filteredTransactions[index].paid)
+                credit=credit-filteredTransactions[index].paid;
+            }
             if(filteredTransactions[index].description.includes("undefined")||filteredTransactions[index].description.includes("CASH")){
                 cash=cash+filteredTransactions[index].paid
             }
@@ -56,7 +60,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             }
             
         }
-
+        console.log(sales)
         res.status(201).json({
             storeName:Store.storeName,
             sales: sales,
