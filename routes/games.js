@@ -68,10 +68,12 @@ router.post("/startGame/:tableId",async (req,res)=>{
                     getdata.customerId=searchedUser._id.toString();
                 }
             }
-            updateCustomerDetails(getdata.customerId,true)
             finalPlayerList.push(getdata)
         }
         console.log(finalPlayerList)
+        for(let index in finalPlayerList){
+            updateCustomerDetails(finalPlayerList[index].customerId,true)
+        }
         selectedTable.gameData.players=finalPlayerList;
         selectedTable.isOccupied=true;
         selectedTable.gameData.startTime=new Date();
