@@ -20,15 +20,13 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             $gt: startDate,
             $lt: endDate
         }})
-        const filteredTransactions=allTransactionToday.filter((transactions)=>{return (transactions.description.includes("Table"))})
+        const filteredTransactions=allTransactionToday.filter((transactions)=>{return (transactions.description.includes("Table")||transactions.description.includes("Pay Dues"))})
         const creditUserList=filteredTransactions.filter((transactions)=>{return (transactions.due>0)})
         let finalCreditUserList=[]
         const cData= await userM.findById("66d36e143fae4ab4337a495d")
         console.log("Data: ",cData.fullName)
         for(let index in creditUserList){
-            console.log(creditUserList[index].customerId)
             const cData= await customerModel.findById(creditUserList[index].customerId)
-            console.log(cData.fullName)
             if(cData.credit>1){
                 finalCreditUserList.push(creditUserList[index])
             }
@@ -41,19 +39,20 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let prime=0
         let credit=0 
         for(let index in filteredTransactions){
-            sales=sales+filteredTransactions[index].netPay
-            credit=credit+filteredTransactions[index].due
+            console.log(filteredTransactions[index].netPay)
+            sales=sales+filteredTransactions[index].netPay==undefined?0:filteredTransactions[index].netPay
+            credit=credit+filteredTransactions[index].due??0
             if(filteredTransactions[index].description.includes("undefined")||filteredTransactions[index].description.includes("CASH")){
-                cash=cash+filteredTransactions[index].paid
+                cash=cash+filteredTransactions[index].paid??0
             }
             if(filteredTransactions[index].description.includes("UPI")){
-                upi=upi+filteredTransactions[index].paid
+                upi=upi+filteredTransactions[index].paid??0
             }
             if(filteredTransactions[index].description.includes("CARD")){
-                card=card+filteredTransactions[index].paid
+                card=card+filteredTransactions[index].paid??0
             }
             if(filteredTransactions[index].description.includes("PRIME")){
-                prime=prime+filteredTransactions[index].paid
+                prime=prime+filteredTransactions[index].paid??0
             }
             
         }
