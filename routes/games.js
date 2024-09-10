@@ -36,7 +36,6 @@ router.post("/startGame/:tableId",async (req,res)=>{
         for(count in req.body.players){
             let getdata=req.body.players[count]
             console.log(getdata)
-            console.log( getdata.fullName!="CASH")
             if(getdata.customerId==undefined && getdata.fullName!="CASH"){
                 console.log(`creating userid for ${getdata.fullName}`)
                 const newCustomer= new customerModel({
@@ -49,7 +48,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
                 const cli=await newCustomer.save();
                 getdata.customerId=cli._id.toString();
             }
-            else{
+            if(getdata.fullName=="CASH"){
                 const searchedUser=await customerModel.findOne({$and: [ {storeId:selectedTable.storeId  }, { fullName:"CASH" }]})
                 console.log(searchedUser)
                 if(!searchedUser){
