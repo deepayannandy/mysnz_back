@@ -23,8 +23,6 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         const filteredTransactions=allTransactionToday.filter((transactions)=>{return (transactions.description.includes("Table")||transactions.description.includes("Pay Dues"))})
         const creditUserList=filteredTransactions.filter((transactions)=>{return (transactions.due>0)})
         let finalCreditUserList=[]
-        const cData= await userM.findById("66d36e143fae4ab4337a495d")
-        console.log("Data: ",cData.fullName)
         for(let index in creditUserList){
             const cData= await customerModel.findById(creditUserList[index].customerId)
             if(cData.credit>1){
@@ -39,8 +37,8 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let prime=0
         let credit=0 
         for(let index in filteredTransactions){
-            console.log(filteredTransactions[index].netPay)
-            filteredTransactions[index].netPay!=undefined?sales=sales+filteredTransactions[index].netPay==undefined?0:filteredTransactions[index].netPay:console.log("pass")
+            console.log(filteredTransactions[index].netPay,sales)
+            sales=sales+filteredTransactions[index].netPay
             credit=credit+filteredTransactions[index].due
             if(filteredTransactions[index].description.includes("Pay Dues")){
                 console.log("Credit settelment",filteredTransactions[index].paid)
