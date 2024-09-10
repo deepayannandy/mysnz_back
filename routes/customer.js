@@ -22,7 +22,8 @@ router.post('/',async (req,res)=>{
         coin:!req.body.coin>0?req.body.coin:0,
         storeId:req.body.storeId,
         isBlackListed:false,
-        isDeleted:false
+        isDeleted:false,
+        city:req.body.city
     })
     try{
         const cli=await newCustomer.save()
@@ -98,6 +99,9 @@ router.patch("/:cid",async (req,res)=>{
     }
     if(req.body.dob!=null){
         customers.dob=req.body.dob;
+    }
+    if(req.body.city!=null){
+        customers.city=req.body.city;
     }
     if(req.body.credit!=null){
         if(!customers.contact.length>0) return res.status(400).send({"message":"Please update the contact details for this user"});

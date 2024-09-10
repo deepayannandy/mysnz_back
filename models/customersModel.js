@@ -13,6 +13,10 @@ const customerSchema= new mongoos.Schema({
         type:String,
         required:false
     },
+    city:{
+        type:String,
+        required:false
+    },
     credit:{
         type:Number,
         required:false

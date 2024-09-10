@@ -80,9 +80,9 @@ function isNight(storeData, gameStartTime){
         gameStartTime=gameStartTime.replace("00","24")
     }
     if(storeData.nightStartTime>storeData.nightEndTime){
-        console.log(storeData.nightStartTime < gameStartTime,storeData.nightEndTime < gameStartTime,storeData.nightEndTime > gameStartTime,storeData.nightStartTime, storeData.nightEndTime, gameStartTime)
+        console.log(storeData.nightStartTime > gameStartTime,storeData.nightEndTime > gameStartTime,storeData.nightEndTime > gameStartTime,storeData.nightStartTime, storeData.nightEndTime, gameStartTime)
         console.log("next day")
-        if(storeData.nightStartTime < gameStartTime && storeData.nightEndTime < gameStartTime){
+        if(storeData.nightStartTime > gameStartTime && storeData.nightEndTime > gameStartTime){
             return true
         }
     }
@@ -112,7 +112,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata',hour12: false});
             console.log(indianStartTime)
-            const isnightTime=isNight(selectedStore, indianStartTime)
+            const isnightTime=isNight(selectedStore, "00:36")
             console.log(isnightTime)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.minuteWiseRules.nightMinAmt>0){
                 console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
