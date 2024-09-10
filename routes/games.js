@@ -40,6 +40,25 @@ router.post("/startGame/:tableId",async (req,res)=>{
                 const cli=await newCustomer.save();
                 getdata.customerId=cli._id.toString();
             }
+            else{
+                const searchedUser=await customerModel.findOne({$and: [ {storeId:selectedTable.storeId  }, { fullName:"CASH" }]})
+                console.log(searchedUser)
+                if(!searchedUser){
+                    console.log(`creating userid for ${getdata.fullName}`)
+                    const newCustomer= new customerModel({
+                        fullName:getdata.fullName,
+                        storeId:selectedTable.storeId,
+                        isBlackListed:false,
+                        credit:0,
+                        contact:"+910000000000"
+                    })
+                    const cli=await newCustomer.save();
+                    getdata.customerId=cli._id.toString();
+                }
+                else{
+                    getdata.customerId=searchedUser._id.toString();
+                }
+            }
             finalPlayerList.push(getdata)
         }
         console.log(finalPlayerList)
@@ -264,7 +283,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 meal:0,
                 discount:dis,
                 netPay:req.body.totalBillAmt-dis,
-                status:(req.body.totalBillAmt-dis)-req.body.cashIn>0?"Credit":"Paid",
+                status:(req.body.totalBillAmt-dis)-req.body.cashIn>0?"Due":"Paid",
                 credit:(req.body.totalBillAmt-dis)-req.body.cashIn,
                 transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}-${selectedStore.transactionCounter}`
             })
