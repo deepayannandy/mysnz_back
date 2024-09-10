@@ -19,7 +19,7 @@ router.post("/testMqtt",async (req,res)=>{
     }
 })
 
-async function updateCustomerDetails(customerId,status){
+async function updateCustomerDetails(customerId,status,res){
     const selectedCustomer= await customerModel.findById(customerId)
     if(selectedCustomer.isPlaying==status) return res.status(500).json({message: selectedCustomer.fullName+" is already occupied"})
     if(selectedCustomer){
@@ -68,7 +68,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
                     getdata.customerId=searchedUser._id.toString();
                 }
             }
-            updateCustomerDetails(getdata.customerId,true)
+            updateCustomerDetails(getdata.customerId,true,res)
             finalPlayerList.push(getdata)
         }
         console.log(finalPlayerList)
