@@ -109,7 +109,7 @@ router.patch("/:cid",async (req,res)=>{
             customerId:req.params.cid,
             date:new Date(),
             customerName:customers.fullName,
-            description:req.body.description,
+            description:req.body.description+" "+req.body.paymentMethods,
             paid:req.body.description=="Pay Dues"? customers.credit-req.body.credit:0,
             due:req.body.description=="Add Old Credit"? req.body.credit-customers.credit:0
         })
