@@ -19,9 +19,9 @@ router.post("/testMqtt",async (req,res)=>{
     }
 })
 
-async function updateCustomerDetails(customerId,status,res){
+async function updateCustomerDetails(customerId,status){
     const selectedCustomer= await customerModel.findById(customerId)
-    if(selectedCustomer.isPlaying==status) return res.status(500).json({message: selectedCustomer.fullName+" is already occupied"})
+    // if(selectedCustomer.isPlaying==status) return res.status(500).json({message: selectedCustomer.fullName+" is already occupied"})
     if(selectedCustomer){
         selectedCustomer.isPlaying=status
     }
@@ -68,7 +68,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
                     getdata.customerId=searchedUser._id.toString();
                 }
             }
-            updateCustomerDetails(getdata.customerId,true,res)
+            updateCustomerDetails(getdata.customerId,true)
             finalPlayerList.push(getdata)
         }
         console.log(finalPlayerList)
@@ -279,7 +279,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
             for(let index in selectedTable.gameData.players){
-                updateCustomerDetails(selectedTable.gameData.players[index].customerId,false,res)
+                updateCustomerDetails(selectedTable.gameData.players[index].customerId,false)
             }
             let dis= req.body.discount==undefined?0:req.body.discount
             const gHistory= new historyModel({
@@ -333,9 +333,6 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
             }
            
             
-        }
-        for(let index in req.body.checkoutPlayers){
-            updateCustomerDetails(req.body.checkoutPlayers[index].customerId,false)
         }
         const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
