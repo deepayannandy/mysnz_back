@@ -3,7 +3,8 @@ const router= express.Router()
 const storeModel=require("../models/storesModel")
 const customerHistoryModel=require("../models/customerHistoryModel")
 const customerModel=require("../models/customersModel")
-
+const custM= require("../models/customersModel")
+const userM= require("../models/userModel")
 router.get("/Dashboard/:sid",async(req,res)=>{
     const Store=await storeModel.findOne({_id:req.params.sid});
     if(!Store) return res.status(400).send({"message":"Store dose not exist!"});
@@ -22,15 +23,16 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         const filteredTransactions=allTransactionToday.filter((transactions)=>{return (transactions.description.includes("Table"))})
         const creditUserList=filteredTransactions.filter((transactions)=>{return (transactions.due>0)})
         let finalCreditUserList=[]
+        const cData= await userM.findById("66d36e143fae4ab4337a495d")
+        console.log("Data: ",cData.fullName)
         for(let index in creditUserList){
             console.log(creditUserList[index].customerId)
-            const cData= await customerModel.find({_id:creditUserList[index].customerId})
-            console.log(cData)
-            if(cData.credit<1){
+            const cData= await customerModel.findById(creditUserList[index].customerId)
+            console.log(cData.fullName)
+            if(cData.credit>1){
                 finalCreditUserList.push(creditUserList[index])
             }
         }
-        console.log(finalCreditUserList)
 
         let sales=0 
         let cash=0 
@@ -66,7 +68,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
               upi: upi,
               prime: prime
             },
-            creditHistoryToday:creditUserList
+            creditHistoryToday:finalCreditUserList
     })
     }
     catch(error){
