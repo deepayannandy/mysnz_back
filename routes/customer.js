@@ -135,6 +135,7 @@ router.patch("/:cid",async (req,res)=>{
 router.delete("/:cid",async (req,res)=>{
     const customer=await customerModel.findOne({_id:req.params.cid});
     if(!customer) return res.status(400).send({"message":"customer dose not exist!"});
+    if(customer.isPlaying) return res.status(400).send({"message":"Delete not possible!"});
     try{
         customer.isDeleted=true;
         const cli=await customer.save();

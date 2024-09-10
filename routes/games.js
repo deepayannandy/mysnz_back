@@ -18,6 +18,15 @@ router.post("/testMqtt",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+
+async function updateCustomerDetails(customerId,status){
+    const selectedCustomer= await customerModel.findById(customerId)
+    if(selectedCustomer.isPlaying==status) return res.status(500).json({message: selectedCustomer.fullName+" is already occupied"})
+    if(selectedCustomer){
+        selectedCustomer.isPlaying=status
+    }
+    await selectedCustomer.save()
+}
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
     try{
@@ -59,6 +68,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
                     getdata.customerId=searchedUser._id.toString();
                 }
             }
+            updateCustomerDetails(getdata.customerId,true)
             finalPlayerList.push(getdata)
         }
         console.log(finalPlayerList)
@@ -320,6 +330,9 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
             }
            
             
+        }
+        for(let index in req.body.checkoutPlayers){
+            updateCustomerDetails(req.body.checkoutPlayers[index].customerId,false)
         }
         const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
