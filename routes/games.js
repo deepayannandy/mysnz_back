@@ -71,7 +71,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
         }
         console.log(finalPlayerList)
         for(let index in finalPlayerList){
-            await  updateCustomerDetails(finalPlayerList[index].customerId,true)
+            updateCustomerDetails(finalPlayerList[index].customerId,true)
             console.log(finalPlayerList[index].customerId)
         }
         selectedTable.gameData.players=finalPlayerList;
@@ -153,9 +153,9 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata',hour12: false});
             console.log(indianStartTime)
-            const isnightTime=isNight(selectedStore, "00:36")
+            const isnightTime=isNight(selectedStore, indianStartTime)
             console.log(isnightTime)
-            if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.minuteWiseRules.nightMinAmt>0){
+            if((selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null) && selectedTable.minuteWiseRules.nightMinAmt>0){
                 console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
                 if(isnightTime){
                     if(selectedTable.minuteWiseRules.nightUptoMin < timeDelta){
@@ -216,6 +216,9 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(indianStartTime)
             const isNightTime=isNight(selectedStore, indianStartTime)
             console.log(isNightTime)
+            // if((selectedStore.nightStartTime==null||selectedStore.nightEndTime==null) && selectedTable.minuteWiseRules.nightMinAmt==0){
+            //     isNightTime=false
+            // }
             const slotRule=selectedTable.slotWiseRules.sort((a, b) => b.uptoMin - a.uptoMin)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.slotWiseRules[0].nightSlotCharge>0){
                 // console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
@@ -281,7 +284,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
             for(let index in selectedTable.gameData.players){
-                await  updateCustomerDetails(selectedTable.gameData.players[index].customerId,false)
+                updateCustomerDetails(selectedTable.gameData.players[index].customerId,false)
             }
             let dis= req.body.discount==undefined?0:req.body.discount
             const gHistory= new historyModel({
