@@ -10,9 +10,9 @@ const storeModel=require("../models/storesModel")
 const mqttAgent=require("../utils/mqtt")
 const customerHistoryModel= require("../models/customerHistoryModel")
 
-router.post("/testMqtt",async (req,res)=>{
+router.post("/SendMqtt",async (req,res)=>{
     try{
-        mqttAgent.client.publish("test",req.body.message)
+        mqttAgent.client.publish(req.body.topic,req.body.message)
         res.status(200).json({message: "message sent"})
     }catch(error){
         res.status(500).json({message: error.message})
@@ -78,7 +78,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
         selectedTable.isOccupied=true;
         selectedTable.gameData.startTime=new Date();
         selectedTable.gameData.gameType=req.body.gameType;
-
+        console.log(selectedTable.gameData.startTime.toLocaleTimeString())
         const updatedTable = await selectedTable.save();
         console.log("sending message to: "+selectedTable.deviceId+"/"+selectedTable.nodeID )
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"1")
@@ -218,7 +218,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(isNightTime)
             // if((selectedStore.nightStartTime==null||selectedStore.nightEndTime==null) && selectedTable.minuteWiseRules.nightMinAmt==0){
             //     isNightTime=false
-            // }
+            // } 
             const slotRule=selectedTable.slotWiseRules.sort((a, b) => b.uptoMin - a.uptoMin)
             if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.slotWiseRules[0].nightSlotCharge>0){
                 // console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
