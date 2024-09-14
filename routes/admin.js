@@ -25,13 +25,11 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let finalCreditUserList=[]
         for(let index in creditUserList){
             const cData= await customerModel.findById(creditUserList[index].customerId)
-            console.log(addedUserIds," already added ",addedUserIds.includes(cData._id.toString()),cData._id.toString())
             if(cData.credit>1 && !addedUserIds.includes(cData._id.toString()) && cData.storeId==req.params.sid){
                 finalCreditUserList.push(cData)
                 addedUserIds.push(cData._id.toString())
             }
         }
-
         let sales=0 
         let cash=0 
         let card=0
@@ -39,12 +37,16 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let prime=0
         let credit=0 
         for(let index in filteredTransactions){
-            console.log(filteredTransactions[index].netPay,sales)
-            sales=sales+filteredTransactions[index].netPay!=undefined?filteredTransactions[index].netPay:0
+            console.log(filteredTransactions[index].netPay,filteredTransactions[index].paid,sales)
             credit=credit+filteredTransactions[index].due
             if(filteredTransactions[index].description.includes("Pay Dues")){
+                sales=sales+filteredTransactions[index].paid
                 console.log("Credit settelment",filteredTransactions[index].paid)
                 credit=credit-filteredTransactions[index].paid;
+            }
+            else{
+                console.log("normal add")
+                sales=sales+filteredTransactions[index].netPay
             }
             if(filteredTransactions[index].description.includes("undefined")||filteredTransactions[index].description.includes("CASH")){
                 cash=cash+filteredTransactions[index].paid
@@ -58,6 +60,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             if(filteredTransactions[index].description.includes("PRIME")){
                 prime=prime+filteredTransactions[index].paid
             }
+            
             
         }
         console.log(sales)
