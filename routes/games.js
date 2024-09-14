@@ -228,7 +228,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     break
                 }
             } 
-            const slotRule=selectedTable.slotWiseRules.sort((a, b) => b.uptoMin - a.uptoMin)
+            const slotRule=selectedTable.slotWiseRules.sort((a, b) => b.uptoMin - a.uptoMin).reverse()
                 console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
                 while (timeDelta!=0){
                     if(timeDelta<slotRule[0].uptoMin){
@@ -236,7 +236,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                         if(isNightTime){
                             bills.push({"title":"Night Slot","time":timeDelta,"amount":slotRule[0].nightSlotCharge})
                             timeDelta=0
-                            totalBillAmt=totalBillAmt+slotRule[slotRule.length-1].nightSlotCharge
+                            totalBillAmt=totalBillAmt+slotRule[0].nightSlotCharge
                             
                         }else{
                             bills.push({"title":"Day Slot","time":timeDelta,"amount":slotRule[0].slotCharge})
@@ -250,8 +250,17 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     for(let index in slotRule){
                          console.log(timeDelta," Copairing with ", slotRule[index].uptoMin, timeDelta>slotRule[index].uptoMin, timeDelta==slotRule[index].uptoMin)
                         if(timeDelta>slotRule[index].uptoMin || timeDelta==slotRule[index].uptoMin){
-                            timeToDeduct=slotRule[index].uptoMin
-                            amountToCharge=isNightTime?slotRule[index].nightSlotCharge:slotRule[index].slotCharge
+                            if(index!=slotRule.length-1){
+                                if(timeDelta<slotRule[parseInt(index)+1].uptoMin){
+                                    timeToDeduct=slotRule[parseInt(index)+1].uptoMin>timeDelta?timeDelta:slotRule[parseInt(index)+1].uptoMin
+                                    amountToCharge=isNightTime?slotRule[parseInt(index)+1].nightSlotCharge:slotRule[parseInt(index)+1].slotCharge
+                                }
+                            }
+                            else{
+                                timeToDeduct=slotRule[index].uptoMin
+                                amountToCharge=isNightTime?slotRule[index].nightSlotCharge:slotRule[index].slotCharge
+                            }
+                            
                         }
                         
                        
@@ -263,7 +272,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     }
                 }
                     console.log(timeDelta,totalBillAmt,bills)
-                    // await delay(2000);
+                    await delay(2000);
                 }
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
         }
