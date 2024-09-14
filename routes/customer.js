@@ -10,6 +10,9 @@ const customerHistoryModel=require("../models/customerHistoryModel")
 router.post('/',async (req,res)=>{
     let store=await storeModel.findOne({_id:req.body.storeId});
     if(!store) return res.status(400).send({"message":"Store dose not exist!"});
+    const sameCustomers=await customerModel.findOne({$or: [{contact:req.body.contact},{email:req.body.contact}]});
+    if(sameCustomers) if(sameCustomers.storeId==store._id) return res.status(400).send({"message":`${req.body.contact} or ${req.body.email}already exist`});
+
     const newCustomer= new customerModel({
         fullName:req.body.fullName,
         contact:req.body.contact,
