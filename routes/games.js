@@ -263,7 +263,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     }
                 }
                     console.log(timeDelta,totalBillAmt,bills)
-                    await delay(2000);
+                    // await delay(2000);
                 }
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
         }
