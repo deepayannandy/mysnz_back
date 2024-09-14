@@ -40,7 +40,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             console.log(filteredTransactions[index].netPay,filteredTransactions[index].paid,sales)
             credit=credit+filteredTransactions[index].due
             if(filteredTransactions[index].description.includes("Pay Dues")){
-                sales=sales+filteredTransactions[index].paid
+                // sales=sales+filteredTransactions[index].paid
                 console.log("Credit settelment",filteredTransactions[index].paid)
                 credit=credit-filteredTransactions[index].paid;
             }
