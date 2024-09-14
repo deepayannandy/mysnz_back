@@ -139,10 +139,14 @@ function isNight(storeData, gameStartTime){
 router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
     console.log(req.params.tableId)
     try{
+        console.log(req.tokendata._id)
         const loggedInUser= await userModel.findById(req.tokendata._id)
+        if(!loggedInUser) return res.status(500).json({message: "Logged In user not found!"})
+        console.log(loggedInUser.storeId)
         const selectedTable= await tableModel.findById(req.params.tableId);
-        const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        console.log(selectedTable.storeId)
+        const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         console.log(selectedTable.gameData.gameType)
         if(selectedTable.gameData.gameType=="Minute Billing"){
@@ -214,55 +218,53 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata',hour12: false});
             console.log(indianStartTime)
-            const isNightTime=isNight(selectedStore, indianStartTime)
+            let isNightTime=isNight(selectedStore, indianStartTime)
             console.log(isNightTime)
-            // if((selectedStore.nightStartTime==null||selectedStore.nightEndTime==null) && selectedTable.minuteWiseRules.nightMinAmt==0){
-            //     isNightTime=false
-            // } 
+            for(let index in selectedTable.slotWiseRules){
+                console.log(selectedTable.slotWiseRules[index])
+                if(selectedTable.slotWiseRules[index].nightSlotCharge==0||selectedTable.slotWiseRules[index].nightSlotCharge==null){
+                    isNightTime=false
+                    console.log("Night charge is missing")
+                    break
+                }
+            } 
             const slotRule=selectedTable.slotWiseRules.sort((a, b) => b.uptoMin - a.uptoMin)
-            if(selectedStore.nightStartTime!=null||selectedStore.nightEndTime!=null || selectedTable.slotWiseRules[0].nightSlotCharge>0){
-                // console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
+                console.log(selectedStore.nightStartTime,selectedStore.nightEndTime)
                 while (timeDelta!=0){
-                    if(timeDelta<slotRule[slotRule.length-1].uptoMin){
-                        // console.log("I am called when time delta is :",timeDelta)
+                    if(timeDelta<slotRule[0].uptoMin){
+                        console.log("I am called when time delta is :",timeDelta)
                         if(isNightTime){
-                            bills.push({"title":"Night Slot","time":timeDelta,"amount":slotRule[slotRule.length-1].nightSlotCharge})
+                            bills.push({"title":"Night Slot","time":timeDelta,"amount":slotRule[0].nightSlotCharge})
                             timeDelta=0
                             totalBillAmt=totalBillAmt+slotRule[slotRule.length-1].nightSlotCharge
                             
                         }else{
-                            bills.push({"title":"Day Slot","time":timeDelta,"amount":slotRule[slotRule.length-1].slotCharge})
+                            bills.push({"title":"Day Slot","time":timeDelta,"amount":slotRule[0].slotCharge})
                             timeDelta=0
-                            totalBillAmt=totalBillAmt+slotRule[slotRule.length-1].slotCharge
-                           
+                            totalBillAmt=totalBillAmt+slotRule[0].slotCharge
                         }
                     }
                     else{
+                    let timeToDeduct=0
+                    let amountToCharge=0
                     for(let index in slotRule){
-                        // console.log(timeDelta," Copairing with ", slotRule[index].uptoMin, timeDelta>slotRule[index].uptoMin, timeDelta==slotRule[index].uptoMin)
+                         console.log(timeDelta," Copairing with ", slotRule[index].uptoMin, timeDelta>slotRule[index].uptoMin, timeDelta==slotRule[index].uptoMin)
                         if(timeDelta>slotRule[index].uptoMin || timeDelta==slotRule[index].uptoMin){
-                            if(isNightTime){
-                                bills.push({"title":"Night Slot","time":slotRule[index].uptoMin,"amount":slotRule[index].nightSlotCharge})
-                                timeDelta=timeDelta-slotRule[index].uptoMin
-                                totalBillAmt=totalBillAmt+slotRule[index].nightSlotCharge
-                                break
-                            }else{
-                                bills.push({"title":"Day Slot","time":slotRule[index].uptoMin,"amount":slotRule[index].slotCharge})
-                                timeDelta=timeDelta-slotRule[index].uptoMin
-                                totalBillAmt=totalBillAmt+slotRule[index].slotCharge
-                                break
-                            }
-                           
+                            timeToDeduct=slotRule[index].uptoMin
+                            amountToCharge=isNightTime?slotRule[index].nightSlotCharge:slotRule[index].slotCharge
                         }
+                        
+                       
+                    }
+                   if(timeToDeduct!=0 && amountToCharge!=0) {
+                    bills.push({"title":isNightTime?"Night Slot":"Day Slot","time":timeToDeduct,"amount":amountToCharge})
+                    timeDelta=timeDelta-timeToDeduct
+                    totalBillAmt=totalBillAmt+amountToCharge
                     }
                 }
-                    // console.log(timeDelta,totalBillAmt,bills)
-                    // await delay(2000);
+                    console.log(timeDelta,totalBillAmt,bills)
+                    await delay(2000);
                 }
-            }
-            else{
-                console.log("Only day time billing")
-            }
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
         }
         res.status(502).json({message: "Billing not supported"})
