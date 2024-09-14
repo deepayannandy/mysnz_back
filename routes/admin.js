@@ -14,9 +14,9 @@ router.get("/Dashboard/:sid",async(req,res)=>{
     const endDate=new Date()
     endDate.setHours(23,59,59,999);
     console.log(today,startDate,endDate)
-    
+    let addedUserIds=[]
     try{
-        const allTransactionToday= await customerHistoryModel.find({date:{
+        const allTransactionToday= await customerHistoryModel.find({ date:{
             $gt: startDate,
             $lt: endDate
         }})
@@ -25,8 +25,10 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let finalCreditUserList=[]
         for(let index in creditUserList){
             const cData= await customerModel.findById(creditUserList[index].customerId)
-            if(cData.credit>1){
-                finalCreditUserList.push(creditUserList[index])
+            console.log(addedUserIds," already added ",addedUserIds.includes(cData._id.toString()),cData._id.toString())
+            if(cData.credit>1 && !addedUserIds.includes(cData._id.toString()) && cData.storeId==req.params.sid){
+                finalCreditUserList.push(cData)
+                addedUserIds.push(cData._id.toString())
             }
         }
 
