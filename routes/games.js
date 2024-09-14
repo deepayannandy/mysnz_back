@@ -250,7 +250,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     for(let index in slotRule){
                          console.log(timeDelta," Copairing with ", slotRule[index].uptoMin, timeDelta>slotRule[index].uptoMin, timeDelta==slotRule[index].uptoMin)
                         if(timeDelta>slotRule[index].uptoMin || timeDelta==slotRule[index].uptoMin){
-                            if(index!=slotRule.length-1){
+                            if(index!=slotRule.length-1 && timeDelta!=slotRule[index].uptoMin){
                                 if(timeDelta<slotRule[parseInt(index)+1].uptoMin){
                                     timeToDeduct=slotRule[parseInt(index)+1].uptoMin>timeDelta?timeDelta:slotRule[parseInt(index)+1].uptoMin
                                     amountToCharge=isNightTime?slotRule[parseInt(index)+1].nightSlotCharge:slotRule[parseInt(index)+1].slotCharge
@@ -271,7 +271,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     totalBillAmt=totalBillAmt+amountToCharge
                     }
                 }
-                    console.log(timeDelta,totalBillAmt,bills)
+                    // console.log(timeDelta,totalBillAmt,bills)
                     // await delay(2000);
                 }
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
