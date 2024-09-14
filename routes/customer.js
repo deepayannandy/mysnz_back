@@ -92,9 +92,13 @@ router.patch("/:cid",async (req,res)=>{
         customers.fullName=req.body.fullName;
     }
     if(req.body.contact!=null){
+        const sameCustomers=await customerModel.findOne({$and: [{contact:req.body.contact},{storeId:customers.storeId}]});
+        if(sameCustomers) return res.status(400).send({"message":`${req.body.contact} already exist`});
         customers.contact=req.body.contact;
     }
     if(req.body.email!=null){
+        const sameCustomers=await customerModel.findOne({$and: [{email:req.body.email},{storeId:customers.storeId}]});
+        if(sameCustomers) return res.status(400).send({"message":`${req.body.email} already exist`});
         customers.email=req.body.email;
     }
     if(req.body.dob!=null){
