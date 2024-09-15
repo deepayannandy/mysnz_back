@@ -20,12 +20,14 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             $gt: startDate,
             $lt: endDate
         }})
-        const filteredTransactions=allTransactionToday.filter((transactions)=>{return (transactions.description.includes("Table")||transactions.description.includes("Pay Dues"))})
+        const filteredTransactions_old=allTransactionToday.filter((transactions)=>{return (transactions.description.includes("Table")||transactions.description.includes("Pay Dues"))})
+        const filteredTransactions=filteredTransactions_old.filter((transactions)=>{return transactions.storeId== req.params.sid})
         const creditUserList=filteredTransactions.filter((transactions)=>{return (transactions.due>0)})
+        console.log(filteredTransactions)
         let finalCreditUserList=[]
         for(let index in creditUserList){
             const cData= await customerModel.findById(creditUserList[index].customerId)
-            if(cData.credit>1 && !addedUserIds.includes(cData._id.toString()) && cData.storeId==req.params.sid){
+            if(cData.credit>1 && !addedUserIds.includes(cData._id.toString())){
                 finalCreditUserList.push(cData)
                 addedUserIds.push(cData._id.toString())
             }
