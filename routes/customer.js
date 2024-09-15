@@ -94,12 +94,12 @@ router.patch("/:cid",async (req,res)=>{
     if(req.body.fullName!=null){
         customers.fullName=req.body.fullName;
     }
-    if(req.body.contact!=null){
+    if(req.body.contact!=null || customers.contact!= req.body.contact){
         const sameCustomers=await customerModel.findOne({$and: [{contact:req.body.contact},{storeId:customers.storeId}]});
         if(sameCustomers) return res.status(400).send({"message":`${req.body.contact} already exist`});
         customers.contact=req.body.contact;
     }
-    if(req.body.email!=null){
+    if(req.body.email!=null|| customers.email!= req.body.email){
         const sameCustomers=await customerModel.findOne({$and: [{email:req.body.email},{storeId:customers.storeId}]});
         if(sameCustomers) return res.status(400).send({"message":`${req.body.email} already exist`});
         customers.email=req.body.email;
@@ -118,7 +118,8 @@ router.patch("/:cid",async (req,res)=>{
             customerName:customers.fullName,
             description:req.body.description+" "+req.body.paymentMethods,
             paid:req.body.description=="Pay Dues"? customers.credit-req.body.credit:0,
-            due:req.body.description=="Add Old Credit"? req.body.credit-customers.credit:0
+            due:req.body.description=="Add Old Credit"? req.body.credit-customers.credit:0,
+            storeId:customers.storeId
         })
         try{
         const savedHistory= await newCustomerHistory.save()

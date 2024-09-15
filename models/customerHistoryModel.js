@@ -48,6 +48,11 @@ const customerHistorySchema= new mongoos.Schema({
     {
         type:String,
         required:false
+    },
+    storeId:
+    {
+        type:String,
+        required:false
     }
 })
 module.exports=mongoos.model('CustomerHistory',customerHistorySchema)
