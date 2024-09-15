@@ -27,7 +27,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let finalCreditUserList=[]
         for(let index in creditUserList){
             const cData= await customerModel.findById(creditUserList[index].customerId)
-            if(cData.credit>1 && !addedUserIds.includes(cData._id.toString())){
+            if(cData.credit>0 && !addedUserIds.includes(cData._id.toString())){
                 finalCreditUserList.push(cData)
                 addedUserIds.push(cData._id.toString())
             }
