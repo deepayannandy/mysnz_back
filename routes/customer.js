@@ -7,11 +7,14 @@ const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
 const customerHistoryModel=require("../models/customerHistoryModel")
 
+
 router.post('/',async (req,res)=>{
     let store=await storeModel.findOne({_id:req.body.storeId});
     if(!store) return res.status(400).send({"message":"Store dose not exist!"});
-    const sameCustomers=await customerModel.findOne({$or: [{contact:req.body.contact},{email:req.body.email}]});
-    if(sameCustomers) if(sameCustomers.storeId==store._id) return res.status(400).send({"message":`${req.body.contact} or ${req.body.email?req.body.email:"Email"} already exist`});
+    console.log(req.body.contact,req.body.email,req.body.storeId)
+    const sameCustomers=await customerModel.findOne({$and:[{$or: [{contact:req.body.contact??""},{email:req.body.email??""}]},{storeId:req.body.storeId}]});
+    console.log(sameCustomers)
+    if(sameCustomers) return res.status(400).send({"message":`${req.body.contact} or ${req.body.email?req.body.email:"Email"} already exist`});
 
     const newCustomer= new customerModel({
         fullName:req.body.fullName,
@@ -87,19 +90,21 @@ router.get("/:cid",async (req,res)=>{
     }
 })
 
-router.patch("/:cid",async (req,res)=>{
+router.patch("/:cid",verify_token, async (req,res)=>{
+    console.log(req.tokendata)
+    if(req.tokendata.userDesignation=="Staff")return res.status(500).json({message: "Access Denied!"})
     const customers=await customerModel.findOne({_id:req.params.cid});
     if(!customers) return res.status(400).send({"message":"Customer dose not exist!"});
 
     if(req.body.fullName!=null){
         customers.fullName=req.body.fullName;
     }
-    if(req.body.contact!=null || customers.contact!= req.body.contact){
+    if(req.body.contact!=null && customers.contact!= req.body.contact){
         const sameCustomers=await customerModel.findOne({$and: [{contact:req.body.contact},{storeId:customers.storeId}]});
         if(sameCustomers) return res.status(400).send({"message":`${req.body.contact} already exist`});
         customers.contact=req.body.contact;
     }
-    if(req.body.email!=null|| customers.email!= req.body.email){
+    if(req.body.email!=null &&  customers.email!= req.body.email){
         const sameCustomers=await customerModel.findOne({$and: [{email:req.body.email},{storeId:customers.storeId}]});
         if(sameCustomers) return res.status(400).send({"message":`${req.body.email} already exist`});
         customers.email=req.body.email;
@@ -110,8 +115,8 @@ router.patch("/:cid",async (req,res)=>{
     if(req.body.city!=null){
         customers.city=req.body.city;
     }
-    if(req.body.credit!=null){
-        if(!customers.contact.length>0) return res.status(400).send({"message":"Please update the contact details for this user"});
+    if(req.body.credit!=null && req.body.credit!=customers.credit){
+        // if(!customers.contact.length()>0) return res.status(400).send({"message":"Please update the contact details for this user"});
         const newCustomerHistory= new customerHistoryModel({
             customerId:req.params.cid,
             date:new Date(),
@@ -140,7 +145,9 @@ router.patch("/:cid",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
-router.delete("/:cid",async (req,res)=>{
+router.delete("/:cid",verify_token,async (req,res)=>{
+    console.log(req.tokendata)
+    if(req.tokendata.userDesignation=="Staff") return res.status(500).json({message: "Access Denied!"})
     const customer=await customerModel.findOne({_id:req.params.cid});
     if(!customer) return res.status(400).send({"message":"customer dose not exist!"});
     if(customer.isPlaying) return res.status(400).send({"message":"Delete not possible!"});
