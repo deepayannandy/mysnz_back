@@ -20,7 +20,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             $gt: startDate,
             $lt: endDate
         }})
-        const filteredTransactions_old=allTransactionToday.filter((transactions)=>{return (transactions.description.includes("Table")||transactions.description.includes("Pay Dues"))})
+        const filteredTransactions_old=allTransactionToday.filter((transactions)=>{return (!transactions.description.includes("Pay Dues"))})
         const filteredTransactions=filteredTransactions_old.filter((transactions)=>{return transactions.storeId== req.params.sid})
         const creditUserList=filteredTransactions.filter((transactions)=>{return (transactions.due>0)})
         console.log(filteredTransactions)
@@ -39,7 +39,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let prime=0
         let credit=0 
         for(let index in filteredTransactions){
-            console.log(filteredTransactions[index].netPay,filteredTransactions[index].paid,sales)
+            console.log(filteredTransactions[index])
             credit=credit+filteredTransactions[index].due
             if(filteredTransactions[index].description.includes("Pay Dues")){
                 // sales=sales+filteredTransactions[index].paid
@@ -47,7 +47,6 @@ router.get("/Dashboard/:sid",async(req,res)=>{
                 credit=credit-filteredTransactions[index].paid;
             }
             else{
-                console.log("normal add")
                 sales=sales+filteredTransactions[index].netPay
             }
             if(filteredTransactions[index].description.includes("undefined")||filteredTransactions[index].description.includes("CASH")){
