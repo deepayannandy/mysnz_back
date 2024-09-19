@@ -1,6 +1,7 @@
 const express = require("express")
 const router= express.Router()
 const mongodb=require("mongodb");
+const deviceModel=require("../models/deviceModel")
 const tableModel=require("../models/tablesModel")
 const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
@@ -12,6 +13,13 @@ const customerHistoryModel= require("../models/customerHistoryModel")
 
 router.post("/SendMqtt",async (req,res)=>{
     try{
+        let data=req.body.topic.split("/l")
+        const selectedDevice= await deviceModel.findOne({deviceId:data[0]})
+        if(!selectedDevice) return res.status(500).json({message: "Device not found!"})
+        console.log(selectedDevice)
+        selectedDevice.nodeStatus[data[1]-1]=req.body.message=="0"?0:1
+        console.log(selectedDevice)
+        await selectedDevice.save()
         mqttAgent.client.publish(req.body.topic,req.body.message)
         res.status(200).json({message: "message sent"})
     }catch(error){
