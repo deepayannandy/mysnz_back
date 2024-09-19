@@ -27,7 +27,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
                 $lt: endDate
             }
         })
-        const filteredTransactions_old=allTransactionToday.filter((transactions)=>{return (!transactions.description.includes("Pay Dues"))})
+        const filteredTransactions_old=allTransactionToday.filter((transactions)=>{return (!transactions.description.includes("Add Old Credit"))})
         const filteredTransactions=filteredTransactions_old.filter((transactions)=>{return transactions.storeId== req.params.sid})
         const creditUserList=filteredTransactions.filter((transactions)=>{return (transactions.due>0)})
         console.log(filteredTransactions)
