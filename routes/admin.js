@@ -5,6 +5,7 @@ const customerHistoryModel=require("../models/customerHistoryModel")
 const customerModel=require("../models/customersModel")
 const custM= require("../models/customersModel")
 const userM= require("../models/userModel")
+const historyModle= require("../models/historyModel")
 router.get("/Dashboard/:sid",async(req,res)=>{
     const Store=await storeModel.findOne({_id:req.params.sid});
     if(!Store) return res.status(400).send({"message":"Store dose not exist!"});
@@ -20,6 +21,12 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             $gt: startDate,
             $lt: endDate
         }})
+        const allHistory= await historyModle.find({
+             date:{
+                $gt: startDate,
+                $lt: endDate
+            }
+        })
         const filteredTransactions_old=allTransactionToday.filter((transactions)=>{return (!transactions.description.includes("Pay Dues"))})
         const filteredTransactions=filteredTransactions_old.filter((transactions)=>{return transactions.storeId== req.params.sid})
         const creditUserList=filteredTransactions.filter((transactions)=>{return (transactions.due>0)})
@@ -38,6 +45,9 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let upi=0
         let prime=0
         let credit=0 
+        for(let index in allHistory){
+            sales= sales+allHistory[index].booking
+        }
         for(let index in filteredTransactions){
             console.log(filteredTransactions[index])
             credit=credit+filteredTransactions[index].due
@@ -45,9 +55,6 @@ router.get("/Dashboard/:sid",async(req,res)=>{
                 // sales=sales+filteredTransactions[index].paid
                 console.log("Credit settelment",filteredTransactions[index].paid)
                 credit=credit-filteredTransactions[index].paid;
-            }
-            else{
-                sales=sales+filteredTransactions[index].netPay
             }
             if(filteredTransactions[index].description.includes("undefined")||filteredTransactions[index].description.includes("CASH")){
                 cash=cash+filteredTransactions[index].paid
