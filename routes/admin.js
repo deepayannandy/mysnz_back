@@ -21,11 +21,13 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             $gt: startDate,
             $lt: endDate
         }})
-        const allHistory= await historyModle.find({
-             date:{
+        const allHistory= await historyModle.find({$and:
+             [{date:{
                 $gt: startDate,
                 $lt: endDate
-            }
+            }},{
+                storeId:req.params.sid
+            }]
         })
         const filteredTransactions_old=allTransactionToday.filter((transactions)=>{return (!transactions.description.includes("Add Old Credit"))})
         const filteredTransactions=filteredTransactions_old.filter((transactions)=>{return transactions.storeId== req.params.sid})
