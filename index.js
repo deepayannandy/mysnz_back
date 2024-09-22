@@ -9,7 +9,7 @@ const mongoos=require("mongoose");
 const { crypto, randomBytes } =require('crypto');
 
 process.env.TZ = "Asia/Calcutta";
-console.log("lets connect to the db : ",process.env.DATABASE_URL)
+// console.log("lets connect to the db : ",process.env.DATABASE_URL)
 mongoos.set("strictQuery", false);
 mongoos.connect(process.env.DATABASE_URL)
 const db= mongoos.connection

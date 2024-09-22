@@ -90,4 +90,47 @@ router.delete("/:tId",verify_token,async (req,res)=>{
     }
 })
 
+// router.post("/cloneTable",async(req,res)=>{
+//     const oldTable= await tableModel.findById(req.body.oldTable)
+//     if(!oldTable) return res.status(404).json({message: "Table not found"})
+//         const newTable= new tableModel({
+//             storeId:oldTable.storeId,
+//             tableName:req.body.newTableName,
+//             deviceId:oldTable.deviceId,
+//             nodeID:oldTable.nodeID,
+//             isOccupied:false,
+//             gameTypes:oldTable.gameTypes,
+//             netAmount:0,
+//             isBooked:false,
+//             minuteWiseRules:oldTable.minuteWiseRules,
+//             slotWiseRules:oldTable.slotWiseRules
+//         })
+//         try{
+//             const table=await newTable.save()
+//             res.status(201).json({"_id":table.id})
+//         }catch(error){
+//             res.status(500).json({message: error.message})
+//         }
+// })
+
+
+router.patch("/switchTable/switch",async(req,res)=>{
+    const oldTable= await tableModel.findById(req.body.oldTable)
+    if(!oldTable) return res.status(404).json({message: "From Table not found"})
+    const newTable= await tableModel.findById(req.body.newTable)
+    if(!newTable) return res.status(404).json({message: "To Table not found"})
+    if(!oldTable.gameTypes.includes(newTable.gameData.gameType)) return res.status(404).json({message: "This game type is not available in this table"})
+        newTable.gameData=oldTable.gameData
+        newTable.isOccupied=oldTable.isOccupied
+        oldTable.isOccupied=false
+        oldTable.gameData=null
+    try{
+        await oldTable.save()
+        await newTable.save()
+        res.status(201).json({message:"Table Switched"})
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+
 module.exports=router
