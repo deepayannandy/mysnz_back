@@ -119,7 +119,7 @@ router.patch("/switchTable/switch",async(req,res)=>{
     if(!oldTable) return res.status(404).json({message: "From Table not found"})
     const newTable= await tableModel.findById(req.body.newTable)
     if(!newTable) return res.status(404).json({message: "To Table not found"})
-    if(!oldTable.gameTypes.includes(newTable.gameData.gameType)) return res.status(404).json({message: `This game type is not available on ${newTable.tableName}`})
+    if(!newTable.gameTypes.includes(oldTable.gameData.gameType)) return res.status(404).json({message: `This game type is not available on ${newTable.tableName}`})
     if(newTable.isOccupied) return res.status(404).json({message: `${newTable.tableName} is already occupied`})
         newTable.gameData=oldTable.gameData
         newTable.isOccupied=oldTable.isOccupied
