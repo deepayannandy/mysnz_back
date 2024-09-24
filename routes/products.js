@@ -19,7 +19,8 @@ router.post("/",verify_token,async(req,res)=>{
         salePrice:req.body.salePrice,
         quantity:req.body.quantity,
         isOutOfStock:req.body.isOutOfStock,
-        productImage:""
+        productImage:"",
+        barcode:req.body.barcode
     })
     try{
         const product=await newProduct.save()
@@ -40,18 +41,29 @@ router.get("/",verify_token,async(req,res)=>{
         res.status(500).json({message: e.message})
     }
 })
-
-router.get("/onTable/get",verify_token,async(req,res)=>{
+router.get("/:pId",verify_token,async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     console.log(loggedInUser)
     try{
-        const storeProducts= await productModel.find({$and: [{storeId:loggedInUser.storeId},{isOutOfStock:false}]})
-        res.status(201).json(storeProducts)
+        const selectedProduct= await productModel.findById(req.params.pId)
+        if(!selectedProduct)return res.status(500).json({message: "Product dose not exist!"})
+        res.status(201).json(selectedProduct)
     }catch(e){
         res.status(500).json({message: e.message})
     }
 })
+// router.get("/onTable/get",verify_token,async(req,res)=>{
+//     const loggedInUser= await userModel.findById(req.tokendata._id)
+//     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+//     console.log(loggedInUser)
+//     try{
+//         const storeProducts= await productModel.find({$and: [{storeId:loggedInUser.storeId},{isOutOfStock:false}]})
+//         res.status(201).json(storeProducts)
+//     }catch(e){
+//         res.status(500).json({message: e.message})
+//     }
+// })
 
 router.patch("/:pId",verify_token,async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
@@ -77,6 +89,15 @@ router.patch("/:pId",verify_token,async(req,res)=>{
         }
         if(req.body.quantity!=null){
             selectedProduct.quantity=req.body.quantity;
+        }
+        if(req.body.barcode!=null){
+            selectedProduct.barcode=req.body.barcode;
+        }
+        if(req.body.category!=null){
+            selectedProduct.category=req.body.category;
+        }
+        if(req.body.description!=null){
+            selectedProduct.description=req.body.description;
         }
     try{
         const sp=await selectedProduct.save();
