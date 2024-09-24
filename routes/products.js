@@ -3,6 +3,7 @@ const router= express.Router()
 const productModel=require("../models/productModel")
 const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
+const mongodb=require("mongodb");
 
 router.post("/",verify_token,async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
@@ -17,7 +18,7 @@ router.post("/",verify_token,async(req,res)=>{
         basePrice:req.body.basePrice,
         salePrice:req.body.salePrice,
         quantity:req.body.quantity,
-        isOutOfStock:false,
+        isOutOfStock:req.body.isOutOfStock,
         productImage:""
     })
     try{
@@ -38,5 +39,53 @@ router.get("/",verify_token,async(req,res)=>{
     }catch(e){
         res.status(500).json({message: e.message})
     }
+})
+router.patch("/:pId",verify_token,async(req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+    console.log(loggedInUser)
+    if(loggedInUser.userDesignation=="Staff")return res.status(500).json({message: "Access Denied!"})
+    const selectedProduct= await productModel.findById(req.params.pId)
+    if(!selectedProduct)return res.status(500).json({message: "Product dose not exist!"})
+        if(req.body.isOutOfStock!=null){
+            selectedProduct.isOutOfStock=req.body.isOutOfStock;
+        }
+        if(req.body.productName!=null){
+            selectedProduct.productName=req.body.productName;
+        }
+        if(req.body.basePrice!=null){
+            selectedProduct.basePrice=req.body.basePrice;
+        }
+        if(req.body.salePrice!=null){
+            selectedProduct.salePrice=req.body.salePrice;
+        }
+        if(req.body.isOutOfStock!=null){
+            selectedProduct.isOutOfStock=req.body.isOutOfStock;
+        }
+        if(req.body.quantity!=null){
+            selectedProduct.quantity=req.body.quantity;
+        }
+    try{
+        const sp=await selectedProduct.save();
+        res.status(201).json(sp)
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+
+})
+router.delete("/:pId",verify_token,async(req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+    console.log(loggedInUser)
+    if(loggedInUser.userDesignation=="Staff")return res.status(500).json({message: "Access Denied!"})
+    const selectedProduct= await productModel.findById(req.params.pId)
+    if(!selectedProduct)return res.status(500).json({message: "Product dose not exist!"})
+    try{
+        const result= await productModel.deleteOne({_id: new mongodb.ObjectId(req.params.pId)})
+        res.json(result)
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+
 })
 module.exports=router
