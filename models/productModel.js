@@ -41,6 +41,10 @@ const productSchema= new mongoos.Schema({
     salePrice:{
         type:Number,
         required: true
+    },
+    barcode:{
+        type:String,
+        required: false
     }
 
 })

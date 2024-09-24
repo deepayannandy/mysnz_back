@@ -19,7 +19,8 @@ router.post("/",verify_token,async(req,res)=>{
         salePrice:req.body.salePrice,
         quantity:req.body.quantity,
         isOutOfStock:req.body.isOutOfStock,
-        productImage:""
+        productImage:"",
+        barcode:req.body.barcode
     })
     try{
         const product=await newProduct.save()
@@ -88,6 +89,15 @@ router.patch("/:pId",verify_token,async(req,res)=>{
         }
         if(req.body.quantity!=null){
             selectedProduct.quantity=req.body.quantity;
+        }
+        if(req.body.barcode!=null){
+            selectedProduct.barcode=req.body.barcode;
+        }
+        if(req.body.category!=null){
+            selectedProduct.category=req.body.category;
+        }
+        if(req.body.description!=null){
+            selectedProduct.description=req.body.description;
         }
     try{
         const sp=await selectedProduct.save();
