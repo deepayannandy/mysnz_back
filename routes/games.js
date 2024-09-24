@@ -187,7 +187,8 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         if(selectedTable.gameData.gameType=="Minute Billing"){
             let bills=[]
             let totalBillAmt=0;
-            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000)-selectedTable.pauseMin??0);
+            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000)-parseFloat(selectedTable.pauseMin??0));
+            if(timeDelta==NaN)return res.status(502).json({message: "Something went wrong min"})
             const totalGameTime=timeDelta;
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata',hour12: false});
@@ -248,7 +249,8 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         if(selectedTable.gameData.gameType=="Slot Billing"){
             let bills=[]
             let totalBillAmt=0;
-            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000)-selectedTable.pauseMin??0);
+            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000)-parseFloat(selectedTable.pauseMin??0));
+            if(timeDelta==NaN)return res.status(502).json({message: "Something went wrong slot"})
             const totalGameTime=timeDelta;
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata',hour12: false});
