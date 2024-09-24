@@ -26,7 +26,6 @@ router.post("/SendMqtt",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
-
 async function updateCustomerDetails(customerId,status){
     const selectedCustomer= await customerModel.findById(customerId)
     // if(selectedCustomer.isPlaying==status) return res.status(500).json({message: selectedCustomer.fullName+" is already occupied"})
@@ -35,6 +34,34 @@ async function updateCustomerDetails(customerId,status){
     }
     await selectedCustomer.save()
 }
+
+router.post("/pause/:tableId",async(req,res)=>{
+    const selectedTable= await tableModel.findById(req.params.tableId);
+    if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+    try{
+        selectedTable.pauseTime=new Date()
+        await selectedTable.save();
+    return res.status(200).json({message: "Table paused"})
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+router.post("/resume/:tableId",async(req,res)=>{
+    const selectedTable= await tableModel.findById(req.params.tableId);
+    if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+    try{
+        if(!selectedTable.pauseTime)return res.status(500).json({message: "Error"})
+        let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
+        console.log(timeDelta)
+        console.log(parseFloat(timeDelta)+selectedTable.pauseMin??0)
+        selectedTable.pauseMin=parseFloat(timeDelta)+selectedTable.pauseMin??0
+        selectedTable.pauseTime=null
+        await selectedTable.save();
+        return res.status(200).json({message: `Table resumed after ${timeDelta}`})
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
     try{
@@ -160,7 +187,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         if(selectedTable.gameData.gameType=="Minute Billing"){
             let bills=[]
             let totalBillAmt=0;
-            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
+            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000)-selectedTable.pauseMin??0);
             const totalGameTime=timeDelta;
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata',hour12: false});
@@ -221,7 +248,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         if(selectedTable.gameData.gameType=="Slot Billing"){
             let bills=[]
             let totalBillAmt=0;
-            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
+            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000)-selectedTable.pauseMin??0);
             const totalGameTime=timeDelta;
             console.log(timeDelta)
             const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata',hour12: false});
@@ -365,6 +392,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         selectedTable.gameData.endTime=undefined;
         selectedTable.gameData.players=[];
         selectedTable.gameData.gameType=undefined;
+        selectedTable.pauseMin=null
         selectedTable.isOccupied=false;
         const updatedTable = await selectedTable.save();
         res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id,"UpdatedStoreData":updatedStore._id})

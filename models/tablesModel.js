@@ -29,6 +29,14 @@ const tablesSchema= new mongoos.Schema({
         type:Number,
         required:false
     },
+    pauseTime:{
+        type:Date,
+        required:false
+    },
+    pauseMin:{
+        type:Number,
+        required:false
+    },
     gameData:
         {
             players: [
