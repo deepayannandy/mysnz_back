@@ -53,7 +53,7 @@ router.post("/resume/:tableId",async(req,res)=>{
         if(!selectedTable.pauseTime)return res.status(500).json({message: "Error"})
         let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
         console.log(timeDelta)
-        let newPauseTime=parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)
+        let newPauseTime=parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0).toFixed(2)
         console.log(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0))
         selectedTable.pauseMin=newPauseTime
         selectedTable.pauseTime=null
