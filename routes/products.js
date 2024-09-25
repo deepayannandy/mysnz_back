@@ -20,7 +20,8 @@ router.post("/",verify_token,async(req,res)=>{
         quantity:req.body.quantity,
         isOutOfStock:req.body.isOutOfStock,
         productImage:"",
-        barcode:req.body.barcode
+        barcode:req.body.barcode,
+        isQntRequired:req.body.isQntRequired
     })
     try{
         const product=await newProduct.save()

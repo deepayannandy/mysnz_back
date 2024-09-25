@@ -12,7 +12,7 @@ const productSchema= new mongoos.Schema({
     },
     description:{
         type:String,
-        required:true
+        required:false
     },
     category:{
         type:String,
@@ -28,7 +28,7 @@ const productSchema= new mongoos.Schema({
     },
     quantity:{
         type: Number,
-        required: true
+        required: false
     },
     isOutOfStock:{
         type: Boolean,
@@ -45,6 +45,10 @@ const productSchema= new mongoos.Schema({
     barcode:{
         type:String,
         required: false
+    },
+    isQntRequired:{
+        type: Boolean,
+        required: true
     }
 
 })
