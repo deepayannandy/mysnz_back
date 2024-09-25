@@ -54,7 +54,7 @@ router.post("/resume/:tableId",async(req,res)=>{
         let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
         console.log(timeDelta)
         let newPauseTime=parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0).toFixed(2)
-        console.log(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0))
+        console.log(newPauseTime)
         selectedTable.pauseMin=newPauseTime
         selectedTable.pauseTime=null
         await selectedTable.save();
@@ -110,6 +110,8 @@ router.post("/startGame/:tableId",async (req,res)=>{
             updateCustomerDetails(finalPlayerList[index].customerId,true)
             console.log(finalPlayerList[index].customerId)
         }
+        selectedTable.pauseMin=null;
+        selectedTable.pauseTime=null;
         selectedTable.gameData.players=finalPlayerList;
         selectedTable.isOccupied=true;
         selectedTable.gameData.startTime=new Date();
@@ -396,6 +398,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         selectedTable.gameData.players=[];
         selectedTable.gameData.gameType=undefined;
         selectedTable.pauseMin=null
+        selectedTable.pauseTime=null
         selectedTable.isOccupied=false;
         const updatedTable = await selectedTable.save();
         res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id,"UpdatedStoreData":updatedStore._id})
