@@ -134,6 +134,14 @@ router.patch("/stopGame/:tableId",verify_token,async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         if(selectedTable.gameData.endTime!=undefined) return res.status(401).json({message: "Game already stopped"})
+        if(selectedTable.pauseTime!=null){
+        let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
+        console.log(timeDelta)
+        let newPauseTime=(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)).toFixed(2)
+        console.log(newPauseTime)
+        selectedTable.pauseMin=newPauseTime
+        selectedTable.pauseTime=null
+        }
         selectedTable.gameData.endTime=new Date();
         const updatedTable = await selectedTable.save();
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
