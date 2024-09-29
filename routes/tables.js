@@ -122,9 +122,13 @@ router.patch("/switchTable/switch",async(req,res)=>{
     if(!newTable.gameTypes.includes(oldTable.gameData.gameType)) return res.status(404).json({message: `This game type is not available on ${newTable.tableName}`})
     if(newTable.isOccupied) return res.status(404).json({message: `${newTable.tableName} is already occupied`})
         newTable.gameData=oldTable.gameData
+        newTable.pauseMin=oldTable.pauseMin
+        newTable.pauseTime=oldTable.pauseTime
         newTable.isOccupied=oldTable.isOccupied
         oldTable.isOccupied=false
         oldTable.gameData=null
+        oldTable.pauseMin=null
+        oldTable.pauseTime=null
     try{
         await oldTable.save()
         await newTable.save()

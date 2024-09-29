@@ -54,17 +54,17 @@ router.get("/:pId",verify_token,async(req,res)=>{
         res.status(500).json({message: e.message})
     }
 })
-// router.get("/onTable/get",verify_token,async(req,res)=>{
-//     const loggedInUser= await userModel.findById(req.tokendata._id)
-//     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
-//     console.log(loggedInUser)
-//     try{
-//         const storeProducts= await productModel.find({$and: [{storeId:loggedInUser.storeId},{isOutOfStock:false}]})
-//         res.status(201).json(storeProducts)
-//     }catch(e){
-//         res.status(500).json({message: e.message})
-//     }
-// })
+router.get("/onTable/get",verify_token,async(req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+    console.log(loggedInUser)
+    try{
+        const storeProducts= await productModel.find({$and: [{storeId:loggedInUser.storeId},{isOutOfStock:false}]})
+        res.status(201).json(storeProducts)
+    }catch(e){
+        res.status(500).json({message: e.message})
+    }
+})
 
 router.patch("/:pId",verify_token,async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
