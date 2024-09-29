@@ -40,6 +40,7 @@ router.post("/pause/:tableId",async(req,res)=>{
     if(!selectedTable) return res.status(500).json({message: "Table not found!"})
     try{
         selectedTable.pauseTime=new Date()
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
         await selectedTable.save();
     return res.status(200).json({message: "Table paused"})
     }catch(error){
@@ -57,11 +58,23 @@ router.post("/resume/:tableId",async(req,res)=>{
         console.log(newPauseTime)
         selectedTable.pauseMin=newPauseTime
         selectedTable.pauseTime=null
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"1")
         await selectedTable.save();
         return res.status(200).json({message: `Table resumed after ${newPauseTime}`})
     }catch(error){
         res.status(500).json({message: error.message})
     }
+})
+router.post("/restart/:tableId",async(req,res)=>{
+    const selectedTable= await tableModel.findById(req.params.tableId);
+    if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        try{
+            selectedTable.gameData.endTime=null;
+            await selectedTable.save();
+            return res.status(200).json({message: `Table restarted`})
+    }catch(error){{
+        res.status(500).json({message: error.message})
+    }}
 })
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
