@@ -90,28 +90,6 @@ router.delete("/:tId",verify_token,async (req,res)=>{
     }
 })
 
-// router.post("/cloneTable",async(req,res)=>{
-//     const oldTable= await tableModel.findById(req.body.oldTable)
-//     if(!oldTable) return res.status(404).json({message: "Table not found"})
-//         const newTable= new tableModel({
-//             storeId:oldTable.storeId,
-//             tableName:req.body.newTableName,
-//             deviceId:oldTable.deviceId,
-//             nodeID:oldTable.nodeID,
-//             isOccupied:false,
-//             gameTypes:oldTable.gameTypes,
-//             netAmount:0,
-//             isBooked:false,
-//             minuteWiseRules:oldTable.minuteWiseRules,
-//             slotWiseRules:oldTable.slotWiseRules
-//         })
-//         try{
-//             const table=await newTable.save()
-//             res.status(201).json({"_id":table.id})
-//         }catch(error){
-//             res.status(500).json({message: error.message})
-//         }
-// })
 
 
 router.patch("/switchTable/switch",async(req,res)=>{

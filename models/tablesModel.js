@@ -109,6 +109,31 @@ const tablesSchema= new mongoos.Schema({
     isBooked:{
         type:Boolean,
         required:true
+    },
+    productList:[
+        {
+            productId:{
+                type:String,
+                required:false
+            },
+            productName:{
+                type:String,
+                required:false
+            },
+            productSalePrice:{
+                type:Number,
+                required:false
+            },
+            qnt:{
+                type:Number,
+                required:false
+            }
+        }
+    ],
+    mealAmount:{
+        type:Number,
+        required:false
     }
+
 })
 module.exports=mongoos.model('Table',tablesSchema )

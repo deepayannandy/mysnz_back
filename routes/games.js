@@ -76,6 +76,26 @@ router.post("/restart/:tableId",async(req,res)=>{
         res.status(500).json({message: error.message})
     }}
 })
+router.post("/addMeal/:tableId",async (req,res)=>{
+    console.log(req.params.tableId)
+    try{
+        let totalOrderValue=0;
+        const selectedTable= await tableModel.findById(req.params.tableId);
+        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        selectedTable.productList=req.body.productList;
+        for(let i in req.body.productList ){
+            console.log(req.body.productList[i])
+            totalOrderValue=totalOrderValue+parseFloat(req.body.productList[i].productSalePrice*req.body.productList[i].qnt)
+        }
+        selectedTable.mealAmount=totalOrderValue;
+        const updatedTable = await selectedTable.save();
+        res.status(201).json({"_id":updatedTable._id})
+    }
+    catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
     try{
