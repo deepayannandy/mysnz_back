@@ -55,6 +55,7 @@ router.post("/",verify_token,async (req,res)=>{
     const newOrderHistory= new orderHistoryModel({
         storeId:loggedInUser.storeId,
         date:new Date(),
+        orderItems:req.body.orderItems,
         customers: finalCustomerList,
         description:"Takeaway order",
         total:req.body.total,

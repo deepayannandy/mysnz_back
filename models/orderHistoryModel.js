@@ -12,6 +12,10 @@ const orderHistorySchema= new mongoos.Schema({
         type:Object,
         required:true
     },
+    orderItems:{
+        type:Object,
+        required:true
+    },
     description:{
         type:String,
         required:true
