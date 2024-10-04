@@ -33,6 +33,8 @@ const gamesRouter= require("./routes/games")
 const adminRouter= require("./routes/admin")
 const customerHistoryRouter= require("./routes/customerHistory")
 const productRouter= require("./routes/products")
+const orderRouter= require("./routes/order")
+
 
 app.use("/api/user",userRouter)
 app.use("/api/store",storeRouter)
@@ -48,6 +50,7 @@ app.use("/api/games",gamesRouter)
 app.use("/api/admin",adminRouter)
 app.use("/api/customerHistory",customerHistoryRouter)
 app.use("/api/products",productRouter)
+app.use("/api/order",orderRouter)
 
 app.listen(4455,()=>{
     console.log("Http Server is listening!")
