@@ -112,23 +112,43 @@ const tablesSchema= new mongoos.Schema({
     },
     productList:[
         {
-            productId:{
-                type:String,
-                required:false
+            customerDetails:{
+                fullName:{
+                    type:String,
+                    required:true
+                },
+                customerId:{
+                    type:String,
+                    required:false
+                }
             },
-            productName:{
-                type:String,
-                required:false
-            },
-            productSalePrice:{
-                type:Number,
-                required:false
-            },
-            qnt:{
+            orders:[
+                {
+                    productId:{
+                        type:String,
+                        required:false
+                    },
+                    productName:{
+                        type:String,
+                        required:false
+                    },
+                    productSalePrice:{
+                        type:Number,
+                        required:false
+                    },
+                    qnt:{
+                        type:Number,
+                        required:false
+                    }
+                }
+            ],
+            orderTotal:
+            {
                 type:Number,
                 required:false
             }
         }
+        
     ],
     mealAmount:{
         type:Number,

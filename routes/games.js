@@ -79,14 +79,21 @@ router.post("/restart/:tableId",async(req,res)=>{
 router.post("/addMeal/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
     try{
-        let totalOrderValue=0;
+        
         const selectedTable= await tableModel.findById(req.params.tableId);
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
-        selectedTable.productList=req.body.productList;
-        for(let i in req.body.productList ){
-            console.log(req.body.productList[i])
-            totalOrderValue=totalOrderValue+parseFloat(req.body.productList[i].productSalePrice*req.body.productList[i].qnt)
+        let totalOrderValue=selectedTable.mealAmount??0;
+        if(!selectedTable.productList)
+        {
+            selectedTable.productList=req.body.productList;
         }
+        else{
+            selectedTable.productList=[...selectedTable.productList,req.body.productList]
+        }
+       
+        console.log(req.body.productList)
+        totalOrderValue=totalOrderValue+parseFloat(req.body.productList.orderTotal)
+        
         selectedTable.mealAmount=totalOrderValue;
         const updatedTable = await selectedTable.save();
         res.status(201).json({"_id":updatedTable._id})
@@ -355,7 +362,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     // console.log(timeDelta,totalBillAmt,bills)
                     // await delay(2000);
                 }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt, selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
         }
         res.status(502).json({message: "Billing not supported"})
 
