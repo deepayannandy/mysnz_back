@@ -10,6 +10,7 @@ const customerModel=require("../models/customersModel")
 const storeModel=require("../models/storesModel")
 const mqttAgent=require("../utils/mqtt")
 const customerHistoryModel= require("../models/customerHistoryModel")
+const productModel= require("../models/productModel")
 
 router.post("/SendMqtt",async (req,res)=>{
     try{
@@ -76,6 +77,20 @@ router.post("/restart/:tableId",async(req,res)=>{
         res.status(500).json({message: error.message})
     }}
 })
+async function updateProductCount(productId,itemsToDeduct){
+    const orderedProduct= await productModel.findById(productId);
+    if(!orderedProduct) return res.status(500).json({message: "Product not found!"})
+        if(orderedProduct.isQntRequired){
+            if(orderedProduct.quantity<itemsToDeduct) 
+                {
+                     return "Product not is stock"
+                    }
+                orderedProduct.quantity=parseInt(orderedProduct.quantity)-parseInt(itemsToDeduct)
+        }
+        await orderedProduct.save()
+        return "ok"
+
+}
 router.post("/addMeal/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
     try{
@@ -83,17 +98,36 @@ router.post("/addMeal/:tableId",async (req,res)=>{
         const selectedTable= await tableModel.findById(req.params.tableId);
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         let totalOrderValue=selectedTable.mealAmount??0;
+        for(let i in req.body.productList.orders){
+           let message= await updateProductCount(req.body.productList.orders[i].productId,req.body.productList.orders[i].qnt)
+           if(message!="ok")  return res.status(500).json({message: message})
+        }
         if(!selectedTable.productList)
         {
             selectedTable.productList=req.body.productList;
+            totalOrderValue=parseFloat(req.body.productList.orderTotal)
         }
         else{
+            let isInserted=false;
+            for(let i in selectedTable.productList)
+            { 
+                if(selectedTable.productList[0].customerDetails.customerId==req.body.productList.customerDetails.customerId){
+                console.log("existing Customer")
+                isInserted=true
+                
+                console.log(selectedTable.productList[i])
+                selectedTable.productList[i].orders=[...selectedTable.productList[i].orders,...req.body.productList.orders]
+                selectedTable.productList[i].orderTotal= parseFloat(selectedTable.productList[i].orderTotal)+parseFloat(req.body.productList.orderTotal)
+            }
+            }
+            if(!isInserted){
+            console.log("new Customer")
             selectedTable.productList=[...selectedTable.productList,req.body.productList]
+            }    
+            
+            totalOrderValue=totalOrderValue+parseFloat(req.body.productList.orderTotal)
         }
        
-        console.log(req.body.productList)
-        totalOrderValue=totalOrderValue+parseFloat(req.body.productList.orderTotal)
-        
         selectedTable.mealAmount=totalOrderValue;
         const updatedTable = await selectedTable.save();
         res.status(201).json({"_id":updatedTable._id})
@@ -295,7 +329,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
                 }
             }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2), selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
             let bills=[]
@@ -439,6 +473,38 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
            
             
         }
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        for(let index in req.body.mealSettlement){
+            console.log(req.body.mealSettlement[index])
+            if(req.body.mealSettlement[index].customerDetails.customerId){
+                const custHistory=new customerHistoryModel({
+                    customerId:req.body.mealSettlement[index].customerDetails.customerId,
+                    date:new Date(),
+                    customerName:req.body.mealSettlement[index].customerDetails.fullName,
+                    description:"Meal Order "+req.body.mealSettlement[index].paymentMethod,
+                    quantity:0,
+                    discount:0,
+                    netPay:req.body.mealSettlement[index].payable,
+                    paid:req.body.mealSettlement[index].paid,
+                    due:parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid),
+                    transactionId:gHistory.transactionId,
+                    storeId:selectedTable.storeId
+                })
+                if((parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid))>0)
+                    {
+                    const pickedCustomer= await customerModel.findById(req.body.mealSettlement[index].customerDetails.customerId)
+                    if(pickedCustomer)
+                    {
+                    pickedCustomer.credit=pickedCustomer.credit+(parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid))}
+                    const updatedCustomer =await pickedCustomer.save()
+                    gHistory.credit=gHistory.credit+(parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid))
+                    gHistory.meal=gHistory.meal+parseFloat(req.body.mealSettlement[index].payable)
+                    }
+                const newCustomerHistory =await custHistory.save()
+                console.log(newCustomerHistory.id); 
+            }
+        }
+
         const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
         selectedTable.gameData.startTime=undefined;
