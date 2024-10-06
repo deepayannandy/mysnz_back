@@ -480,7 +480,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 const custHistory=new customerHistoryModel({
                     customerId:req.body.mealSettlement[index].customerDetails.customerId,
                     date:new Date(),
-                    customerName:req.body.mealSettlement[index].customerDetails.fullName,
+                    customerName:req.body.mealSettlement[index].customerDetails.fullName.split("(")[0],
                     description:"Meal Order "+req.body.mealSettlement[index].paymentMethod,
                     quantity:0,
                     discount:0,
