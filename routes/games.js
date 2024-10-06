@@ -513,6 +513,8 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         selectedTable.gameData.gameType=undefined;
         selectedTable.pauseMin=null
         selectedTable.pauseTime=null
+        selectedTable.mealAmount=null
+        selectedTable.productList=null
         selectedTable.isOccupied=false;
         const updatedTable = await selectedTable.save();
         res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id,"UpdatedStoreData":updatedStore._id})
