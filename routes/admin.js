@@ -6,6 +6,7 @@ const customerModel=require("../models/customersModel")
 const custM= require("../models/customersModel")
 const userM= require("../models/userModel")
 const historyModle= require("../models/historyModel")
+const userModel = require("../models/userModel")
 
 router.get("/Dashboard/:sid",async(req,res)=>{
     const Store=await storeModel.findOne({_id:req.params.sid});
@@ -91,5 +92,19 @@ router.get("/Dashboard/:sid",async(req,res)=>{
     catch(error){
         res.status(400).json({message:error.message})
     }
+}),
+
+router.get("/signOffReport/:uid",async (req,res)=>{
+    const User=await userModel.findOne({_id:req.params.uid});
+    if(!User) return res.status(400).send({"message":"User dose not exist!"});
+    res.status(201).json({
+        "tableCollection":1072,
+        "cafeCollection":899,
+        "totalCollection":1971,
+        "dues": 100
+    })
 })
+
+
+
 module.exports=router
