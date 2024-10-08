@@ -13,50 +13,13 @@ router.post("/",verify_token,async (req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     const selectedStore= await storeModel.findById(loggedInUser.storeId)
-    console.log(req.body)
-    let finalCustomerList=[];
-    for(count in req.body.customers){
-        let getdata=req.body.customers[count]
-        console.log(getdata)
-        if(getdata.customerId==undefined && getdata.fullName!="CASH"){
-            console.log(`creating userid for ${getdata.fullName}`)
-            const newCustomer= new customerModel({
-                fullName:getdata.fullName,
-                storeId:loggedInUser.storeId,
-                isBlackListed:false,
-                credit:0,
-                contact:"+910000000000"
-            })
-            const cli=await newCustomer.save();
-            getdata.customerId=cli._id.toString();
-        }
-        if(getdata.fullName=="CASH"){
-            const searchedUser=await customerModel.findOne({$and: [ {storeId:selectedTable.storeId  }, { fullName:"CASH" }]})
-            console.log(searchedUser)
-            if(!searchedUser){
-                console.log(`creating userid for ${getdata.fullName}`)
-                const newCustomer= new customerModel({
-                    fullName:getdata.fullName,
-                    storeId:selectedTable.storeId,
-                    isBlackListed:false,
-                    credit:0,
-                    contact:"+910000000000"
-                })
-                const cli=await newCustomer.save();
-                getdata.customerId=cli._id.toString();
-            }
-            else{
-                getdata.customerId=searchedUser._id.toString();
-            }
-        }
-        finalCustomerList.push(getdata)
-    }
+    console.log(req.body)  
     console.log(finalCustomerList)
     const newOrderHistory= new orderHistoryModel({
         storeId:loggedInUser.storeId,
         date:new Date(),
         orderItems:req.body.orderItems,
-        customers: finalCustomerList,
+        customers: customer,
         description:"Takeaway order",
         total:req.body.total,
         discount:req.body.discount,
