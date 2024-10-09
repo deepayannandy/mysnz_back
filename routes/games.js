@@ -436,7 +436,8 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 netPay:req.body.totalBillAmt-dis,
                 status:(req.body.totalBillAmt-dis)-req.body.cashIn>0?"Due":"Paid",
                 credit:(req.body.totalBillAmt-dis)-req.body.cashIn,
-                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}-${selectedStore.transactionCounter}`
+                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}-${selectedStore.transactionCounter}`,
+                empId:loggedInUser._id
             })
         selectedStore.transactionCounter= selectedStore.transactionCounter+1;
         for(let index in req.body.checkoutPlayers){
@@ -454,7 +455,8 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                     startTime:selectedTable.gameData.startTime,
                     endTime:selectedTable.gameData.endTime,
                     transactionId:gHistory.transactionId,
-                    storeId:selectedTable.storeId
+                    storeId:selectedTable.storeId,
+                    empId:loggedInUser._id
                 })
                 if(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn>0)
                     {
@@ -488,7 +490,8 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                     paid:req.body.mealSettlement[index].paid,
                     due:parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid),
                     transactionId:gHistory.transactionId,
-                    storeId:selectedTable.storeId
+                    storeId:selectedTable.storeId,
+                    empId:loggedInUser._id
                 })
                 if((parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid))>0)
                     {
@@ -498,8 +501,8 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                     pickedCustomer.credit=pickedCustomer.credit+(parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid))}
                     const updatedCustomer =await pickedCustomer.save()
                     gHistory.credit=gHistory.credit+(parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid))
-                    gHistory.meal=gHistory.meal+parseFloat(req.body.mealSettlement[index].payable)
                     }
+                gHistory.meal=gHistory.meal+parseFloat(req.body.mealSettlement[index].payable)
                 const newCustomerHistory =await custHistory.save()
                 console.log(newCustomerHistory.id); 
             }

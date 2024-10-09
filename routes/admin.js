@@ -44,6 +44,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             }
         }
         let sales=0 
+        let discount=0
         let cash=0 
         let card=0
         let upi=0
@@ -51,6 +52,8 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         let credit=0 
         for(let index in allHistory){
             sales= sales+allHistory[index].booking
+            sales= sales+allHistory[index].meal??0
+            discount= discount+allHistory[index].discount??0
         }
         for(let index in filteredTransactions){
             console.log(filteredTransactions[index])
@@ -80,6 +83,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
             storeName:Store.storeName,
             sales: sales,
             credit:credit,
+            discount:discount,
             transactions: {
               cash: cash,
               card: card,
@@ -97,11 +101,39 @@ router.get("/Dashboard/:sid",async(req,res)=>{
 router.get("/signOffReport/:uid",async (req,res)=>{
     const User=await userModel.findOne({_id:req.params.uid});
     if(!User) return res.status(400).send({"message":"User dose not exist!"});
+    const today= new Date()
+    const startDate=new Date()
+    startDate.setHours(0,0,0,0);
+    const endDate=new Date()
+    endDate.setHours(23,59,59,999);
+    console.log(today,startDate,endDate)
+    const allTransactionToday= await customerHistoryModel.find({$and:
+        [{date:{
+           $gt: startDate,
+           $lt: endDate
+       }},{
+         empId:User._id
+       }]
+   })
+   let tableCollection=0
+   let mealCollection=0
+   let due=0
+   for(let index in allTransactionToday){
+    console.log(allTransactionToday[index])
+    if(allTransactionToday[index].description.includes("Table")){
+        tableCollection=tableCollection+allTransactionToday[index].netPay
+    }
+    if(allTransactionToday[index].description.includes("Meal")){
+        mealCollection=mealCollection+allTransactionToday[index].netPay
+    }
+    due=due+allTransactionToday[index].due
+   }
+
     res.status(201).json({
-        "tableCollection":1072,
-        "cafeCollection":899,
-        "totalCollection":1971,
-        "dues": 100
+        "tableCollection":tableCollection,
+        "cafeCollection":mealCollection,
+        "totalCollection":tableCollection+mealCollection,
+        "dues": due
     })
 })
 
