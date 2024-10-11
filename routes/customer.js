@@ -91,6 +91,8 @@ router.get("/:cid",async (req,res)=>{
 })
 
 router.patch("/:cid",verify_token, async (req,res)=>{
+    const User=await userModel.findOne({_id:req.params.uid});
+    if(!User) return res.status(400).send({"message":"User dose not exist!"});
     console.log(req.tokendata)
     if(req.tokendata.userDesignation=="Staff")return res.status(500).json({message: "Access Denied!"})
     const customers=await customerModel.findOne({_id:req.params.cid});
@@ -124,7 +126,8 @@ router.patch("/:cid",verify_token, async (req,res)=>{
             description:req.body.description+" "+req.body.paymentMethods,
             paid:req.body.description=="Pay Dues"? customers.credit-req.body.credit:0,
             due:req.body.description=="Add Old Credit"? req.body.credit-customers.credit:0,
-            storeId:customers.storeId
+            storeId:customers.storeId,
+            empId:User._id
         })
         try{
         const savedHistory= await newCustomerHistory.save()
