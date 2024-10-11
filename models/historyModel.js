@@ -18,19 +18,19 @@ const historySchema= new mongoos.Schema({
     },
     startTime:{
         type:Date,
-        required:true
+        required:false
     },
     endTime:{
         type:Date,
-        required:true
+        required:false
     },
     time:{
         type:Number,
-        required:true
+        required:false
     },
     booking:{
         type:Number,
-        required:true
+        required:false
     },
     meal:{
         type:Number,
