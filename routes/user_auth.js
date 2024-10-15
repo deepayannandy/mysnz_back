@@ -6,6 +6,7 @@ const userModel=require("../models/userModel")
 const validator= require("../validators/validation")
 const nodemailer = require('nodemailer');
 const mongodb=require("mongodb");
+const storeModel= require("../models/storesModel")
 
 require("dotenv").config()
 process.env.TZ = "Asia/Calcutta";
@@ -124,7 +125,9 @@ router.get('/whoAmI', verify_token, async (req,res)=>{
     try{
         const loggedInUser= await userModel.findById(req.tokendata._id)
         if(!loggedInUser)return res.status(500).json({message: "User Not found!"})
-        res.status(201).json(loggedInUser)
+        const myStore=await  storeModel.findById(loggedInUser.storeId)
+        const storeName=myStore.storeName
+        res.status(201).json({...loggedInUser.toObject(),storeName})
     }catch(error){
         res.status(500).json({message: error.message})
     }
