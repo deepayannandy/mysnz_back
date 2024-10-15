@@ -122,20 +122,20 @@ router.get("/signOffReport/:uid",async (req,res)=>{
    let card=0
    for(let index in allTransactionToday){
     console.log(allTransactionToday[index])
-    if(allTransactionToday[index].description.toLowerCase.includes("table")){
+    if(allTransactionToday[index].description.toLowerCase().includes("table")){
         tableCollection=tableCollection+allTransactionToday[index].netPay
     }
-    if(allTransactionToday[index].description.toLowerCase.includes("meal")){
+    if(allTransactionToday[index].description.toLowerCase().includes("meal")){
         mealCollection=mealCollection+allTransactionToday[index].netPay
     }
-    if(allTransactionToday[index].description.toLowerCase.includes("cash")){
+    if(allTransactionToday[index].description.toLowerCase().includes("cash")){
         cash=cash+allTransactionToday[index].paid
     }
-    if(allTransactionToday[index].description.toLowerCase.includes("card")){
+    if(allTransactionToday[index].description.toLowerCase().includes("card")){
         card=card+allTransactionToday[index].paid
     }
     due=due+allTransactionToday[index].due
-    if(allTransactionToday[index].description.toLowerCase.includes("pay dues")){
+    if(allTransactionToday[index].description.toLowerCase().includes("pay dues")){
         console.log(">> ",allTransactionToday[index].paid)
         due=due-allTransactionToday[index].paid
     }
