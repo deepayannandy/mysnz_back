@@ -7,6 +7,8 @@ const custM= require("../models/customersModel")
 const userM= require("../models/userModel")
 const historyModle= require("../models/historyModel")
 const userModel = require("../models/userModel")
+const dailyReportModel=require("../models/dailyReportModel")
+const verifyToken = require("../validators/verifyToken")
 
 router.get("/Dashboard/:sid",async(req,res)=>{
     const Store=await storeModel.findOne({_id:req.params.sid});
@@ -152,6 +154,27 @@ router.get("/signOffReport/:uid",async (req,res)=>{
     })
 })
 
+router.post("/addMyDailyReport/",verifyToken, async(req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+        const newDailyReport= new dailyReportModel({
+            userId:loggedInUser._id,
+            storeId:loggedInUser.storeId,
+            userName:loggedInUser.fullName,
+            tableCollection:req.body.tableCollection,
+            cafeCollection:req.body.cafeCollection,
+            totalCollection:req.body.totalCollection,
+            cash:req.body.cash,
+            card:req.body.card,
+            dues: req.body.dues,
+            loginTime:loggedInUser.loginTime,
+            logoutTime: new Date()
+        })
+    try{
+        const report= await newDailyReport.save();
+        res.status(201).json({"_id":report.id})
+    }catch(error){res.status(400).json({message:error.message})}
+})
 
 
 module.exports=router

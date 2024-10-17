@@ -11,7 +11,7 @@ const dailyReportSchema= new mongoos.Schema({
         required:true
     },
     userName:{
-        type:Array,
+        type:String,
         required:true
     },
     tableCollection:{
@@ -36,6 +36,14 @@ const dailyReportSchema= new mongoos.Schema({
     },
     dues: {
         type:Number,
+        required:true
+    },
+    loginTime: {
+        type:Date,
+        required:true
+    },
+    logoutTime: {
+        type:Date,
         required:true
     }
     
