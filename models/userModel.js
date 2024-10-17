@@ -42,6 +42,10 @@ const userSchema= new mongoos.Schema({
         type:String,
         required:true
     },
+    loginTime:{
+        type:Date,
+        required:false
+    },
 })
 
 module.exports=mongoos.model('User',userSchema )

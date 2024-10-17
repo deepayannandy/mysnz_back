@@ -6,6 +6,7 @@ const customerModel= require("../models/customersModel")
 const userModel= require("../models/userModel")
 const historyModel= require("../models/historyModel")
 const verify_token= require("../validators/verifyToken")
+const dailyReportModel=require("../models/dailyReportModel")
 
 router.get("/transactionReport/:storeId/",verify_token, async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
@@ -69,5 +70,13 @@ router.get("/transactionReport/:storeId/",verify_token, async(req,res)=>{
     "dues":dues
 })
 })
-
+router.get("/collectionReport/:sId",async(req,res)=>{
+    console.log(">>>",req.params.sId)
+    try{
+        const dailyReports= await dailyReportModel.find({storeId:req.params.sId})
+        res.status(201).json(dailyReports)
+    }catch(error){
+        res.status(400).json({message:error.message})
+    }
+})
 module.exports=router
