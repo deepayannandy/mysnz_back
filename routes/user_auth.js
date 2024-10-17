@@ -153,6 +153,12 @@ router.patch('/:id', getUser,async(req,res)=>{
     if(req.body.shopId!=null){
         res.user.shopId=req.body.shopId;
     }
+    if(req.body.password!=null){
+         //hash the password
+        const salt= await bcrypt.genSalt(10);
+        const hashedPassword= await bcrypt.hash(req.body.password,salt);
+        res.user.password=hashedPassword
+    }
     try{
         const newUser=await res.user.save()
         res.status(201).json({"_id":newUser.id})
