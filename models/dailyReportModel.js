@@ -40,11 +40,11 @@ const dailyReportSchema= new mongoos.Schema({
     },
     loginTime: {
         type:Date,
-        required:true
+        required:false
     },
     logoutTime: {
         type:Date,
-        required:true
+        required:false
     }
     
 
