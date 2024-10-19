@@ -60,14 +60,14 @@ router.get("/transactionReport/:storeId/",verify_token, async(req,res)=>{
     }
     
    res.status(201).json({
-    "allTransaction":allTransactions,
-    "netAmount":netAmount,
-    "gems":gems,
-    "upi":upi,
-    "discount":discount,
-    "cash":cash,
-    "card":card,
-    "dues":dues
+    "allTransaction":allTransactions.toFixed(2),
+    "netAmount":netAmount.toFixed(2),
+    "gems":gems.toFixed(2),
+    "upi":upi.toFixed(2),
+    "discount":discount.toFixed(2),
+    "cash":cash.toFixed(2),
+    "card":card.toFixed(2),
+    "dues":dues.toFixed(2)
 })
 })
 router.get("/collectionReport/:sId",async(req,res)=>{

@@ -84,7 +84,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         res.status(201).json({
             storeName:Store.storeName,
             sales: sales,
-            credit:credit,
+            credit: Math.abs(credit),
             discount:discount,
             transactions: {
               cash: cash,
@@ -150,7 +150,7 @@ router.get("/signOffReport/:uid",async (req,res)=>{
         "totalCollection":tableCollection+mealCollection,
         "cash":cash,
         "card":card,
-        "dues": due
+        "dues": Math.abs(due)
     })
 })
 
