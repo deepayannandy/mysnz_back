@@ -107,10 +107,23 @@ router.patch("/:pId",verify_token,async(req,res)=>{
             selectedProduct.barcode=req.body.barcode;
         }
         if(req.body.category!=null){
-            selectedProduct.category=req.body.category;
+            let category= req.body.category
+            if(category.categoryId==undefined||req.body.category.categoryId==null){
+                const newCategory= new categoryModel({
+                storeId:loggedInUser.storeId,
+                type:"product",
+                name: category.name
+                })
+                const cData=await newCategory.save()
+                category.categoryId=cData.id
+            }
+            selectedProduct.category=category;
         }
         if(req.body.description!=null){
             selectedProduct.description=req.body.description;
+        }
+        if(req.body.tax!=null){
+            selectedProduct.tax=req.body.tax;
         }
     try{
         const sp=await selectedProduct.save();
