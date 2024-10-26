@@ -48,6 +48,10 @@ const productSchema= new mongoos.Schema({
         type:Number,
         required: true
     },
+    tax:{
+        type:Number,
+        required: true
+    },
     barcode:{
         type:String,
         required: false
