@@ -1,7 +1,7 @@
 const { required } = require("joi")
 const mongoos=require("mongoose")
 
-const expanseSchema= new mongoos.Schema({
+const expenseSchema= new mongoos.Schema({
     userId:{
         type:String,
         required:true
@@ -67,4 +67,4 @@ const expanseSchema= new mongoos.Schema({
     
 
 })
-module.exports=mongoos.model('expanse',expanseSchema)
+module.exports=mongoos.model('expense',expenseSchema)

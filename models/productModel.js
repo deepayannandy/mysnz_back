@@ -14,9 +14,15 @@ const productSchema= new mongoos.Schema({
         type:String,
         required:false
     },
-    category:{
-        type:String,
-        required:true
+    category: {
+        categoryId: {
+            type:String,
+            required:true
+        },
+        name: {
+            type:String,
+            required:true
+        }
     },
     sku:{
         type:String,
