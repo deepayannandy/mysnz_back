@@ -36,7 +36,7 @@ const productRouter= require("./routes/products")
 const orderRouter= require("./routes/order")
 const reportsRouter=require("./routes/reports")
 const categoryRouter=require("./routes/category")
-const expanseRouter=require("./routes/expense")
+const expenseRouter=require("./routes/expense")
 
 app.use("/api/user",userRouter)
 app.use("/api/store",storeRouter)
@@ -55,7 +55,7 @@ app.use("/api/products",productRouter)
 app.use("/api/order",orderRouter)
 app.use("/api/reports",reportsRouter)
 app.use("/api/category",categoryRouter)
-app.use("/api/expanse",expanseRouter)
+app.use("/api/expense",expenseRouter)
 
 app.listen(4455,()=>{
     console.log("Http Server is listening!")

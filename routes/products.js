@@ -4,16 +4,27 @@ const productModel=require("../models/productModel")
 const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
 const mongodb=require("mongodb");
+const categoryModel= require("../models/categoryModel")
 
 router.post("/",verify_token,async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     console.log(loggedInUser)
+    let category= req.body.category
+    if(category.categoryId==undefined||req.body.category.categoryId==null){
+        const newCategory= new categoryModel({
+        storeId:loggedInUser.storeId,
+        type:"product",
+        name: category.name
+        })
+        const cData=await newCategory.save()
+        category.categoryId=cData.id
+        }
     const newProduct= new productModel({
         productName:req.body.productName,
         storeId:loggedInUser.storeId,
         description:req.body.description,
-        category:req.body.category,
+        category:category,
         sku:req.body.sku,
         basePrice:req.body.basePrice,
         salePrice:req.body.salePrice,
