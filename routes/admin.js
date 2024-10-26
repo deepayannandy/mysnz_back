@@ -83,14 +83,14 @@ router.get("/Dashboard/:sid",async(req,res)=>{
         console.log(sales)
         res.status(201).json({
             storeName:Store.storeName,
-            sales: sales,
-            credit: Math.abs(credit),
-            discount:discount,
+            sales: sales.toFixed(2),
+            credit: Math.abs(credit).toFixed(2),
+            discount:discount.toFixed(2),
             transactions: {
-              cash: cash,
-              card: card,
-              upi: upi,
-              prime: prime
+              cash: cash.toFixed(2),
+              card: card.toFixed(2),
+              upi: upi.toFixed(2),
+              prime: prime.toFixed(2)
             },
             creditHistoryToday:finalCreditUserList
     })
