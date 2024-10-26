@@ -38,13 +38,17 @@ const productSchema= new mongoos.Schema({
     },
     isOutOfStock:{
         type: Boolean,
-        required: true
+        required: false
     },
     productImage:{
         type:String,
         required: false
     },
     salePrice:{
+        type:Number,
+        required: true
+    },
+    tax:{
         type:Number,
         required: true
     },
