@@ -38,7 +38,7 @@ const productSchema= new mongoos.Schema({
     },
     isOutOfStock:{
         type: Boolean,
-        required: true
+        required: false
     },
     productImage:{
         type:String,
