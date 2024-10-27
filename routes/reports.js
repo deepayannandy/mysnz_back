@@ -74,7 +74,7 @@ router.get("/collectionReport/:sId",async(req,res)=>{
     console.log(">>>",req.params.sId)
     try{
         const dailyReports= await dailyReportModel.find({storeId:req.params.sId})
-        res.status(201).json(dailyReports)
+        res.status(201).json(dailyReports.reverse())
     }catch(error){
         res.status(400).json({message:error.message})
     }
