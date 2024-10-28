@@ -106,7 +106,7 @@ router.get("/signOffReport/:uid",async (req,res)=>{
     const today= new Date()
     const startDate=new Date(User.loginTime)
     // startDate.setHours(0,0,0,0);
-    const endDate=new Date(User.logoutTime)
+    const endDate=new Date()
     // endDate.setHours(23,59,59,999);
     console.log(today,startDate,endDate)
     const allTransactionToday= await customerHistoryModel.find({$and:
