@@ -4,6 +4,7 @@ const mongodb=require("mongodb");
 const tableModel=require("../models/tablesModel")
 const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
+const mqttAgent=require("../utils/mqtt")
 
 
 router.post("/",verify_token,async(req,res)=>{
@@ -99,6 +100,8 @@ router.patch("/switchTable/switch",async(req,res)=>{
     if(!newTable) return res.status(404).json({message: "To Table not found"})
     if(!newTable.gameTypes.includes(oldTable.gameData.gameType)) return res.status(404).json({message: `This game type is not available on ${newTable.tableName}`})
     if(newTable.isOccupied) return res.status(404).json({message: `${newTable.tableName} is already occupied`})
+    mqttAgent.client.publish(oldTable.deviceId+"/"+oldTable.nodeID,"0")
+    mqttAgent.client.publish(newTable.deviceId+"/"+newTable.nodeID,"1")
         newTable.gameData=oldTable.gameData
         newTable.pauseMin=oldTable.pauseMin
         newTable.pauseTime=oldTable.pauseTime

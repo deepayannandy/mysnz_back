@@ -8,9 +8,9 @@ const userModel=require("../models/userModel")
 const historyModel= require("../models/historyModel")
 const customerModel=require("../models/customersModel")
 const storeModel=require("../models/storesModel")
-const mqttAgent=require("../utils/mqtt")
 const customerHistoryModel= require("../models/customerHistoryModel")
 const productModel= require("../models/productModel")
+const mqttAgent=require("../utils/mqtt")
 
 router.post("/SendMqtt",async (req,res)=>{
     try{
@@ -71,6 +71,7 @@ router.post("/restart/:tableId",async(req,res)=>{
     if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         try{
             selectedTable.gameData.endTime=null;
+            mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"1")
             await selectedTable.save();
             return res.status(200).json({message: `Table restarted`})
     }catch(error){{
