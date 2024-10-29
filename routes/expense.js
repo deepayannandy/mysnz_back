@@ -40,7 +40,7 @@ router.post("/",verifyToken, async(req,res)=>{
                 category:category,
                 invoiceNumber: req.body.invoiceNumber,
                 vendorName:req.body.vendorName,
-                description:req.body.description,
+                name:req.body.name,
                 amount:req.body.amount,
                 invoiceAmount: (parseFloat(req.body.amount)*parseFloat(req.body.quantity)).toFixed(2) ,
                 quantity:req.body.quantity,
@@ -61,7 +61,7 @@ router.patch("/:eid",verifyToken, async(req,res)=>{
     if(!selectedExpense)return res.status(500).json({message: "Expanse not available!"})
         try{
             if(req.body.paid!=null){
-                selectedExpense.paid=req.body.paid;
+                selectedExpense.paid=selectedExpense.paid+req.body.paid;
                 selectedExpense.status=(selectedExpense.invoiceAmount).toFixed(2)>parseFloat(selectedExpense.paid)?parseFloat(selectedExpense.paid)==0?"Due":"Partial Due":"Paid"
             }
             const eData=await selectedExpense.save()
