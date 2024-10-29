@@ -36,7 +36,7 @@ const expenseSchema= new mongoos.Schema({
         type:String,
         required:true
     },
-    description:{
+    name:{
         type:String,
         required:false
     },
