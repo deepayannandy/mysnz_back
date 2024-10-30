@@ -1,3 +1,4 @@
+const { string, object } = require("joi")
 const mongoos=require("mongoose")
 
 const tablesSchema= new mongoos.Schema({
@@ -62,6 +63,10 @@ const tablesSchema= new mongoos.Schema({
             gameType:{
                 type:String,
                 required:false
+            },
+            countdownMin:{
+                type:Number,
+                required:false
             }
           },
     minuteWiseRules:{
@@ -101,6 +106,22 @@ const tablesSchema= new mongoos.Schema({
                 required:false
             },
             nightSlotCharge:{
+                type:Number,
+                required:false
+            }
+        }
+    ],
+    countdownRules:[
+        {   
+            uptoMin:{
+                type:Number,
+                required:false
+            },
+            countdownDayCharge:{
+                type:Number,
+                required:false
+            },
+            countdownNightCharge:{
                 type:Number,
                 required:false
             }
@@ -152,6 +173,10 @@ const tablesSchema= new mongoos.Schema({
     ],
     mealAmount:{
         type:Number,
+        required:false
+    },
+    countdownId:{
+        type:Object,
         required:false
     }
 
