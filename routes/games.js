@@ -430,6 +430,36 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                 }
             return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
         }
+        if(selectedTable.gameData.gameType=="Countdown Billing"){
+            let bills=[]
+            let totalBillAmt=0;
+            const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata',hour12: false});
+            let isNightTime=isNight(selectedStore, indianStartTime)
+            if(isNightTime){
+                for(let i in selectedTable.countdownRules){
+                    console.log(selectedTable.countdownRules[i])
+                    if(selectedTable.countdownRules[i].uptoMin==selectedTable.gameData.countdownMin){
+                       if(selectedTable.countdownRules[i].countdownNightCharge!=null ||selectedTable.countdownRules[i].countdownNightCharge!=0){
+                        totalBillAmt=selectedTable.countdownRules[i].countdownNightCharge
+                        bills.push({"title":"Night Countdown","time":selectedTable.gameData.countdownMin,"amount":selectedTable.countdownRules[i].countdownNightCharge})
+                       }
+                       else{
+                        totalBillAmt=selectedTable.countdownRules[i].countdownDayCharge
+                        bills.push({"title":"Day Countdown","time":selectedTable.gameData.countdownMin,"amount":selectedTable.countdownRules[i].countdownDayCharge})
+                       }
+                    }
+                }
+            }else{
+                for(let i in selectedTable.countdownRules){
+                    console.log(selectedTable.countdownRules[i])
+                    if(selectedTable.countdownRules[i].uptoMin==selectedTable.gameData.countdownMin){
+                        totalBillAmt=selectedTable.countdownRules[i].countdownDayCharge
+                        bills.push({"title":"Day Countdown","time":selectedTable.gameData.countdownMin,"amount":selectedTable.countdownRules[i].countdownDayCharge})
+                    }
+                }
+            }
+            return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
+        }
         res.status(502).json({message: "Billing not supported"})
 
     }catch(error){
