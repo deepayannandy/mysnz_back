@@ -67,6 +67,10 @@ const tablesSchema= new mongoos.Schema({
             countdownMin:{
                 type:Number,
                 required:false
+            },
+            countdownGameEndTime:{
+                type:Date,
+                required:false
             }
           },
     minuteWiseRules:{

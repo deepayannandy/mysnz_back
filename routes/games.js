@@ -153,8 +153,11 @@ async function countdownGame(tableId){
         selectedTable.pauseTime=null
         }
         selectedTable.gameData.endTime=new Date();
+        selectedTable.gameData.countdownGameEndTime=null;
         const updatedTable = await selectedTable.save();
+        console.log("Game Stopped "+updatedTable._id)
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
+        console.log("sending message to: "+selectedTable.deviceId+"/"+selectedTable.nodeID )
 }
 
 router.post("/startGame/:tableId",async (req,res)=>{
@@ -212,8 +215,10 @@ router.post("/startGame/:tableId",async (req,res)=>{
         selectedTable.gameData.gameType=req.body.gameType;
         console.log(selectedTable.gameData.startTime.toLocaleTimeString())
         if(req.body.gameType=="Countdown Billing"){
+            selectedTable.gameData.countdownGameEndTime=new Date(new Date().getTime() + parseInt(req.body.countdownMin)*60000)
+            console.log(selectedTable.countdownGameEndTime)
             let tableId=req.params.tableId
-            var timerID = setInterval(function(tableId){countdownGame(tableId)}, (parseInt(req.body.countdownMin)*60 * 1000)); 
+            var timerID = setInterval(function(){countdownGame(tableId)}, (parseInt(req.body.countdownMin)*60 * 1000)); 
             selectedTable.gameData.countdownMin=req.body.countdownMin
             console.log("Schedule created",timerID)
         }
