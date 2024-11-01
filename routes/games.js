@@ -137,6 +137,28 @@ router.post("/addMeal/:tableId",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+function countdownGameCaller(tableId){
+    countdownGame(tableId)
+}
+async function countdownGame(tableId){
+    console.log(tableId)
+    const selectedTable= await tableModel.findById(tableId);
+    if(!selectedTable) return console.log("Table not found!")
+    if(selectedTable.pauseTime!=null){
+        let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
+        console.log(timeDelta)
+        let newPauseTime=(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)).toFixed(2)
+        console.log(newPauseTime)
+        selectedTable.pauseMin=newPauseTime
+        selectedTable.pauseTime=null
+        }
+        selectedTable.gameData.endTime=new Date();
+        selectedTable.gameData.countdownGameEndTime=null;
+        const updatedTable = await selectedTable.save();
+        console.log("Game Stopped "+updatedTable._id)
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
+        console.log("sending message to: "+selectedTable.deviceId+"/"+selectedTable.nodeID )
+}
 
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
@@ -192,9 +214,18 @@ router.post("/startGame/:tableId",async (req,res)=>{
         selectedTable.gameData.startTime=new Date();
         selectedTable.gameData.gameType=req.body.gameType;
         console.log(selectedTable.gameData.startTime.toLocaleTimeString())
+        if(req.body.gameType=="Countdown Billing"){
+            selectedTable.gameData.countdownGameEndTime=new Date(new Date().getTime() + parseInt(req.body.countdownMin)*60000)
+            console.log(selectedTable.countdownGameEndTime)
+            let tableId=req.params.tableId
+            var timerID = setInterval(function(){countdownGame(tableId)}, (parseInt(req.body.countdownMin)*60 * 1000)); 
+            selectedTable.gameData.countdownMin=req.body.countdownMin
+            console.log("Schedule created",timerID)
+        }
         const updatedTable = await selectedTable.save();
         console.log("sending message to: "+selectedTable.deviceId+"/"+selectedTable.nodeID )
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"1")
+
         res.status(201).json({"_id":updatedTable._id})
 
     }catch(error){

@@ -21,7 +21,8 @@ router.post("/",verify_token,async(req,res)=>{
         netAmount:0,
         isBooked:false,
         minuteWiseRules:req.body.minuteWiseRules,
-        slotWiseRules:req.body.slotWiseRules
+        slotWiseRules:req.body.slotWiseRules,
+        countdownRules:req.body.countdownRules
     })
     try{
         const table=await newTable.save()
@@ -62,6 +63,9 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
         }
         if(req.body.slotWiseRules!=null){
             table.slotWiseRules=req.body.slotWiseRules
+        }
+        if(req.body.countdownRules!=null){
+            table.countdownRules=req.body.slotWiseRules
         }
         if(req.body.gameTypes!=null){
             table.gameTypes=req.body.gameTypes
