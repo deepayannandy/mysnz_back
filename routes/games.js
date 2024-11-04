@@ -137,15 +137,13 @@ router.post("/addMeal/:tableId",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
-function countdownGameCaller(tableId){
-    countdownGame(tableId)
-}
+
 async function countdownGame(tableId){
     console.log(tableId)
     const selectedTable= await tableModel.findById(tableId);
     if(!selectedTable) return console.log("Table not found!")
     if(selectedTable.gameData.endTime==undefined){
-    if(selectedTable.pauseTime!=null){
+    if(selectedTable.pauseTime!=null && selectedTable.isOccupied){
         let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
         console.log(timeDelta)
         let newPauseTime=(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)).toFixed(2)
@@ -154,7 +152,7 @@ async function countdownGame(tableId){
         selectedTable.pauseTime=null
         }
         selectedTable.gameData.endTime=new Date();
-        selectedTable.gameData.countdownGameEndTime=null;
+        selectedTable.gameData.countdownGameEndTime=undefined;
         const updatedTable = await selectedTable.save();
         console.log("Game Stopped "+updatedTable._id)
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
@@ -575,7 +573,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
         selectedTable.gameData.startTime=undefined;
-        selectedTable.gameData.endTime=undefined;
+        selectedTable.gameData.endTime=null;
         selectedTable.gameData.players=[];
         selectedTable.gameData.countdownGameEndTime=undefined;
         selectedTable.gameData.countdownMin=undefined;

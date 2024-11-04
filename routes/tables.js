@@ -49,6 +49,7 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     const table=await tableModel.findById(req.params.tableId);
     if(!table) return res.status(404).json({message: "Table not found"})
+    if(table.isOccupied) return res.status(409).json({message: "Table is occupied!"})
         if(req.body.tableName!=null){
             table.tableName=req.body.tableName;
         }
@@ -65,7 +66,7 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
             table.slotWiseRules=req.body.slotWiseRules
         }
         if(req.body.countdownRules!=null){
-            table.countdownRules=req.body.slotWiseRules
+            table.countdownRules=req.body.countdownRules
         }
         if(req.body.gameTypes!=null){
             table.gameTypes=req.body.gameTypes
