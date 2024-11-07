@@ -28,12 +28,16 @@ router.post("/SendMqtt",async (req,res)=>{
     }
 })
 async function updateCustomerDetails(customerId,status){
+    try{
     const selectedCustomer= await customerModel.findById(customerId)
     // if(selectedCustomer.isPlaying==status) return res.status(500).json({message: selectedCustomer.fullName+" is already occupied"})
     if(selectedCustomer){
         selectedCustomer.isPlaying=status
     }
     await selectedCustomer.save()
+    }catch(error){
+    console.log(error);
+    }
 }
 
 router.post("/pause/:tableId",async(req,res)=>{
