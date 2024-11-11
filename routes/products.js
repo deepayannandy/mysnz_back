@@ -29,7 +29,7 @@ router.post("/",verify_token,async(req,res)=>{
         basePrice:req.body.basePrice,
         salePrice:req.body.salePrice,
         quantity:req.body.quantity,
-        isOutOfStock:req.body.isOutOfStock,
+        isOutOfStock:parseInt(req.body.quantity)>0?false:true,
         productImage:"",
         barcode:req.body.barcode,
         isQntRequired:req.body.isQntRequired,
