@@ -147,7 +147,7 @@ async function countdownGame(tableId){
     const selectedTable= await tableModel.findById(tableId);
     if(!selectedTable) return console.log("Table not found!")
     if(selectedTable.gameData.endTime==undefined){
-    if(selectedTable.pauseTime!=null && selectedTable.isOccupied){
+    if(selectedTable.isOccupied){
         let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
         console.log(timeDelta)
         let newPauseTime=(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)).toFixed(2)
@@ -156,7 +156,6 @@ async function countdownGame(tableId){
         selectedTable.pauseTime=null
         selectedTable.gameData.endTime=new Date();
         selectedTable.gameData.countdownGameEndTime=undefined;
-        selectedTable.gameData.gameType=undefined;
     }
         const updatedTable = await selectedTable.save();
         console.log("Game Stopped "+updatedTable._id)
@@ -466,6 +465,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             }
             return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
         }
+        console.log(selectedTable.gameData,selectedTable._id)
         res.status(502).json({message: "Billing not supported"})
 
     }catch(error){
