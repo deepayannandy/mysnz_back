@@ -111,10 +111,14 @@ router.patch("/switchTable/switch",async(req,res)=>{
         newTable.pauseMin=oldTable.pauseMin
         newTable.pauseTime=oldTable.pauseTime
         newTable.isOccupied=oldTable.isOccupied
+        newTable.productList=oldTable.productList
+        newTable.mealAmount= oldTable.mealAmount
         oldTable.isOccupied=false
         oldTable.gameData=null
         oldTable.pauseMin=null
         oldTable.pauseTime=null
+        oldTable.productList=null
+        oldTable.mealAmount=null
     try{
         await oldTable.save()
         await newTable.save()

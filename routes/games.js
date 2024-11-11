@@ -154,9 +154,10 @@ async function countdownGame(tableId){
         console.log(newPauseTime)
         selectedTable.pauseMin=newPauseTime
         selectedTable.pauseTime=null
-        }
         selectedTable.gameData.endTime=new Date();
         selectedTable.gameData.countdownGameEndTime=undefined;
+        selectedTable.gameData.gameType=undefined;
+    }
         const updatedTable = await selectedTable.save();
         console.log("Game Stopped "+updatedTable._id)
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
@@ -211,6 +212,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
             updateCustomerDetails(finalPlayerList[index].customerId,true)
             console.log(finalPlayerList[index].customerId)
         }
+        selectedTable.gameData.endTime=undefined;
         selectedTable.pauseMin=null;
         selectedTable.pauseTime=null;
         selectedTable.gameData.players=finalPlayerList;
@@ -577,7 +579,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
         selectedTable.gameData.startTime=undefined;
-        selectedTable.gameData.endTime=null;
+        selectedTable.gameData.endTime=undefined;
         selectedTable.gameData.players=[];
         selectedTable.gameData.countdownGameEndTime=undefined;
         selectedTable.gameData.countdownMin=undefined;
