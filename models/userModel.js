@@ -46,6 +46,10 @@ const userSchema= new mongoos.Schema({
         type:Date,
         required:false
     },
+    passwordRev:{
+        type:Number,
+        required:false
+    },
 })
 
 module.exports=mongoos.model('User',userSchema )

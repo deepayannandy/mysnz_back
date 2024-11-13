@@ -147,16 +147,17 @@ async function countdownGame(tableId){
     const selectedTable= await tableModel.findById(tableId);
     if(!selectedTable) return console.log("Table not found!")
     if(selectedTable.gameData.endTime==undefined){
-    if(selectedTable.isOccupied){
-        let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
-        console.log(timeDelta)
-        let newPauseTime=(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)).toFixed(2)
-        console.log(newPauseTime)
-        selectedTable.pauseMin=newPauseTime
-        selectedTable.pauseTime=null
-        selectedTable.gameData.endTime=new Date();
+    // if(selectedTable.isOccupied){
+    //     // let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
+    //     // console.log(timeDelta)
+    //     // let newPauseTime=(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)).toFixed(2)
+    //     // console.log(newPauseTime)
+    //     // selectedTable.pauseMin=newPauseTime
+    //     // selectedTable.pauseTime=null
+    //     // selectedTable.gameData.endTime=new Date();
+    // }   
         selectedTable.gameData.countdownGameEndTime=undefined;
-    }
+        selectedTable.gameData.endTime=new Date();
         const updatedTable = await selectedTable.save();
         console.log("Game Stopped "+updatedTable._id)
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
@@ -223,8 +224,9 @@ router.post("/startGame/:tableId",async (req,res)=>{
             selectedTable.gameData.countdownGameEndTime=new Date(new Date().getTime() + parseInt(req.body.countdownMin)*60000)
             console.log(selectedTable.countdownGameEndTime)
             let tableId=req.params.tableId
-            var timerID = setInterval(function(){countdownGame(tableId)}, (parseInt(req.body.countdownMin)*60 * 1000)); 
+            var timerID = setTimeout(function(){countdownGame(tableId)}, (parseInt(req.body.countdownMin)*60 * 1000)); 
             selectedTable.gameData.countdownMin=req.body.countdownMin
+            console.log(">>>>>>>>>>>>Schedular" )
             console.log("Schedule created",timerID)
         }
         const updatedTable = await selectedTable.save();
