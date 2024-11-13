@@ -35,7 +35,7 @@ router.post("/",verify_token,async(req,res)=>{
 router.get("/",verify_token,async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
-    console.log(loggedInUser)
+    // console.log(loggedInUser)
     try{
         const storeHistory= await tableModel.find({storeId:loggedInUser.storeId})
         res.status(201).json(storeHistory)

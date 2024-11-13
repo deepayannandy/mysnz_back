@@ -59,11 +59,12 @@ router.post('/clientLogin',async (req,res)=>{
     const validPass=await bcrypt.compare(req.body.password,user.password);
     if(!validPass) return res.status(400).send({"message":"Email id or password is invalid!"});
     if (!user.userStatus) return res.status(400).send({"message":"User is not an active user!"});
-
+    if(user.passwordRev==undefined) user.passwordRev=0;
     //create and assign token
-    const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation},process.env.SECREAT_TOKEN);
+    const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation,passwordRev:user.passwordRev},process.env.SECREAT_TOKEN);
     // res.header('auth-token',token).send(token);
     user.loginTime=new Date();
+    
     await user.save();
     res.status(201).json({"auth_token":token,"storeId":user.storeId})
 })
@@ -98,6 +99,7 @@ router.post('/register',async (req,res)=>{
         password:hashedPassword,
         storeId:req.body.storeId,
         userDesignation:req.body.userDesignation,
+        passwordRev:0,
     })
     try{
         const newUser=await user.save()
@@ -127,6 +129,7 @@ router.get('/whoAmI', verify_token, async (req,res)=>{
     try{
         const loggedInUser= await userModel.findById(req.tokendata._id)
         if(!loggedInUser)return res.status(500).json({message: "User Not found!"})
+        if(req.tokendata.passwordRev==undefined || loggedInUser.passwordRev!=req.tokendata.passwordRev) return res.status(409).json({message: "Password Changed pleas login again!"})
         const myStore=await  storeModel.findById(loggedInUser.storeId)
         const storeName=myStore.storeName
         res.status(201).json({...loggedInUser.toObject(),storeName})
@@ -190,6 +193,7 @@ router.patch("/updatePassword/:id",getUser,async(req,res)=>{
         const salt= await bcrypt.genSalt(10);
         const hashedpassword= await bcrypt.hash(req.body.newPassword,salt);
         res.user.password=hashedpassword;
+        res.user.passwordRev=res.user.passwordRev+1;
     }
     try{
         const newUser=await res.user.save()
