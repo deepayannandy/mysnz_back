@@ -39,7 +39,7 @@ router.post('/login',async (req,res)=>{
     if (!user.userStatus) return res.status(400).send({"message":"User is not an active user!"});
 
     //create and assign token
-    const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation},process.env.SECREAT_TOKEN);
+    const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation,passwordRev:user.passwordRev},process.env.SECREAT_TOKEN);
     res.header('auth-token',token).send(token);
     
 })
@@ -130,7 +130,7 @@ router.get('/whoAmI', verify_token, async (req,res)=>{
         const loggedInUser= await userModel.findById(req.tokendata._id)
         if(!loggedInUser)return res.status(500).json({message: "User Not found!"})
         if(req.tokendata.passwordRev==undefined || loggedInUser.passwordRev!=req.tokendata.passwordRev) return res.status(409).json({message: "Password Changed pleas login again!"})
-        const myStore=await  storeModel.findById(loggedInUser.storeId)
+        const myStore=loggedInUser.userDesignation=="SuperAdmin"?"SuperAdmin": await  storeModel.findById(loggedInUser.storeId)
         const storeName=myStore.storeName
         res.status(201).json({...loggedInUser.toObject(),storeName})
     }catch(error){
