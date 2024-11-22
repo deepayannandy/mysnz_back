@@ -60,6 +60,19 @@ const customerSchema= new mongoos.Schema({
     isPlaying:{
         type:Boolean,
         required:false
+    },
+    gameDuration:{
+        type:Number,
+        required:false
+    },
+    gamePlay:{
+        type:Number,
+        required:false
+    },
+    gameWin:{
+        type:Number,
+        required:false
     }
+
 })
 module.exports=mongoos.model('Customer',customerSchema )

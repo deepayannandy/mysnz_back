@@ -27,12 +27,15 @@ router.post("/SendMqtt",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
-async function updateCustomerDetails(customerId,status){
+async function updateCustomerDetails(customerId,status,duration,isCheckout){
     try{
     const selectedCustomer= await customerModel.findById(customerId)
     // if(selectedCustomer.isPlaying==status) return res.status(500).json({message: selectedCustomer.fullName+" is already occupied"})
     if(selectedCustomer){
+        console.log(`>>> added ${duration} to  ${selectedCustomer.fullName}`)
         selectedCustomer.isPlaying=status
+        selectedCustomer.gameDuration==undefined?selectedCustomer.gameDuration=0:selectedCustomer.gameDuration=selectedCustomer.gameDuration+duration
+        if(isCheckout) selectedCustomer.gamePlay==undefined?selectedCustomer.gamePlay=1:selectedCustomer.gamePlay= selectedCustomer.gamePlay+1;
     }
     await selectedCustomer.save()
     }catch(error){
@@ -209,7 +212,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
         }
         console.log(finalPlayerList)
         for(let index in finalPlayerList){
-            updateCustomerDetails(finalPlayerList[index].customerId,true)
+            updateCustomerDetails(finalPlayerList[index].customerId,true,0,false,false)
             console.log(finalPlayerList[index].customerId)
         }
         selectedTable.gameData.endTime=undefined;
@@ -487,7 +490,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
             for(let index in selectedTable.gameData.players){
-                updateCustomerDetails(selectedTable.gameData.players[index].customerId,false)
+                updateCustomerDetails(selectedTable.gameData.players[index].customerId,false,req.body.timeDelta,true)
             }
             let dis= req.body.discount==undefined?0:req.body.discount
             const gHistory= new historyModel({
@@ -506,7 +509,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 netPay:req.body.totalBillAmt-dis,
                 status:(req.body.totalBillAmt-dis)-req.body.cashIn>0?"Due":"Paid",
                 credit:(req.body.totalBillAmt-dis)-req.body.cashIn,
-                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}-${selectedStore.transactionCounter}`,
+                transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}${selectedStore.transactionCounter}`,
                 empId:loggedInUser._id
             })
         selectedStore.transactionCounter= selectedStore.transactionCounter+1;
