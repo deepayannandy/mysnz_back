@@ -75,23 +75,32 @@ router.get("/:cid",async (req,res)=>{
     try{
         const customers=await customerModel.findOne({_id:req.params.cid});
         if(!customers) return res.status(400).send({"message":"Customer dose not exist!"});
+        const customerHistory=await customerHistoryModel.find({ customerId: customers._id })
         const tableCredit=0
         const cafeCredit=0
-        const gameWin=0
-        const orders=0
-        const totalSpend=0
+        let winner=0
+        let orders=0
+        let totalSpend=0
+        const gameCount=customers.gamePlay
+        const hoursSpend=(customers.gameDuration/36).toFixed(2)
         const membership={
             "membershipName":"NA",
             "membershipMin":"0",
         }
-        res.status(200).json({customers,tableCredit,cafeCredit,gameWin,orders,totalSpend,membership})
+        if(gameCount) winner= gameCount;
+        for(let i in customerHistory){
+            console.log(customerHistory[i])
+            if(customerHistory[i].description.includes("Table")) winner=winner-1
+            totalSpend=totalSpend+ customerHistory[i].netPay
+            if(customerHistory[i].description.includes("Meal")) orders=orders+1
+        }
+        res.status(200).json({customers,tableCredit,cafeCredit,winner,orders,totalSpend,membership,hoursSpend,gameCount})
     }catch(error){
         res.status(500).json({message: error.message})
     }
 })
 
 router.patch("/:cid",verify_token, async (req,res)=>{
-    console.log("I am called")
     console.log(req.tokendata._id)
     const User=await userModel.findOne({_id:req.tokendata._id});
     if(!User) return res.status(400).send({"message":"User dose not exist!"});

@@ -16,7 +16,7 @@ router.post("/",verify_token,async (req,res)=>{
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     const selectedStore= await storeModel.findById(loggedInUser.storeId)
     console.log(req.body)  
-    const transId=selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()-selectedStore.transactionCounter
+    const transId=`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}${selectedStore.transactionCounter}`
     const newOrderHistory= new orderHistoryModel({
         storeId:loggedInUser.storeId,
         date:new Date(),
@@ -27,7 +27,7 @@ router.post("/",verify_token,async (req,res)=>{
         discount:req.body.discount,
         netPay:req.body.netPay,
         status:true,
-        transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}-${selectedStore.transactionCounter}`,
+        transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}${selectedStore.transactionCounter}`,
         credit:req.body.credit
     })
     const newHistory= new historyModel({
