@@ -136,7 +136,7 @@ router.post("/addMeal/:tableId",async (req,res)=>{
             totalOrderValue=totalOrderValue+parseFloat(req.body.productList.orderTotal)
         }
        
-        selectedTable.mealAmount=totalOrderValue;
+        selectedTable.mealAmount=totalOrderValue.toFixed(2);
         const updatedTable = await selectedTable.save();
         res.status(201).json({"_id":updatedTable._id})
     }
@@ -371,7 +371,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
                 }
             }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount.toFixed(2),"productList":selectedTable.productList, selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
             let bills=[]
@@ -438,7 +438,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     // console.log(timeDelta,totalBillAmt,bills)
                     // await delay(2000);
                 }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount.toFixed(2),"productList":selectedTable.productList,  selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
         }
         if(selectedTable.gameData.gameType=="Countdown Billing"){
             let bills=[]
@@ -468,7 +468,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     }
                 }
             }
-            return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount.toFixed(2),"productList":selectedTable.productList,  selectedTable})
+            return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
         }
         console.log(selectedTable.gameData,selectedTable._id)
         res.status(502).json({message: "Billing not supported"})
