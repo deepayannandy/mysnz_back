@@ -32,12 +32,15 @@ router.post('/login',async (req,res)=>{
     };
     let user=await userModel.findOne({$or:[{email:req.body.userId},{mobile:req.body.userId}]});
     if(!user) return res.status(400).send({"message":"User dose not exist!"});
-
+    if(user.loginIndex!=undefined ||user.loginIndex>0)  return res.status(400).send({"message":"User is already logged in!"});
     // validate password
     const validPass=await bcrypt.compare(req.body.password,user.password);
     if(!validPass) return res.status(400).send({"message":"Email id or password is invalid!"});
     if (!user.userStatus) return res.status(400).send({"message":"User is not an active user!"});
-
+    
+    //login counter check
+    user.loginIndex=1;
+    await user.save()
     //create and assign token
     const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation,passwordRev:user.passwordRev},process.env.SECREAT_TOKEN);
     res.header('auth-token',token).send(token);
@@ -54,6 +57,7 @@ router.post('/clientLogin',async (req,res)=>{
     if(!user) return res.status(400).send({"message":"User dose not exist!"});
     console.log(user)
     if(user.userDesignation=="SuperAdmin") return res.status(400).send({"message":"SuperAdmin Login is not possible!"});
+    if(user.loginIndex!= undefined) if(user.loginIndex>0) return res.status(400).send({"message":"User is already logged in!"});
 
     // validate password
     const validPass=await bcrypt.compare(req.body.password,user.password);
@@ -64,7 +68,8 @@ router.post('/clientLogin',async (req,res)=>{
     const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation,passwordRev:user.passwordRev},process.env.SECREAT_TOKEN);
     // res.header('auth-token',token).send(token);
     user.loginTime=new Date();
-    
+     //login counter check
+     user.loginIndex=1;
     await user.save();
     res.status(201).json({"auth_token":token,"storeId":user.storeId})
 })

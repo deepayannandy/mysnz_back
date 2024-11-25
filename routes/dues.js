@@ -45,7 +45,7 @@ router.get("/today/:sid",async(req,res)=>{
                 addedUserIds.push(cData._id.toString())
             }
         }
-        res.status(201).json(finalCreditUserList)
+        res.status(201).json(finalCreditUserList.reverse())
     }
     catch(error){
         res.status(400).json({message:error.message})
@@ -56,7 +56,7 @@ router.get("/alltime/:sid",async(req,res)=>{
     if(!Store) return res.status(400).send({"message":"Store dose not exist!"});
     const allCustomers= await customerModel.find({$and:[{credit:{ $gt: 0 }},{ storeId:req.params.sid }] })
     try{    
-        res.status(201).json(allCustomers)
+        res.status(201).json(allCustomers.reverse())
     }
     catch(error){
         res.status(400).json({message:error.message})

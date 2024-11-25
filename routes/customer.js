@@ -76,8 +76,7 @@ router.get("/:cid",async (req,res)=>{
         const customers=await customerModel.findOne({_id:req.params.cid});
         if(!customers) return res.status(400).send({"message":"Customer dose not exist!"});
         const customerHistory=await customerHistoryModel.find({ customerId: customers._id })
-        const tableCredit=0
-        const cafeCredit=0
+        let totalCredit=0
         let winner=0
         let orders=0
         let totalSpend=0
@@ -91,10 +90,12 @@ router.get("/:cid",async (req,res)=>{
         for(let i in customerHistory){
             console.log(customerHistory[i])
             if(customerHistory[i].description.includes("Table")) winner=winner-1
-            totalSpend=totalSpend+ customerHistory[i].netPay
-            if(customerHistory[i].description.includes("Meal")) orders=orders+1
+            totalSpend=totalSpend + (customerHistory[i].netPay!=undefined? customerHistory[i].netPay:0) 
+            if(customerHistory[i].description.includes("Meal") || customerHistory[i].description.includes("Takeaway")) orders=orders+1
+            console.log(">>>> "+customerHistory[i].netPay, totalSpend)
         }
-        res.status(200).json({customers,tableCredit,cafeCredit,winner,orders,totalSpend,membership,hoursSpend,gameCount})
+        totalSpend= (totalSpend- customers.credit).toFixed(2);
+        res.status(200).json({customers,totalCredit,winner,orders,totalSpend,membership,hoursSpend,gameCount})
     }catch(error){
         res.status(500).json({message: error.message})
     }

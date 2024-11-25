@@ -171,7 +171,11 @@ const tablesSchema= new mongoos.Schema({
             {
                 type:Number,
                 required:false
-            }
+            },
+            Qnt:{
+                type:Number,
+                required:false
+            },
         }
         
     ],

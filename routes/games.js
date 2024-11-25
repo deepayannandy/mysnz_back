@@ -371,7 +371,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
                 }
             }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount.toFixed(2),"productList":selectedTable.productList, selectedTable})
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
             let bills=[]
@@ -438,7 +438,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     // console.log(timeDelta,totalBillAmt,bills)
                     // await delay(2000);
                 }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount.toFixed(2),"productList":selectedTable.productList,  selectedTable})
         }
         if(selectedTable.gameData.gameType=="Countdown Billing"){
             let bills=[]
@@ -468,7 +468,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     }
                 }
             }
-            return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
+            return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount.toFixed(2),"productList":selectedTable.productList,  selectedTable})
         }
         console.log(selectedTable.gameData,selectedTable._id)
         res.status(502).json({message: "Billing not supported"})
@@ -552,6 +552,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         for(let index in req.body.mealSettlement){
             console.log(req.body.mealSettlement[index])
             if(req.body.mealSettlement[index].customerDetails.customerId){
+                console.log(">>>>> meal",req.body.mealSettlement[index])
                 const custHistory=new customerHistoryModel({
                     customerId:req.body.mealSettlement[index].customerDetails.customerId,
                     date:new Date(),
