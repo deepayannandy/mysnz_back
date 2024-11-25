@@ -7,7 +7,7 @@ const validator= require("../validators/validation")
 const nodemailer = require('nodemailer');
 const mongodb=require("mongodb");
 const storeModel= require("../models/storesModel")
-
+const storeSubsModel= require("../models/storeSubscriptionModel")
 require("dotenv").config()
 process.env.TZ = "Asia/Calcutta";
 const transporter = nodemailer.createTransport({
@@ -58,7 +58,15 @@ router.post('/clientLogin',async (req,res)=>{
     console.log(user)
     if(user.userDesignation=="SuperAdmin") return res.status(400).send({"message":"SuperAdmin Login is not possible!"});
     if(user.loginIndex!= undefined) if(user.loginIndex>0) return res.status(400).send({"message":"User is already logged in!"});
-
+    //validate subscription
+    const activeSubscription= await storeSubsModel.find({$and:
+        [{endDate:{
+           $gt: new Date(),
+       }},{
+           storeId:user.storeId
+       }, {isActive:true}]
+   })
+   if(activeSubscription.length<1) return res.status(400).send({"message":"Your subscription is over! Please renew your Subscription"});
     // validate password
     const validPass=await bcrypt.compare(req.body.password,user.password);
     if(!validPass) return res.status(400).send({"message":"Email id or password is invalid!"});
