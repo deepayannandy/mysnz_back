@@ -143,7 +143,6 @@ router.get("/signOffReport/:uid",async (req,res)=>{
     }
 
    }
-
     res.status(201).json({
         "tableCollection":tableCollection,
         "cafeCollection":mealCollection,
@@ -157,6 +156,8 @@ router.get("/signOffReport/:uid",async (req,res)=>{
 router.post("/addMyDailyReport/",verifyToken, async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+        loggedInUser.loginIndex=0;
+        
         const newDailyReport= new dailyReportModel({
             userId:loggedInUser._id,
             storeId:loggedInUser.storeId,
@@ -170,7 +171,9 @@ router.post("/addMyDailyReport/",verifyToken, async(req,res)=>{
             loginTime:loggedInUser.loginTime,
             logoutTime: new Date()
         })
+
     try{
+        await loggedInUser.save()
         const report= await newDailyReport.save();
         res.status(201).json({"_id":report.id})
     }catch(error){res.status(400).json({message:error.message})}

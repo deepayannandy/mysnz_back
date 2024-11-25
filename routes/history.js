@@ -10,7 +10,10 @@ router.get("/",verify_token,async(req,res)=>{
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     console.log(loggedInUser.storeId)
     try{
-        const storeHistory= await historyModel.find({storeId:loggedInUser.storeId})
+        const storeHistory= await historyModel.find({$and:
+            [{storeId:loggedInUser.storeId},{description : {$regex : "Table"}}]
+       })
+        
         res.status(201).json(storeHistory.reverse())
     }catch(e){
         res.status(500).json({message: e.message})

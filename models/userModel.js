@@ -50,6 +50,10 @@ const userSchema= new mongoos.Schema({
         type:Number,
         required:false
     },
+    loginIndex:{
+        type:Number,
+        required:false
+    },
 })
 
 module.exports=mongoos.model('User',userSchema )
