@@ -57,7 +57,7 @@ router.post('/clientLogin',async (req,res)=>{
     if(!user) return res.status(400).send({"message":"User dose not exist!"});
     console.log(user)
     if(user.userDesignation=="SuperAdmin") return res.status(400).send({"message":"SuperAdmin Login is not possible!"});
-    if(user.loginIndex!= undefined) if(user.loginIndex>0) return res.status(400).send({"message":"User is already logged in!"});
+    // if(user.loginIndex!= undefined) if(user.loginIndex>0) return res.status(400).send({"message":"User is already logged in!"});
     //validate subscription
     const activeSubscription= await storeSubsModel.find({$and:
         [{endDate:{
