@@ -167,7 +167,32 @@ async function countdownGame(tableId){
         console.log("sending message to: "+selectedTable.deviceId+"/"+selectedTable.nodeID )
     }
 }
-
+router.get("/validatePlayers/:tableId",async (req,res)=>{
+    // console.log(req.params.tableId)
+    // console.log(req.body)
+    const selectedTable= await tableModel.findById(req.params.tableId)
+    if(!selectedTable) return console.log("Table not found!")
+    let minimumBalanceCredit
+    if(req.body.gameType=="Minute Billing"){
+        minimumBalanceCredit= selectedTable.minuteWiseRules.dayMinAmt;
+    }if(req.body.gameType=="Slot Billing"){
+        minimumBalanceCredit= selectedTable.slotWiseRules[0].slotCharge;
+    }if(req.body.gameType=="Countdown Billing"){
+        minimumBalanceCredit= selectedTable.countdownRules[0].countdownDayCharge;
+    }
+    for(let index in req.body.players){
+        const selectedPlayer= await customerModel.findById(req.body.players[index].customerId)
+        if(selectedPlayer.isBlackListed) return res.status(403).json({message: `${selectedPlayer.fullName} is Blacklisted!`})
+        if(selectedPlayer.isPlaying) return res.status(403).json({message: `${selectedPlayer.fullName} is already occupied!`})
+        if(selectedPlayer.maxCredit==undefined){
+            selectedPlayer.maxCredit=999;
+            selectedPlayer.save();
+        }else{
+        if(selectedPlayer.maxCredit<(selectedPlayer.credit+minimumBalanceCredit)) return res.status(403).json({message: `${selectedPlayer.fullName} hits his maximum credit limit!`})
+        }
+    }
+    return res.status(201).json({"result":true,"minimumBalanceCredit":minimumBalanceCredit})
+})
 router.post("/startGame/:tableId",async (req,res)=>{
     console.log(req.params.tableId)
     try{
@@ -184,7 +209,9 @@ router.post("/startGame/:tableId",async (req,res)=>{
                     storeId:selectedTable.storeId,
                     isBlackListed:false,
                     credit:0,
-                    contact:"+910000000000"
+                    contact:"+910000000000",
+                    maxCredit:999,
+                    rewardPoint:0
                 })
                 const cli=await newCustomer.save();
                 getdata.customerId=cli._id.toString();
@@ -481,6 +508,7 @@ function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
   }
 
+
 router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
     console.log(req.params.tableId)
     try{
@@ -536,11 +564,17 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                     const pickedCustomer= await customerModel.findById(req.body.checkoutPlayers[index].customerId)
                     if(pickedCustomer)
                     {
-                    console.log("I am called")
+                    // console.log("I am called")
                     pickedCustomer.credit=pickedCustomer.credit+(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)}
+                    pickedCustomer.rewardPoint==undefined?pickedCustomer.rewardPoint=parseInt(req.body.checkoutPlayers[index].cashIn/100):pickedCustomer.rewardPoint=pickedCustomer.rewardPoint+parseInt(req.body.checkoutPlayers[index].cashIn/100);
                     const updatedCustomer =await pickedCustomer.save()
                     gHistory.credit=gHistory.credit+(req.body.checkoutPlayers[index].amount-req.body.checkoutPlayers[index].cashIn)
                     }
+                else{
+                    const pickedCustomer= await customerModel.findById(req.body.checkoutPlayers[index].customerId)
+                    pickedCustomer.rewardPoint==undefined?pickedCustomer.rewardPoint=(req.body.checkoutPlayers[index].cashIn/100):pickedCustomer.rewardPoint=pickedCustomer.rewardPoint+(req.body.checkoutPlayers[index].cashIn/100);
+                    await pickedCustomer.save()
+                }
 
                 const newCustomerHistory =await custHistory.save()
                 console.log(newCustomerHistory.id);
