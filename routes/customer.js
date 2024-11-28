@@ -90,11 +90,12 @@ router.get("/:cid",async (req,res)=>{
         for(let i in customerHistory){
             console.log(customerHistory[i])
             if(customerHistory[i].description.includes("Table")) winner=winner-1
-            totalSpend=totalSpend + (customerHistory[i].netPay!=undefined? customerHistory[i].netPay:0) 
+            totalSpend=totalSpend + (customerHistory[i].paid!=undefined? customerHistory[i].paid:0) 
             if(customerHistory[i].description.includes("Meal") || customerHistory[i].description.includes("Takeaway")) orders=orders+1
-            console.log(">>>> "+customerHistory[i].netPay, totalSpend)
+            // console.log(">>>> "+customerHistory[i].netPay, totalSpend)
         }
-        totalSpend= (totalSpend- customers.credit).toFixed(2);
+        totalSpend= (totalSpend- totalCredit).toFixed(2);
+        if(totalSpend<1) totalSpend=0;
         res.status(200).json({customers,totalCredit,winner,orders,totalSpend,membership,hoursSpend,gameCount})
     }catch(error){
         res.status(500).json({message: error.message})
@@ -165,7 +166,7 @@ router.delete("/:cid",verify_token,async (req,res)=>{
     if(req.tokendata.userDesignation=="Staff") return res.status(500).json({message: "Access Denied!"})
     const customer=await customerModel.findOne({_id:req.params.cid});
     if(!customer) return res.status(400).send({"message":"customer dose not exist!"});
-    if(customer.isPlaying) return res.status(400).send({"message":"Delete not possible!"});
+    if(customer.isPlaying) return res.status(400).send({"message":`${customer.fullName} is playing, cannot delete!`});
     if(customer.fullName=="CASH") return res.status(400).send({"message":"Delete not possible!"});
     try{
         customer.isDeleted=true;
