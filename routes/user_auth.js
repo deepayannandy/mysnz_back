@@ -146,6 +146,14 @@ router.get('/whoAmI', verify_token, async (req,res)=>{
         console.log(new Date(req.tokendata.loginTime),loggedInUser.loginTime,(new Date(req.tokendata.loginTime)>loggedInUser.loginTime))
         if(req.tokendata.loginTime== undefined || new Date(req.tokendata.loginTime)<loggedInUser.loginTime) return res.status(409).json({message: "User is already logged in!"})
         const myStore=loggedInUser.userDesignation=="SuperAdmin"?"SuperAdmin": await  storeModel.findById(loggedInUser.storeId)
+        const activeSubscription= await storeSubsModel.find({$and:
+            [{endDate:{
+               $gt: new Date(),
+           }},{
+               storeId:loggedInUser.storeId
+           }, {isActive:true}]
+       })
+       if(activeSubscription.length<1) return res.status(400).send({"message":"Your subscription is over! Please renew your Subscription"});
         const storeName=myStore.storeName
         res.status(201).json({...loggedInUser.toObject(),storeName})
     }catch(error){

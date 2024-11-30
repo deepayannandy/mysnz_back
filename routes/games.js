@@ -167,7 +167,7 @@ async function countdownGame(tableId){
         console.log("sending message to: "+selectedTable.deviceId+"/"+selectedTable.nodeID )
     }
 }
-router.get("/validatePlayers/:tableId",async (req,res)=>{
+router.post("/validatePlayers/:tableId",async (req,res)=>{
     // console.log(req.params.tableId)
     // console.log(req.body)
     const selectedTable= await tableModel.findById(req.params.tableId)
