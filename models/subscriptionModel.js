@@ -30,6 +30,10 @@ const subscriptionSchema= new mongoos.Schema({
         type:Boolean,
         required:true
     },
+    isVisible:{
+        type:Boolean,
+        required:true
+    },
 
 })
 module.exports=mongoos.model('subscription',subscriptionSchema )

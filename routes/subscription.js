@@ -7,7 +7,7 @@ const verify_token= require("../validators/verifyToken")
 
 router.post("/",verify_token, async(req,res)=>{
     console.log(req.tokendata)
-    if(!req.tokendata.isSuperAdmin)res.status(500).json({message: "Access Denied!"})
+    if(!req.tokendata.isSuperAdmin)return res.status(500).json({message: "Access Denied!"})
         const subs= new subscriptionModel({
             subscriptionName:req.body.subscriptionName,
             subscriptionDescription:req.body.subscriptionDescription,
@@ -15,7 +15,8 @@ router.post("/",verify_token, async(req,res)=>{
             access:req.body.access,
             billings:req.body.billings,
             subscriptionPrice:req.body.subscriptionPrice,
-            isYearly:req.body.isYearly
+            isYearly:req.body.isYearly,
+            isVisible:true
         })
         try{
             const newSubs=await subs.save()
@@ -27,20 +28,30 @@ router.post("/",verify_token, async(req,res)=>{
 })
 router.get("/",async(req,res)=>{
     try{
-        const subscriptions=await subscriptionModel.find();
+        const subscriptions=await subscriptionModel.find({isVisible:true});
         res.status(201).json(subscriptions)
 
-    }catch{
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+router.get("/:sid",async(req,res)=>{
+    const subscriptions=await subscriptionModel.findById(req.params.sid);
+    if(!subscriptions)return res.status(404).json({message: "Subscription not available"})
+    try{
+        res.status(201).json(subscriptions)
+
+    }catch(error){
         res.status(500).json({message: error.message})
     }
 })
 router.patch("/:sid",verify_token,async(req,res)=>{
     console.log(req.tokendata)
     if(!req.tokendata.isSuperAdmin)
-        res.status(500).json({message: "Access Denied!"})
+        return res.status(500).json({message: "Access Denied!"})
     const selectedSubscription= await subscriptionModel.findById(req.params.sid)
     if(!selectedSubscription)
-        res.status(500).json({message: "Subscription not found"})
+       return res.status(500).json({message: "Subscription not found"})
     if(req.body.subscriptionPrice!=null){
         selectedSubscription.subscriptionPrice=req.body.subscriptionPrice;
     }
@@ -52,6 +63,9 @@ router.patch("/:sid",verify_token,async(req,res)=>{
     }
     if(req.body.billings!=null){
         selectedSubscription.billings=req.body.billings;
+    }
+    if(req.body.isVisible!=null){
+        selectedSubscription.isVisible=req.body.isVisible;
     }
     try{
         const updatedSub=await selectedSubscription.save();
@@ -65,15 +79,16 @@ router.patch("/:sid",verify_token,async(req,res)=>{
 router.delete("/:sid",verify_token,async(req,res)=>{
     if(!req.tokendata.isSuperAdmin)res.status(500).json({message: "Access Denied!"})
         console.log("Deleting Subs: "+req.params.sid)
-        subs=await subscriptionModel.findById(req.params.sid)
+        const subs=await subscriptionModel.findById(req.params.sid)
             if(subs==null){
                 return res.status(404).json({message:"Subscription unavailable!"})
             }
         try{
-            const result= await subscriptionModel.deleteOne({_id: new mongodb.ObjectId(req.params.sid)})
-            res.json(result)
+            subs.isVisible=false
+            await subs.save()
+            return res.json(subs._id)
         }catch(error){
-            res.status(500).json({message: error.message})
+           return res.status(500).json({message: error.message})
         }
 })
 module.exports=router
