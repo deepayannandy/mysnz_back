@@ -14,7 +14,8 @@ router.post("/",verify_token, async(req,res)=>{
             subscriptionValidity:req.body.subscriptionValidity,
             access:req.body.access,
             billings:req.body.billings,
-            subscriptionPrice:req.body.subscriptionPrice
+            subscriptionPrice:req.body.subscriptionPrice,
+            isYearly:req.body.isYearly
         })
         try{
             const newSubs=await subs.save()
