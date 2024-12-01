@@ -181,14 +181,16 @@ router.post("/validatePlayers/:tableId",async (req,res)=>{
         minimumBalanceCredit= selectedTable.countdownRules[0].countdownDayCharge;
     }
     for(let index in req.body.players){
-        const selectedPlayer= await customerModel.findById(req.body.players[index].customerId)
-        if(selectedPlayer.isBlackListed) return res.status(403).json({message: `${selectedPlayer.fullName} is Blacklisted!`})
-        if(selectedPlayer.isPlaying) return res.status(403).json({message: `${selectedPlayer.fullName} is already occupied!`})
-        if(selectedPlayer.maxCredit==undefined){
-            selectedPlayer.maxCredit=999;
-            selectedPlayer.save();
-        }else{
-        if(selectedPlayer.maxCredit<(selectedPlayer.credit+minimumBalanceCredit)) return res.status(403).json({message: `${selectedPlayer.fullName} hits his maximum credit limit!`})
+        if(req.body.players[index].customerId){
+            const selectedPlayer= await customerModel.findById(req.body.players[index].customerId)
+            if(selectedPlayer.isBlackListed) return res.status(403).json({message: `${selectedPlayer.fullName} is Blacklisted!`})
+            if(selectedPlayer.isPlaying) return res.status(403).json({message: `${selectedPlayer.fullName} is already occupied!`})
+            if(selectedPlayer.maxCredit==undefined){
+                selectedPlayer.maxCredit=999;
+                selectedPlayer.save();
+            }else{
+            if(selectedPlayer.maxCredit<(selectedPlayer.credit+minimumBalanceCredit)) return res.status(403).json({message: `${selectedPlayer.fullName} hits his maximum credit limit!`})
+            }
         }
     }
     return res.status(201).json({"result":true,"minimumBalanceCredit":minimumBalanceCredit})
