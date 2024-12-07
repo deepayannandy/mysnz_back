@@ -42,7 +42,7 @@ router.post('/login',async (req,res)=>{
     user.loginIndex=1;
     await user.save()
     //create and assign token
-    const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation,passwordRev:user.passwordRev},process.env.SECREAT_TOKEN);
+    const token= jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation,passwordRev:user.passwordRev,loginTime:user.loginTime},process.env.SECREAT_TOKEN);
     res.header('auth-token',token).send(token);
     
 })
