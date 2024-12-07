@@ -153,7 +153,7 @@ router.get('/whoAmI', verify_token, async (req,res)=>{
                storeId:loggedInUser.storeId
            }, {isActive:true}]
        })
-       if(activeSubscription.length<1) return res.status(400).send({"message":"Your subscription is over! Please renew your Subscription"});
+        if(loggedInUser.userDesignation!="SuperAdmin")if(activeSubscription.length<1) return res.status(400).send({"message":"Your subscription is over! Please renew your Subscription"});
         const storeName=myStore.storeName
         res.status(201).json({...loggedInUser.toObject(),storeName})
     }catch(error){
