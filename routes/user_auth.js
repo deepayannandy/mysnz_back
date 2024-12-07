@@ -37,7 +37,7 @@ router.post('/login',async (req,res)=>{
     const validPass=await bcrypt.compare(req.body.password,user.password);
     if(!validPass) return res.status(400).send({"message":"Email id or password is invalid!"});
     if (!user.userStatus) return res.status(400).send({"message":"User is not an active user!"});
-    
+    user.loginTime=new Date();
     //login counter check
     user.loginIndex=1;
     await user.save()
