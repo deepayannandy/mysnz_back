@@ -11,7 +11,7 @@ router.get("/",verify_token,async(req,res)=>{
     console.log(loggedInUser.storeId)
     try{
         const storeHistory= await historyModel.find({$and:
-            [{storeId:loggedInUser.storeId},{description : {$regex : "Table"}}]
+            [{storeId:loggedInUser.storeId},{description :{$not:{$regex : "order"}}}]
        })
         
         res.status(201).json(storeHistory.reverse())
