@@ -107,7 +107,7 @@ router.patch("/:cid",verify_token, async (req,res)=>{
     const User=await userModel.findOne({_id:req.tokendata._id});
     if(!User) return res.status(400).send({"message":"User dose not exist!"});
     console.log(req.tokendata)
-    if(req.tokendata.userDesignation=="Staff")return res.status(500).json({message: "Access Denied!"})
+    // if(req.tokendata.userDesignation=="Staff")return res.status(500).json({message: "Access Denied!"})
     const customers=await customerModel.findOne({_id:req.params.cid});
     if(!customers) return res.status(400).send({"message":"Customer dose not exist!"});
 
