@@ -61,6 +61,9 @@ router.patch('/:sid',async (req,res)=>{
     if(req.body.nightEndTime!=null){
         Store.nightEndTime=req.body.nightEndTime;
     }
+    if(req.body.defaultCustomer!=null){
+        Store.defaultCustomer=req.body.defaultCustomer;
+    }
     try{
         const str=await Store.save();
         res.status(201).json(str)

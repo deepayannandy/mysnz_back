@@ -40,6 +40,11 @@ const storeSchema= new mongoos.Schema({
     nightEndTime:{
         type:String,
         required:false
+    },
+    defaultCustomer:{
+        type:Boolean,
+        required:false
     }
+
 })
 module.exports=mongoos.model('Store',storeSchema )
