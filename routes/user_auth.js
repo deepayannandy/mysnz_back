@@ -66,11 +66,11 @@ router.post('/clientLogin',async (req,res)=>{
            storeId:user.storeId
        }, {isActive:true}]
    })
-   if(activeSubscription.length<1) return res.status(400).send({"message":"Your subscription is over! Please renew your Subscription"});
+   if(activeSubscription.length<1) return res.status(409).send({"message":"Your subscription is over! Please renew your Subscription"});
     // validate password
     const validPass=await bcrypt.compare(req.body.password,user.password);
-    if(!validPass) return res.status(400).send({"message":"Email id or password is invalid!"});
-    if (!user.userStatus) return res.status(400).send({"message":"User is not an active user!"});
+    if(!validPass) return res.status(409).send({"message":"Email id or password is invalid!"});
+    if (!user.userStatus) return res.status(409).send({"message":"User is not an active user!"});
     if(user.passwordRev==undefined) user.passwordRev=0;
     user.loginTime=new Date();
     //create and assign token
@@ -153,7 +153,7 @@ router.get('/whoAmI', verify_token, async (req,res)=>{
                storeId:loggedInUser.storeId
            }, {isActive:true}]
        })
-        if(loggedInUser.userDesignation!="SuperAdmin")if(activeSubscription.length<1) return res.status(400).send({"message":"Your subscription is over! Please renew your Subscription"});
+        if(loggedInUser.userDesignation!="SuperAdmin")if(activeSubscription.length<1) return res.status(409).send({"message":"Your subscription is over! Please renew your Subscription"});
         const storeName=myStore.storeName
         res.status(201).json({...loggedInUser.toObject(),storeName})
     }catch(error){
