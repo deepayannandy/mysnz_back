@@ -509,10 +509,54 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
-function delay(time) {
-    return new Promise(resolve => setTimeout(resolve, time));
-  }
+router.post("/putOnHold/:tableId",verify_token,async (req,res)=>{
+    console.log(req.params.tableId)
+    try{
+        console.log(req.tokendata._id)
+        const loggedInUser= await userModel.findById(req.tokendata._id)
+        if(!loggedInUser) return res.status(500).json({message: "Logged In user not found!"})
+        console.log(loggedInUser.storeId)
+        const selectedTable= await tableModel.findById(req.params.tableId);
+        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        if(selectedTable.isHold==true) return res.status(500).json({message: "One invoice already waiting on hold"})
+        console.log(selectedTable.storeId)
+        if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+            selectedTable.isHold=true;
+            selectedTable.holdData=req.body;
+            selectedTable.gameData.startTime=undefined;
+            selectedTable.gameData.endTime=undefined;
+            selectedTable.gameData.players=[];
+            selectedTable.gameData.countdownGameEndTime=undefined;
+            selectedTable.gameData.countdownMin=undefined;
+            selectedTable.gameData.gameType=undefined;
+            selectedTable.pauseMin=null
+            selectedTable.pauseTime=null
+            selectedTable.mealAmount=null
+            selectedTable.productList=null
+            selectedTable.isOccupied=false;
+            const updatedTable = await selectedTable.save();
+            return res.status(201).json({"TableId":updatedTable._id,"Status":"Put on hold"})
 
+        }catch(e){
+            return res.status(500).json({message: error.message})
+        }})
+
+router.get("/getOnHold/:tableId",verify_token,async (req,res)=>{
+    console.log(req.params.tableId)
+    try{
+        console.log(req.tokendata._id)
+        const loggedInUser= await userModel.findById(req.tokendata._id)
+        if(!loggedInUser) return res.status(500).json({message: "Logged In user not found!"})
+        console.log(loggedInUser.storeId)
+        const selectedTable= await tableModel.findById(req.params.tableId);
+        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        if(!selectedTable.isHold) return res.status(500).json({message: "One invoice already waiting on hold"})
+        console.log(selectedTable.storeId)
+        if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+            return res.status(200).json(selectedTable.holdData)
+        }catch(e){
+            return res.status(500).json({message: error.message})
+        }})
 
 router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
     console.log(req.params.tableId)
@@ -584,8 +628,6 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 const newCustomerHistory =await custHistory.save()
                 console.log(newCustomerHistory.id);
             }
-           
-            
         }
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         for(let index in req.body.mealSettlement){
@@ -623,17 +665,25 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
 
         const updatedStore =await selectedStore.save()
         const newGameHistory= await gHistory.save();
-        selectedTable.gameData.startTime=undefined;
-        selectedTable.gameData.endTime=undefined;
-        selectedTable.gameData.players=[];
-        selectedTable.gameData.countdownGameEndTime=undefined;
-        selectedTable.gameData.countdownMin=undefined;
-        selectedTable.gameData.gameType=undefined;
-        selectedTable.pauseMin=null
-        selectedTable.pauseTime=null
-        selectedTable.mealAmount=null
-        selectedTable.productList=null
-        selectedTable.isOccupied=false;
+        if(req.body.fromHold) 
+            {
+                selectedTable.isHold=false;
+                selectedTable.holdData=null;
+            }
+            else{
+                selectedTable.gameData.startTime=undefined;
+                selectedTable.gameData.endTime=undefined;
+                selectedTable.gameData.players=[];
+                selectedTable.gameData.countdownGameEndTime=undefined;
+                selectedTable.gameData.countdownMin=undefined;
+                selectedTable.gameData.gameType=undefined;
+                selectedTable.pauseMin=null
+                selectedTable.pauseTime=null
+                selectedTable.mealAmount=null
+                selectedTable.productList=null
+                selectedTable.isOccupied=false;
+            }
+       
         const updatedTable = await selectedTable.save();
         res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id,"UpdatedStoreData":updatedStore._id})
 
