@@ -1,4 +1,4 @@
-const { string, object } = require("joi")
+const { string, object, bool } = require("joi")
 const mongoos=require("mongoose")
 
 const tablesSchema= new mongoos.Schema({
@@ -185,6 +185,14 @@ const tablesSchema= new mongoos.Schema({
     },
     countdownId:{
         type:Object,
+        required:false
+    },
+    holdData:{
+        type:Object,
+        required:false
+    },
+    isHold:{
+        type:Boolean,
         required:false
     }
 
