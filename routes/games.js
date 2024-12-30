@@ -566,14 +566,15 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         const selectedStore= await storeModel.findById(selectedTable.storeId)
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
-            for(let index in selectedTable.gameData.players){
-                updateCustomerDetails(selectedTable.gameData.players[index].customerId,false,req.body.timeDelta,true)
+        let players= req.body.fromHold?selectedTable.holdData.selectedTable.gameData.players:selectedTable.gameData.players;
+            for(let index in players){
+                updateCustomerDetails(players[index].customerId,false,req.body.timeDelta,true)
             }
             let dis= req.body.discount==undefined?0:req.body.discount
             const gHistory= new historyModel({
                 storeId:selectedTable.storeId,
                 date:new Date(),
-                customerName:selectedTable.gameData.players.map((player)=>{
+                customerName:players.map((player)=>{
                     return player.fullName;
                 }).join(","),
                 description:selectedTable.tableName,
