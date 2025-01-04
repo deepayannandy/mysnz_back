@@ -11,11 +11,29 @@ const verify_token= require("../validators/verifyToken")
 const historyModel= require("../models/historyModel")
 const customerHistoryModel= require("../models/customerHistoryModel")
 
+async function updateProductCount(productId,itemsToDeduct){
+    const orderedProduct= await productModel.findById(productId);
+    if(!orderedProduct) return res.status(500).json({message: "Product not found!"})
+        if(orderedProduct.isQntRequired){
+            if(orderedProduct.quantity<itemsToDeduct) 
+                {
+                     return "Product not is stock"
+                    }
+                orderedProduct.quantity=parseInt(orderedProduct.quantity)-parseInt(itemsToDeduct)
+        }
+        await orderedProduct.save()
+        return "ok"
+
+}
+
 router.post("/",verify_token,async (req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     const selectedStore= await storeModel.findById(loggedInUser.storeId)
-    console.log(req.body)  
+    for(let i in req.body.productList.orders){
+        let message= await updateProductCount(req.body.productList.orders[i].productId,req.body.productList.orders[i].qnt)
+        if(message!="ok")  return res.status(500).json({message: message})
+     }
     const transId=`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}${selectedStore.transactionCounter}`
     const newOrderHistory= new orderHistoryModel({
         storeId:loggedInUser.storeId,
