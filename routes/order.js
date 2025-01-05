@@ -30,8 +30,8 @@ router.post("/",verify_token,async (req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     const selectedStore= await storeModel.findById(loggedInUser.storeId)
-    for(let i in req.body.productList.orders){
-        let message= await updateProductCount(req.body.productList.orders[i].productId,req.body.productList.orders[i].qnt)
+    for(let i in req.body.orderItems){
+        let message= await updateProductCount(req.body.orderItems[i].productId,req.body.orderItems[i].qnt)
         if(message!="ok")  return res.status(500).json({message: message})
      }
     const transId=`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}${selectedStore.transactionCounter}`
