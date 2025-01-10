@@ -567,6 +567,22 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         let players= req.body.fromHold?selectedTable.holdData.selectedTable.gameData.players:selectedTable.gameData.players;
+        for (index in req.body.checkoutPlayers){
+            if(req.body.checkoutPlayers[index].customerId==undefined){
+                console.log("Need to create an customer id for : "+req.body.checkoutPlayers[index].fullName)
+                const newCustomer= new customerModel({
+                    fullName:req.body.checkoutPlayers[index].fullName,
+                    storeId:selectedTable.storeId,
+                    isBlackListed:false,
+                    credit:0,
+                    contact:"+910000000000",
+                    maxCredit:999,
+                    rewardPoint:0
+                })
+                const cli=await newCustomer.save();
+                req.body.checkoutPlayers[index].customerId=cli._id.toString();
+            }
+        }
             for(let index in players){
                 updateCustomerDetails(players[index].customerId,false,req.body.timeDelta,true)
             }

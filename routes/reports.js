@@ -60,7 +60,7 @@ router.get("/transactionReport/:storeId/",verify_token, async(req,res)=>{
     }
     
    res.status(201).json({
-    "allTransaction":allTransactions,
+    "allTransaction":allTransactions.reverse(),
     "netAmount":netAmount.toFixed(2),
     "gems":gems.toFixed(2),
     "upi":upi.toFixed(2),
