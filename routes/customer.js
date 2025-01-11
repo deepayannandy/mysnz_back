@@ -89,7 +89,7 @@ router.get("/:cid",async (req,res)=>{
         if(gameCount) winner= gameCount;
         for(let i in customerHistory){
             console.log(customerHistory[i])
-            if(customerHistory[i].description.includes("Table")) winner=winner-1
+            if(customerHistory[i].description.includes("Table")) winner= winner==0?0:winner-1
             totalSpend=totalSpend + (customerHistory[i].paid!=undefined? customerHistory[i].paid:0) 
             if(customerHistory[i].description.includes("Meal") || customerHistory[i].description.includes("Takeaway")) orders=orders+1
             // console.log(">>>> "+customerHistory[i].netPay, totalSpend)

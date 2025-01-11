@@ -590,7 +590,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
             const gHistory= new historyModel({
                 storeId:selectedTable.storeId,
                 date:new Date(),
-                customerName:players.map((player)=>{
+                customerName:req.body.checkoutPlayers.map((player)=>{
                     return player.fullName;
                 }).join(","),
                 description:selectedTable.tableName,
