@@ -102,6 +102,7 @@ router.patch("/:pId",verify_token,async(req,res)=>{
         }
         if(req.body.quantity!=null){
             selectedProduct.quantity=req.body.quantity;
+            if (selectedProduct.quantity>0)  selectedProduct.isOutOfStock=false;
         }
         if(req.body.barcode!=null){
             selectedProduct.barcode=req.body.barcode;
