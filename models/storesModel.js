@@ -44,7 +44,27 @@ const storeSchema= new mongoos.Schema({
     defaultCustomer:{
         type:Boolean,
         required:false
-    }
+    },
+    happyHrsStartTime:{
+        type:String,
+        required:false
+    },
+    happyHrsEndTime:{
+        type:String,
+        required:false
+    },
+    happyHrsDiscount:{
+        type:Number,
+        required:false
+    },
+    isPauseResume:{
+        type:Boolean,
+        required:false
+    },
+    isRoundOff:{
+        type:Boolean,
+        required:false
+    },
 
 })
 module.exports=mongoos.model('Store',storeSchema )

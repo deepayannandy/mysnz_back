@@ -49,6 +49,14 @@ const customerSchema= new mongoos.Schema({
         type:Boolean,
         required:true
     },
+    dateOfBlackList:{
+        type:Date,
+        required:false
+    },
+    reasonOfBlackList:{
+        type:String,
+        required:false
+    },
     isDeleted:{
         type:Boolean,
         required:false

@@ -64,6 +64,21 @@ router.patch('/:sid',async (req,res)=>{
     if(req.body.defaultCustomer!=null){
         Store.defaultCustomer=req.body.defaultCustomer;
     }
+    if(req.body.isPauseResume!=null){
+        Store.isPauseResume=req.body.isPauseResume;
+    }
+    if(req.body.isRoundOff!=null){
+        Store.isRoundOff=req.body.isRoundOff;
+    }
+    if(req.body.happyHrsStartTime!=null){
+        Store.happyHrsStartTime=req.body.happyHrsStartTime;
+    }
+    if(req.body.happyHrsEndTime!=null){
+        Store.happyHrsEndTime=req.body.happyHrsEndTime;
+    }
+    if(req.body.happyHrsDiscount!=null){
+        Store.happyHrsDiscount=req.body.happyHrsDiscount;
+    }
     try{
         const str=await Store.save();
         res.status(201).json(str)

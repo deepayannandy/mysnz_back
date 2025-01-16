@@ -63,6 +63,7 @@ router.get("/myCustomers/",verify_token,async (req,res)=>{
     }
 })
 
+
 router.get("/",async (req,res)=>{
     try{
         const customers=await customerModel.find();
@@ -129,6 +130,13 @@ router.patch("/:cid",verify_token, async (req,res)=>{
     }
     if(req.body.city!=null){
         customers.city=req.body.city;
+    }
+    if(req.body.isBlackListed!=null){
+        customers.isBlackListed=req.body.isBlackListed;
+        if( customers.isBlackListed==true){
+            customers.dateOfBlackList=new Date();
+            customers.reasonOfBlackList=req.body.reasonOfBlackList??"";
+        }
     }
     if(req.body.credit!=null && req.body.credit!=customers.credit){
         // if(!customers.contact.length()>0) return res.status(400).send({"message":"Please update the contact details for this user"});
