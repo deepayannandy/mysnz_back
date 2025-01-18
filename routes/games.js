@@ -279,6 +279,7 @@ router.patch("/stopGame/:tableId",verify_token,async (req,res)=>{
     try{
         const loggedInUser= await userModel.findById(req.tokendata._id)
         const selectedTable= await tableModel.findById(req.params.tableId);
+        const selectedStore= await storeModel.findById(selectedTable.storeId)
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         if(selectedTable.gameData.endTime!=undefined) return res.status(401).json({message: "Game already stopped"})
@@ -289,6 +290,32 @@ router.patch("/stopGame/:tableId",verify_token,async (req,res)=>{
         console.log(newPauseTime)
         selectedTable.pauseMin=newPauseTime
         selectedTable.pauseTime=null
+        }
+        let timeDelta=((new Date()- selectedTable.gameData.startTime)/60000).toFixed(2);
+        console.log("Time Delta: ",timeDelta)
+        if(selectedStore.isCancel){
+            console.log(">>>>>>>>> Checking Game for cancellation")
+            if(timeDelta<selectedStore.cancelMins){
+                let players=selectedTable.gameData.players;
+                selectedTable.gameData.startTime=undefined;
+                selectedTable.gameData.endTime=undefined;
+                selectedTable.gameData.players=[];
+                selectedTable.gameData.countdownGameEndTime=undefined;
+                selectedTable.gameData.countdownMin=undefined;
+                selectedTable.gameData.gameType=undefined;
+                selectedTable.pauseMin=null
+                selectedTable.pauseTime=null
+                selectedTable.mealAmount=null
+                selectedTable.productList=null
+                selectedTable.isOccupied=false;
+                const updatedTable = await selectedTable.save();
+                mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
+                for(let index in players){
+                    updateCustomerDetails(players[index].customerId,false,0,true)
+                }
+                console.log(">>>>>>>>> Game cancelled "+updatedTable.tableName)
+                return res.status(422).json({message: "Game Cancelled!"})
+            }
         }
         selectedTable.gameData.endTime=new Date();
         const updatedTable = await selectedTable.save();
@@ -403,7 +430,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
                 }
             }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
             let bills=[]
@@ -470,7 +497,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     // console.log(timeDelta,totalBillAmt,bills)
                     // await delay(2000);
                 }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
+            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
         }
         if(selectedTable.gameData.gameType=="Countdown Billing"){
             let bills=[]
@@ -500,7 +527,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
                     }
                 }
             }
-            return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":totalBillAmt,"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
+            return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
         }
         console.log(selectedTable.gameData,selectedTable._id)
         res.status(502).json({message: "Billing not supported"})
