@@ -44,7 +44,7 @@ router.post("/",async(req,res)=>{
 router.get("/:sid",async(req,res)=>{
     try{
         const storeSubscriptions=await storeSubscriptionModel.find({storeId:req.params.sid});
-        res.status(201).json(storeSubscriptions)
+        res.status(201).json(storeSubscriptions.reverse())
 
     }catch{
         res.status(500).json({message: error.message})

@@ -65,6 +65,14 @@ const storeSchema= new mongoos.Schema({
         type:Boolean,
         required:false
     },
+    isCancel:{
+        type:Boolean,
+        required:false
+    },
+    cancelMins:{
+        type:Number,
+        required:false
+    }
 
 })
 module.exports=mongoos.model('Store',storeSchema )

@@ -79,6 +79,12 @@ router.patch('/:sid',async (req,res)=>{
     if(req.body.happyHrsDiscount!=null){
         Store.happyHrsDiscount=req.body.happyHrsDiscount;
     }
+    if(req.body.isCancel!=null){
+        Store.isCancel=req.body.isCancel;
+    }
+    if(req.body.cancelMins!=null){
+        Store.cancelMins=req.body.cancelMins;
+    }
     try{
         const str=await Store.save();
         res.status(201).json(str)
