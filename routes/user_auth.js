@@ -159,7 +159,8 @@ router.get('/whoAmI', verify_token, async (req,res)=>{
         const happyHrsEndTime=myStore.happyHrsEndTime??null
         const happyHrsDiscount=myStore.happyHrsDiscount??null
         const isPauseResume= myStore.isPauseResume??null
-        res.status(201).json({...loggedInUser.toObject(),storeName,happyHrsStartTime,happyHrsEndTime,happyHrsDiscount,isPauseResume})
+        const subscription= activeSubscription[0].subscriptionName?? null
+        res.status(201).json({...loggedInUser.toObject(),storeName,happyHrsStartTime,happyHrsEndTime,happyHrsDiscount,isPauseResume,subscription})
     }catch(error){
         res.status(500).json({message: error.message})
     }

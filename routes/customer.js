@@ -49,6 +49,15 @@ router.get("/byStore/:sid",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+router.get("/blackListedCustomers/",async (req,res)=>{
+    try{
+        const customers=await customerModel.find({ isBlackListed:true,isDeleted: {$ne:true}});
+        res.status(201).json(customers)
+
+    }catch{
+        res.status(500).json({message: error.message})
+    }
+})
 
 router.get("/myCustomers/",verify_token,async (req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
