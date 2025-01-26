@@ -24,7 +24,8 @@ router.post("/",async(req,res)=>{
         startDate:StartDate,
         endDate:EndDate,
         isYearly:selectedSubs.isYearly,
-        subscriptionAmount:selectedSubs.subscriptionPrice
+        subscriptionAmount:selectedSubs.subscriptionPrice,
+        transactionRef:req.body.transactionRef
     })
     try{
         if(activeSubs){

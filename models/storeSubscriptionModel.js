@@ -26,6 +26,10 @@ const storeSubscriptionSchema= new mongoos.Schema({
         type:String,
         required:true
     },
+    transactionRef:{
+        type:String,
+        required:true
+    },
     subscriptionValidity:{
         type:Number,
         required:true

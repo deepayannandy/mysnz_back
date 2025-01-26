@@ -39,6 +39,7 @@ const reportsRouter=require("./routes/reports")
 const categoryRouter=require("./routes/category")
 const expenseRouter=require("./routes/expense")
 const duesRouter=require("./routes/dues")
+const paymentRouter=require("./routes/paymentLogs")
 
 app.use("/api/user",userRouter)
 app.use("/api/store",storeRouter)
@@ -59,6 +60,7 @@ app.use("/api/reports",reportsRouter)
 app.use("/api/category",categoryRouter)
 app.use("/api/expense",expenseRouter)
 app.use("/api/dues",duesRouter)
+app.use("/api/paymentLogs",paymentRouter)
 
 app.listen(4455,()=>{
     console.log("Http Server is listening!")
