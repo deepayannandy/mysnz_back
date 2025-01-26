@@ -15,19 +15,21 @@ const paymentGatewaySchema= new mongoos.Schema({
         required:true
     },
     receipt:{
-        razorpayPaymentId: {
-          type: String,
-          required: false,
+        type:String,
+        required:false
+    },
+    razorpayPaymentId: {
+        type: String,
+        required: false,
         },
-        razorpayOrderId: {
-          type: String,
-          required: false,
-        },
-        razorpaySignature:{
-            type:String,
-            required:false
-        },
-      },
+    razorpayOrderId: {
+        type: String,
+        required: false,
+    },
+    razorpaySignature:{
+        type:String,
+        required:false
+        },  
     initiationTime:{
         type:Date,
         required:true

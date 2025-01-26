@@ -43,9 +43,18 @@ router.patch("/:oid",verify_token,async(req,res)=>{
     const transactionLog=await paymentGatewayLogs.findOne({"orderId":req.params.oid});
     if(!transactionLog)return res.status(404).json({message: "Payment log is not available"})
     if(req.body.receipt!=null){
-        transactionLog.receipt=req.body.receipt;
-        transactionLog.completionTime=new Date();
+        transactionLog.receipt=req.body.receipt;    
     }
+    if(req.body.razorpayPaymentId!=null){
+        transactionLog.razorpayPaymentId=req.body.razorpayPaymentId;    
+    }
+    if(req.body.razorpayOrderId!=null){
+        transactionLog.razorpayOrderId=req.body.razorpayOrderId;    
+    }
+    if(req.body.razorpaySignature!=null){
+        transactionLog.razorpaySignature=req.body.razorpaySignature;    
+    }
+    transactionLog.completionTime=new Date();
     try{
         const updatedLog=await transactionLog.save();
         res.status(201).json(updatedLog)
