@@ -12,9 +12,18 @@ router.post("/",async(req,res)=>{
     const selectedSubs= await subscriptionModel.findById(req.body.subscriptionId)
     if(!selectedSubs) return res.status(400).send({"message":"Subscription dose not exist!"});
     console.log(selectedSubs)
-    const StartDate= new Date()
-    const EndDate= new Date()
+    let StartDate= new Date()
+    let EndDate= new Date()
+    if(activeSubs){
+        activeSubs.isActive=false;
+        await activeSubs.save()
+        console.log(activeSubs.startDate)
+        StartDate= activeSubs.endDate.setDate(activeSubs.endDate.getDate() + 1);
+        EndDate= activeSubs.endDate.setDate(activeSubs.endDate.getDate() + selectedSubs.subscriptionValidity);
+    }
+    else{
     EndDate.setDate(EndDate.getDate() + selectedSubs.subscriptionValidity);
+    }
     const storeSubs= new storeSubscriptionModel({
         storeId:req.body.storeId,
         isActive:true,
@@ -28,10 +37,6 @@ router.post("/",async(req,res)=>{
         transactionRef:req.body.transactionRef
     })
     try{
-        if(activeSubs){
-            activeSubs.isActive=false;
-            await activeSubs.save()
-        }
         store.validTill=EndDate
         await store.save()
         const newSSubs=await storeSubs.save()
