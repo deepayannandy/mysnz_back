@@ -40,8 +40,19 @@ router.get('/:did',async (req,res)=>{
 router.get('/',async (req,res)=>{
     
     try{
+        console.log("I am called")
+        let deviceData=[];
         const Device=await deviceModel.find();
-        res.status(201).json(Device)
+        for (const device of Device) {
+            const store = await storeModel.findById({ _id: device.storeId });
+            if (store != null) {
+                tempDevice = device.toObject();
+                tempDevice.storeName = store.storeName;
+                console.log(tempDevice)
+                deviceData.push(tempDevice);
+            }
+          }
+        res.status(201).json(deviceData)
 
     }catch(error){
         res.status(500).json({message: error.message})
