@@ -18,7 +18,11 @@ router.post("/SendMqtt",async (req,res)=>{
         const selectedDevice= await deviceModel.findOne({deviceId:data[0]})
         if(!selectedDevice) return res.status(500).json({message: "Device not found!"})
         console.log(selectedDevice)
-        selectedDevice.nodeStatus[data[1]-1]=req.body.message=="0"?0:1
+        if(data[1]=="manualenable"){
+            selectedDevice.isManualEnable=req.body.message=="0"?false:true
+        }else{
+            selectedDevice.nodeStatus[data[1]-1]=req.body.message=="0"?0:1
+        }
         console.log(selectedDevice)
         await selectedDevice.save()
         mqttAgent.client.publish(req.body.topic,req.body.message)

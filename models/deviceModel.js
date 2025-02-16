@@ -37,7 +37,11 @@ const deviceSchema= new mongoos.Schema({
     warrantyAvailingDate:{
         type:Array,
         required: false
-    }
+    },
+    isManualEnable:{
+        type: Boolean,
+        required: false
+    },
 
 })
 module.exports=mongoos.model('Device',deviceSchema)
