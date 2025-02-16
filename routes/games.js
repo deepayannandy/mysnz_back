@@ -14,7 +14,7 @@ const mqttAgent=require("../utils/mqtt")
 
 router.post("/SendMqtt",async (req,res)=>{
     try{
-        let data=req.body.topic.split("/l")
+        let data=req.body.topic.split("/")
         const selectedDevice= await deviceModel.findOne({deviceId:data[0]})
         if(!selectedDevice) return res.status(500).json({message: "Device not found!"})
         console.log(selectedDevice)
