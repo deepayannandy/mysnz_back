@@ -10,7 +10,7 @@ const mqttAgent=require("../utils/mqtt")
 router.post("/",verify_token,async(req,res)=>{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
-    console.log(loggedInUser)
+    console.log(req.body)
     const newTable= new tableModel({
         storeId:loggedInUser.storeId,
         tableName:req.body.tableName,
@@ -22,9 +22,11 @@ router.post("/",verify_token,async(req,res)=>{
         isBooked:false,
         minuteWiseRules:req.body.minuteWiseRules,
         slotWiseRules:req.body.slotWiseRules,
-        countdownRules:req.body.countdownRules
+        countdownRules:req.body.countdownRules,
+        fixedBillingRules:req.body.fixedBillingRules
     })
     try{
+        console.log(newTable)
         const table=await newTable.save()
         res.status(201).json({"_id":table.id})
     }
@@ -70,6 +72,9 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
         }
         if(req.body.gameTypes!=null){
             table.gameTypes=req.body.gameTypes
+        }
+        if(req.body.fixedBillingRules!=null){
+            table.fixedBillingRules=req.body.fixedBillingRules
         }
         try{
             const tab=await table.save();

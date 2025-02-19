@@ -99,6 +99,16 @@ const tablesSchema= new mongoos.Schema({
             required:false
         },
     },
+    fixedBillingRules:{
+        dayAmt:{
+            type:Number,
+            required:false
+        },
+        nightAmt:{
+            type:Number,
+            required:false
+        },
+    },
     slotWiseRules:[
         {
             uptoMin:{

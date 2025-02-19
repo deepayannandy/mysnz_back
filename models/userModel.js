@@ -54,6 +54,10 @@ const userSchema= new mongoos.Schema({
         type:Number,
         required:false
     },
+    tempOTP:{
+        type:Number,
+        required:false
+    },
 })
 
 module.exports=mongoos.model('User',userSchema )

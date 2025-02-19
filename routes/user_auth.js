@@ -239,13 +239,42 @@ router.get('/getMyStaffs', verify_token, async (req,res)=>{
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
         console.log(loggedInUser)
     try{
-        const users=await userModel.find({storeId:loggedInUser.storeId,$or:[{userDesignation:"staff"}, {userDesignation:"Staff"}]});
+        const users=await userModel.find({storeId:loggedInUser.storeId});
         res.status(201).json(users)
     }catch(error){
         res.status(500).json({message: error.message})
     }
 })
-
+//generate OTP
+router.post('/generateOTP', async (req,res)=>{
+    console.log(req.body.email)
+    const selectedUser= await userModel.findOne({email:req.body.email})
+    if(!selectedUser)return res.status(404).json({message: "User not found!"})
+        console.log(selectedUser)
+    try{
+        selectedUser.tempOTP= Math.floor(1000 + Math.random() * 9000);
+        const user=await selectedUser.save();
+        res.status(201).json({"message":`A one-time password (OTP) is delivered to a user's email address (${user.email})`})
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+//Validate OTP
+router.post('/validateOTP', async (req,res)=>{
+    console.log(req.body.email)
+    console.log(req.body.otp)
+    const selectedUser= await userModel.findOne({email:req.body.email})
+    if(!selectedUser)return res.status(404).json({message: "User not found!"})
+        console.log(selectedUser)
+    try{
+        if(selectedUser.tempOTP==parseInt(req.body.otp)){
+            return res.status(200).json({"message":`Success`})
+        }
+        return res.status(401).json({"message":`Failed`})
+    }catch(error){
+        return res.status(500).json({message: error.message})
+    }
+})
 //get all user
 router.get('/getAllAdmins', verify_token, async (req,res)=>{
     console.log("I am called")
@@ -255,9 +284,9 @@ router.get('/getAllAdmins', verify_token, async (req,res)=>{
         console.log(loggedInUser)
     try{
         const users=await userModel.find({$or:[{userDesignation:"Admin"}, {userDesignation:"admin"}]});
-        res.status(201).json(users)
+        return res.status(201).json(users)
     }catch(error){
-        res.status(500).json({message: error.message})
+        return res.status(500).json({message: error.message})
     }
 })
 
