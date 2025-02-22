@@ -221,7 +221,7 @@ router.patch("/updatePassword/:id",getUser,async(req,res)=>{
         const salt= await bcrypt.genSalt(10);
         const hashedpassword= await bcrypt.hash(req.body.newPassword,salt);
         res.user.password=hashedpassword;
-        res.user.passwordRev=res.user.passwordRev+1;
+        res.user.passwordRev=res.user.passwordRev==null?1: res.user.passwordRev+1;
     }
     try{
         const newUser=await res.user.save()
