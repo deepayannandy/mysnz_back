@@ -45,7 +45,7 @@ router.post("/",verify_token,async (req,res)=>{
         discount:req.body.discount,
         netPay:req.body.netPay,
         status: req.body.netPay-req.body.cashIn<0? req.body.netPay==0?"Due":"Partially Paid":"Due",
-        paid:req.body.cashIn,
+        paid:req.body.cashIn??0,
         transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}${selectedStore.transactionCounter}`,
         credit:req.body.credit
     })
