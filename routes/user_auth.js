@@ -254,7 +254,7 @@ router.post('/generateOTP', async (req,res)=>{
     try{
         selectedUser.tempOTP= Math.floor(1000 + Math.random() * 9000);
         const user=await selectedUser.save();
-        res.status(201).json({"message":`A one-time password (OTP) is delivered to a user's email address (${user.email})`})
+        res.status(201).json({"message":`A one-time password (OTP) is delivered to a user's email address (${user.email})`,"otp":selectedUser.tempOTP})
     }catch(error){
         res.status(500).json({message: error.message})
     }
