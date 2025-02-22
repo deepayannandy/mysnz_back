@@ -32,6 +32,10 @@ const orderHistorySchema= new mongoos.Schema({
         type:Number,
         required:true
     },
+    paid:{
+        type:Number,
+        required:true
+    },
     status:{
         type:String,
         required:true
