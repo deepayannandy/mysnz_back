@@ -52,6 +52,7 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
     const table=await tableModel.findById(req.params.tableId);
     if(!table) return res.status(404).json({message: "Table not found"})
     if(table.isOccupied) return res.status(409).json({message: "Table is occupied!"})
+        console.log(req.body.fixedBillingRules)
         if(req.body.tableName!=null){
             table.tableName=req.body.tableName;
         }

@@ -533,6 +533,32 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             }
             return res.status(201).json({"timeDelta":selectedTable.gameData.countdownMin,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
         }
+        if(selectedTable.gameData.gameType=="Fixed Billing"){
+            let bills=[]
+            let totalBillAmt=0;
+            let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000)-parseFloat(selectedTable.pauseMin??0));
+            if(timeDelta==NaN)return res.status(502).json({message: "Something went wrong slot"})
+            const totalGameTime=timeDelta;
+            console.log(timeDelta)
+            const indianStartTime= selectedTable.gameData.startTime.toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata',hour12: false});
+            console.log(indianStartTime)
+            let isNightTime=isNight(selectedStore, indianStartTime)
+            console.log(isNightTime)
+            if(isNightTime){
+                if(selectedTable.fixedBillingRules.nightAmt){
+                    bills.push({"title":"Night Fixed Billing","time":timeDelta,"amount":selectedTable.fixedBillingRules.nightAmt});
+                    totalBillAmt=selectedTable.fixedBillingRules.nightAmt;
+                }else{
+                    bills.push({"title":"Day Fixed Billing","time":timeDelta,"amount":selectedTable.fixedBillingRules.dayAmt});
+                    totalBillAmt=selectedTable.fixedBillingRules.dayAmt;
+                }
+            }else{
+                bills.push({"title":"Day Fixed Billing","time":timeDelta,"amount":selectedTable.fixedBillingRules.dayAmt});
+                totalBillAmt=selectedTable.fixedBillingRules.dayAmt;
+            }
+
+            return res.status(201).json({"timeDelta":timeDelta,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
+        }       
         console.log(selectedTable.gameData,selectedTable._id)
         res.status(502).json({message: "Billing not supported"})
 

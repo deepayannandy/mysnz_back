@@ -268,7 +268,7 @@ router.post('/validateOTP', async (req,res)=>{
         console.log(selectedUser)
     try{
         if(selectedUser.tempOTP==parseInt(req.body.otp)){
-            return res.status(200).json({"message":`Success`})
+            return res.status(200).json({"message":`Success`,"UserId": selectedUser._id})
         }
         return res.status(401).json({"message":`Failed`})
     }catch(error){
@@ -281,7 +281,6 @@ router.get('/getAllAdmins', verify_token, async (req,res)=>{
     console.log(req.tokendata)
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
-        console.log(loggedInUser)
     try{
         const users=await userModel.find({$or:[{userDesignation:"Admin"}, {userDesignation:"admin"}]});
         return res.status(201).json(users)
