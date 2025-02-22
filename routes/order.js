@@ -35,6 +35,7 @@ router.post("/",verify_token,async (req,res)=>{
         if(message!="ok")  return res.status(500).json({message: message})
      }
     const transId=`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}${selectedStore.transactionCounter}`
+    console.log(`>>${req.body.cashIn==""}`)
     const newOrderHistory= new orderHistoryModel({
         storeId:loggedInUser.storeId,
         date:new Date(),
@@ -44,8 +45,8 @@ router.post("/",verify_token,async (req,res)=>{
         total:req.body.total,
         discount:req.body.discount,
         netPay:req.body.netPay,
-        status: req.body.netPay-req.body.cashIn<0? req.body.netPay==0?"Due":"Partially Paid":"Due",
-        paid:req.body.cashIn??0,
+        status: req.body.netPay-req.body.cashIn>0?req.body.cashIn==""?"Due":"Partially Paid":"Paid",
+        paid:req.body.cashIn==""?0:req.body.cashIn,
         transactionId:`${selectedStore.storeName.replace(" ","").substring(0,3).toUpperCase()}${selectedStore.transactionCounter}`,
         credit:req.body.credit
     })
