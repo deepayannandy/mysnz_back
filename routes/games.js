@@ -38,6 +38,7 @@ async function updateCustomerDetails(customerId,status,duration,isCheckout){
     if(selectedCustomer){
         console.log(`>>> added ${duration} to  ${selectedCustomer.fullName}`)
         selectedCustomer.isPlaying=status
+        if(status==false) selectedCustomer.lastGame=new Date();
         selectedCustomer.gameDuration==undefined?selectedCustomer.gameDuration=0:selectedCustomer.gameDuration=selectedCustomer.gameDuration+duration
         if(isCheckout) selectedCustomer.gamePlay==undefined?selectedCustomer.gamePlay=1:selectedCustomer.gamePlay= selectedCustomer.gamePlay+1;
     }

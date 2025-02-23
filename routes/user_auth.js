@@ -57,7 +57,7 @@ router.post('/clientLogin',async (req,res)=>{
     if(!user) return res.status(400).send({"message":"User dose not exist!"});
     console.log(user)
     if(user.userDesignation=="SuperAdmin") return res.status(400).send({"message":"SuperAdmin Login is not possible!"});
-    // if(user.userStatus) return res.status(403).send({"message":"Login is not possible as your userid is suspended!"});
+    if(!user.userStatus) return res.status(403).send({"message":"Login is not possible as your userid is suspended!"});
     // if(user.loginIndex!= undefined) if(user.loginIndex>0) return res.status(400).send({"message":"User is already logged in!"});
     //validate subscription
     const activeSubscription= await storeSubsModel.find({$and:
@@ -213,7 +213,7 @@ router.delete("/:id",verify_token,async (req,res)=>{
             return res.status(404).json({message:"User unavailable!"})
         }
         if(user._id==req.tokendata._id){
-            return res.status(403).json({message:"This User account cannot be deleted!"})
+            return res.status(403).json({message:"Primary User cannot be deleted!"})
         }
     try{
         const result= await userModel.deleteOne({_id: new mongodb.ObjectId(req.params.id)})

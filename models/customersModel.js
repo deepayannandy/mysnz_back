@@ -80,7 +80,12 @@ const customerSchema= new mongoos.Schema({
     gameWin:{
         type:Number,
         required:false
+    },
+    lastGame:{
+        type:Date,
+        required:false
     }
+
 
 })
 module.exports=mongoos.model('Customer',customerSchema )

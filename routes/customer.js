@@ -49,7 +49,9 @@ router.get("/byStore/:sid",async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
-router.get("/blackListedCustomers/",async (req,res)=>{
+router.get("/blackListedCustomers/",verify_token,async (req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
     try{
         const customers=await customerModel.find({ isBlackListed:true,isDeleted: {$ne:true}});
         res.status(201).json(customers)
@@ -141,6 +143,7 @@ router.patch("/:cid",verify_token, async (req,res)=>{
         customers.city=req.body.city;
     }
     if(req.body.isBlackListed!=null){
+        if(User.storeId!=customers.storeId) return res.status(403).send({"message":"You cannot unblock this Customer!"});
         customers.isBlackListed=req.body.isBlackListed;
         if( customers.isBlackListed==true){
             customers.dateOfBlackList=new Date();
@@ -171,8 +174,9 @@ router.patch("/:cid",verify_token, async (req,res)=>{
             customerId:req.params.cid,
             date:new Date(),
             customerName:customers.fullName,
-            description:"Settle Amount",
-            paid:req.body.settlementAmount,
+            description:"Settlement",
+            discount:req.body.settlementAmount,
+            paid:0,
             due:0,
             storeId:customers.storeId,
             empId:User._id
