@@ -57,6 +57,7 @@ router.post('/clientLogin',async (req,res)=>{
     if(!user) return res.status(400).send({"message":"User dose not exist!"});
     console.log(user)
     if(user.userDesignation=="SuperAdmin") return res.status(400).send({"message":"SuperAdmin Login is not possible!"});
+    if(user.userStatus) return res.status(403).send({"message":"Login is not possible as your userid is suspended!"});
     // if(user.loginIndex!= undefined) if(user.loginIndex>0) return res.status(400).send({"message":"User is already logged in!"});
     //validate subscription
     const activeSubscription= await storeSubsModel.find({$and:
@@ -113,6 +114,7 @@ router.post('/register',async (req,res)=>{
         storeId:req.body.storeId,
         userDesignation:req.body.userDesignation,
         passwordRev:0,
+        isRootUser:req.body.isRootUser
     })
     try{
         const newUser=await user.save()
@@ -186,6 +188,9 @@ router.patch('/:id', getUser,async(req,res)=>{
     if(req.body.shopId!=null){
         res.user.shopId=req.body.shopId;
     }
+    if(req.body.status!=null){
+        res.user.status=req.body.status;
+    }
     if(req.body.password!=null){
          //hash the password
         const salt= await bcrypt.genSalt(10);
@@ -206,6 +211,9 @@ router.delete("/:id",verify_token,async (req,res)=>{
     user=await userModel.findById(req.params.id)
         if(user==null){
             return res.status(404).json({message:"User unavailable!"})
+        }
+        if(user._id==req.tokendata._id){
+            return res.status(403).json({message:"This User account cannot be deleted!"})
         }
     try{
         const result= await userModel.deleteOne({_id: new mongodb.ObjectId(req.params.id)})

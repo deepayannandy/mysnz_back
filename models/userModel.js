@@ -58,6 +58,10 @@ const userSchema= new mongoos.Schema({
         type:Number,
         required:false
     },
+    isRootUser:{
+        type:Boolean,
+        required:false
+    },
 })
 
 module.exports=mongoos.model('User',userSchema )

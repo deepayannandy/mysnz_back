@@ -154,7 +154,7 @@ router.patch("/:cid",verify_token, async (req,res)=>{
             date:new Date(),
             customerName:customers.fullName,
             description:req.body.description+" "+req.body.paymentMethods,
-            paid:req.body.description=="Pay Dues"? customers.credit-req.body.credit:0,
+            paid:req.body.description=="Pay Dues"?req.body.settlementAmount!=null?customers.credit-req.body.credit-req.body.settlementAmount: customers.credit-req.body.credit:0,
             due:req.body.description=="Add Old Credit"? req.body.credit-customers.credit:0,
             storeId:customers.storeId,
             empId:User._id
@@ -165,6 +165,24 @@ router.patch("/:cid",verify_token, async (req,res)=>{
             console.log(error)
         }
         customers.credit=req.body.credit;
+    }
+    if(req.body.settlementAmount!=null){
+        const newCustomerHistory= new customerHistoryModel({
+            customerId:req.params.cid,
+            date:new Date(),
+            customerName:customers.fullName,
+            description:"Settle Amount",
+            paid:req.body.settlementAmount,
+            due:0,
+            storeId:customers.storeId,
+            empId:User._id
+        })
+        try{
+            const savedHistory= await newCustomerHistory.save()
+            }catch(error){
+                console.log(error)
+            }
+            customers.credit=req.body.credit;
     }
     if(req.body.maxCredit!=null){
         if(!customers.contact.length>0) return res.status(400).send({"message":"Please update the contact details for this user"});
