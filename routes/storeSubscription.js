@@ -4,8 +4,12 @@ const mongodb=require("mongodb");
 const subscriptionModel=require("../models/subscriptionModel")
 const storeSubscriptionModel= require("../models/storeSubscriptionModel")
 const storeModel=require("../models/storesModel")
+const verifyToken = require("../validators/verifyToken")
+const userModel = require("../models/userModel")
 
-router.post("/",async(req,res)=>{
+router.post("/",verifyToken,async(req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(loggedInUser.storeId!=req.body.storeId) return res.status(403).json({message:"You are not allowed to perform a subscription renewal for this store"})
     let store=await storeModel.findById({_id:req.body.storeId});
     if(!store) return res.status(400).send({"message":"Store dose not exist!"});
     const activeSubs= await storeSubscriptionModel.findOne({$and:[{isActive:true},{storeId:req.body.storeId}]})

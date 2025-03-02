@@ -60,6 +60,9 @@ router.post('/clientLogin',async (req,res)=>{
     if(!user.userStatus) return res.status(403).send({"message":"Login is not possible as your userid is suspended!"});
     // if(user.loginIndex!= undefined) if(user.loginIndex>0) return res.status(400).send({"message":"User is already logged in!"});
     //validate subscription
+    // validate password
+    const validPass=await bcrypt.compare(req.body.password,user.password);
+    if(!validPass) return res.status(409).send({"message":"Email id or password is invalid!"});
     const activeSubscription= await storeSubsModel.find({$and:
         [{endDate:{
            $gt: new Date(),
@@ -67,10 +70,7 @@ router.post('/clientLogin',async (req,res)=>{
            storeId:user.storeId
        }, {isActive:true}]
    })
-   if(activeSubscription.length<1) return res.status(409).send({"message":"Your subscription is over! Please renew your Subscription"});
-    // validate password
-    const validPass=await bcrypt.compare(req.body.password,user.password);
-    if(!validPass) return res.status(409).send({"message":"Email id or password is invalid!"});
+    if(activeSubscription.length<1) return res.status(409).send({"message":"Your subscription is over! Please renew your Subscription","ErrorId":"SUBSCRIPTION_OVER","storeId":user.storeId,"token": jwt.sign({_id:user._id,isSuperAdmin:user.isSuperAdmin,userDesignation:user.userDesignation},process.env.SECREAT_TOKEN)});
     if (!user.userStatus) return res.status(409).send({"message":"User is not an active user!"});
     if(user.passwordRev==undefined) user.passwordRev=0;
     user.loginTime=new Date();
