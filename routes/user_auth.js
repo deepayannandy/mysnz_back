@@ -188,8 +188,8 @@ router.patch('/:id', getUser,async(req,res)=>{
     if(req.body.shopId!=null){
         res.user.shopId=req.body.shopId;
     }
-    if(req.body.status!=null){
-        res.user.status=req.body.status;
+    if(req.body.userStatus!=null){
+        res.user.userStatus=req.body.userStatus;
     }
     if(req.body.password!=null){
          //hash the password
