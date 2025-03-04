@@ -207,7 +207,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         const selectedStore= await storeModel.findById(selectedTable.storeId)
         if(!selectedStore) return res.status(500).json({message: "Store not found!"})
-        if(selectedStore.defaultCustomer) if(req.body.players.length<2) return res.status(500).json({message: "Need to choose minimum 2 players!"})
+        if(selectedStore.requiredCustomerCount) if(req.body.players.length<selectedStore.requiredCustomerCount) return res.status(500).json({message: `Need to choose minimum ${selectedStore.requiredCustomerCount} players!`})
         let finalPlayerList=[];
         for(count in req.body.players){
             let getdata=req.body.players[count]

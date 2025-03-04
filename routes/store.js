@@ -61,8 +61,8 @@ router.patch('/:sid',async (req,res)=>{
     if(req.body.nightEndTime!=null){
         Store.nightEndTime=req.body.nightEndTime;
     }
-    if(req.body.defaultCustomer!=null){
-        Store.defaultCustomer=req.body.defaultCustomer;
+    if(req.body.requiredCustomerCount!=null){
+        Store.requiredCustomerCount=req.body.requiredCustomerCount;
     }
     if(req.body.isPauseResume!=null){
         Store.isPauseResume=req.body.isPauseResume;

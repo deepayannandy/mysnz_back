@@ -41,8 +41,8 @@ const storeSchema= new mongoos.Schema({
         type:String,
         required:false
     },
-    defaultCustomer:{
-        type:Boolean,
+    requiredCustomerCount:{
+        type:Number,
         required:false
     },
     happyHrsStartTime:{
