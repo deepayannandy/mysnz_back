@@ -69,6 +69,7 @@ router.get("/Dashboard/:sid",async(req,res)=>{
                 cash=cash+filteredTransactions[index].paid
             }
             if(filteredTransactions[index].description.includes("UPI")){
+                console.log(">>>>",filteredTransactions[index])
                 upi=upi+filteredTransactions[index].paid
             }
             if(filteredTransactions[index].description.includes("CARD")){
@@ -122,6 +123,7 @@ router.get("/signOffReport/:uid",async (req,res)=>{
    let due=0
    let cash=0 
    let card=0
+   let upi=0
    for(let index in allTransactionToday){
     console.log(allTransactionToday[index])
     if(allTransactionToday[index].description.toLowerCase().includes("table")){
@@ -132,6 +134,9 @@ router.get("/signOffReport/:uid",async (req,res)=>{
     }
     if(allTransactionToday[index].description.toLowerCase().includes("cash")){
         cash=cash+allTransactionToday[index].paid
+    }
+    if(allTransactionToday[index].description.toLowerCase().includes("upi")){
+        upi=upi+allTransactionToday[index].paid
     }
     if(allTransactionToday[index].description.toLowerCase().includes("card")){
         card=card+allTransactionToday[index].paid
@@ -149,6 +154,7 @@ router.get("/signOffReport/:uid",async (req,res)=>{
         "totalCollection":tableCollection+mealCollection,
         "cash":cash,
         "card":card,
+        "upi":upi,
         "dues": Math.abs(due)
     })
 })

@@ -72,6 +72,10 @@ const storeSchema= new mongoos.Schema({
     cancelMins:{
         type:Number,
         required:false
+    },
+    isHoldEnamble:{
+        type:Boolean,
+        required:false
     }
 
 })
