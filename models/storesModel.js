@@ -73,10 +73,29 @@ const storeSchema= new mongoos.Schema({
         type:Number,
         required:false
     },
-    isHoldEnamble:{
+    isBillPrint:{
+        type:Boolean,
+        required:false
+    },
+    isPrepaidMode:{
+        type:Boolean,
+        required:false
+    },
+    isSwitchTable:{
+        type:Boolean,
+        required:false
+    },
+    isSelfStart:{
+        type:Boolean,
+        required:false
+    },
+    isHoldEnable:{
         type:Boolean,
         required:false
     }
+
+
+
 
 })
 module.exports=mongoos.model('Store',storeSchema )

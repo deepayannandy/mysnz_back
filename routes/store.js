@@ -85,6 +85,21 @@ router.patch('/:sid',async (req,res)=>{
     if(req.body.cancelMins!=null){
         Store.cancelMins=req.body.cancelMins;
     }
+    if(req.body.isBillPrint!=null){
+        Store.isBillPrint=req.body.isBillPrint;
+    }
+    if(req.body.isPrepaidMode!=null){
+        Store.isPrepaidMode=req.body.isPrepaidMode;
+    }
+    if(req.body.isSwitchTable!=null){
+        Store.isSwitchTable=req.body.isSwitchTable;
+    }
+    if(req.body.isSelfStart!=null){
+        Store.isSelfStart=req.body.isSelfStart;
+    }
+    if(req.body.isHoldEnable!=null){
+        Store.isHoldEnable=req.body.isHoldEnable;
+    }
     try{
         const str=await Store.save();
         res.status(201).json(str)
