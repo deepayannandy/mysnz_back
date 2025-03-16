@@ -14,18 +14,39 @@ const mqttAgent=require("../utils/mqtt")
 
 router.post("/SendMqtt",async (req,res)=>{
     try{
+        let sendAll=false;
         let data=req.body.topic.split("/")
         const selectedDevice= await deviceModel.findOne({deviceId:data[0]})
         if(!selectedDevice) return res.status(500).json({message: "Device not found!"})
         console.log(selectedDevice)
         if(data[1]=="manualenable"){
             selectedDevice.isManualEnable=req.body.message=="0"?false:true
-        }else{
+        }if(data[1]=="all"){
+            console.log("I am called")
+            sendAll=true;
+            selectedDevice.nodeStatus[0]=req.body.message=="0"?0:1
+            selectedDevice.nodeStatus[1]=req.body.message=="0"?0:1
+            selectedDevice.nodeStatus[2]=req.body.message=="0"?0:1
+            selectedDevice.nodeStatus[3]=req.body.message=="0"?0:1
+            selectedDevice.nodeStatus[4]=req.body.message=="0"?0:1
+            selectedDevice.nodeStatus[5]=req.body.message=="0"?0:1
+            selectedDevice.nodeStatus[6]=req.body.message=="0"?0:1
+            selectedDevice.nodeStatus[7]=req.body.message=="0"?0:1
+        }
+        else{
             selectedDevice.nodeStatus[data[1]-1]=req.body.message=="0"?0:1
         }
-        console.log(selectedDevice)
         await selectedDevice.save()
-        mqttAgent.client.publish(req.body.topic,req.body.message)
+        if(sendAll){
+            mqttAgent.client.publish(`${data[0]}/l1`,req.body.message)
+            mqttAgent.client.publish(`${data[0]}/l2`,req.body.message)
+            mqttAgent.client.publish(`${data[0]}/l3`,req.body.message)
+            mqttAgent.client.publish(`${data[0]}/l4`,req.body.message)
+            mqttAgent.client.publish(`${data[0]}/l5`,req.body.message)
+            mqttAgent.client.publish(`${data[0]}/l6`,req.body.message)
+            mqttAgent.client.publish(`${data[0]}/l7`,req.body.message)
+            mqttAgent.client.publish(`${data[0]}/l8`,req.body.message)
+        }else mqttAgent.client.publish(req.body.topic,req.body.message)
         res.status(200).json({message: "message sent"})
     }catch(error){
         res.status(500).json({message: error.message})
