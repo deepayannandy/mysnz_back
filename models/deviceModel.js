@@ -42,6 +42,10 @@ const deviceSchema= new mongoos.Schema({
         type: Boolean,
         required: false
     },
+    isAutoEnable:{
+        type: Boolean,
+        required: false
+    },
 
 })
 module.exports=mongoos.model('Device',deviceSchema)

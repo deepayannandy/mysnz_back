@@ -21,6 +21,9 @@ router.post("/SendMqtt",async (req,res)=>{
         console.log(selectedDevice)
         if(data[1]=="manualenable"){
             selectedDevice.isManualEnable=req.body.message=="0"?false:true
+        }
+        if(data[1]=="auto"){
+            selectedDevice.isAutoEnable=req.body.message=="0"?false:true
         }if(data[1]=="all"){
             console.log("I am called")
             sendAll=true;
