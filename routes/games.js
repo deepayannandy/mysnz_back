@@ -22,10 +22,9 @@ router.post("/SendMqtt",async (req,res)=>{
         if(data[1]=="manualenable"){
             selectedDevice.isManualEnable=req.body.message=="0"?false:true
         }
-        if(data[1]=="auto"){
+        if(data[1]=="autoenable"){
             selectedDevice.isAutoEnable=req.body.message=="0"?false:true
         }if(data[1]=="all"){
-            console.log("I am called")
             sendAll=true;
             selectedDevice.nodeStatus[0]=req.body.message=="0"?0:1
             selectedDevice.nodeStatus[1]=req.body.message=="0"?0:1
@@ -37,7 +36,7 @@ router.post("/SendMqtt",async (req,res)=>{
             selectedDevice.nodeStatus[7]=req.body.message=="0"?0:1
         }
         else{
-            selectedDevice.nodeStatus[data[1]-1]=req.body.message=="0"?0:1
+            selectedDevice.nodeStatus[data[1].split("l")[1]-1]=req.body.message=="0"?0:1
         }
         await selectedDevice.save()
         if(sendAll){
