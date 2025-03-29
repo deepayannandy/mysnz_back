@@ -204,7 +204,35 @@ const tablesSchema= new mongoos.Schema({
     isHold:{
         type:Boolean,
         required:false
-    }
+    },
+    isBreak:{
+        type:Boolean,
+        required:false
+    },
+    breakPlayers:[
+        {
+            customerId:{
+                type:String,
+                required:false
+            },
+            customerName:{
+                type:String,
+                required:false
+            },
+            billingAmount:{
+                type:Number,
+                required:false
+            },
+            gameTime:{
+                type:Number,
+                required:false
+            },
+            logs:{
+                type:Object,
+                required:false
+            }
+        }
+    ]
 
 })
 module.exports=mongoos.model('Table',tablesSchema )
