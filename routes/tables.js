@@ -77,6 +77,9 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
         if(req.body.fixedBillingRules!=null){
             table.fixedBillingRules=req.body.fixedBillingRules
         }
+        if(req.body.isBreakGame!=null){
+            table.isBreakGame=req.body.isBreakGame
+        }
         try{
             const tab=await table.save();
             res.status(201).json(tab)

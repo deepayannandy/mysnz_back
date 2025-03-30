@@ -209,6 +209,10 @@ const tablesSchema= new mongoos.Schema({
         type:Boolean,
         required:false
     },
+    isBreakGame:{
+        type:Boolean,
+        required:false
+    },
     breakPlayers:[
         {
             customerId:{

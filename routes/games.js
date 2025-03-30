@@ -445,7 +445,7 @@ function minuteBilling(res,selectedTable,selectedStore){
             totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
         }
     }
-    return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
+    return {"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable}
 
 }
 function slotBilling(res,selectedTable,selectedStore){
@@ -513,8 +513,71 @@ function slotBilling(res,selectedTable,selectedStore){
                     // console.log(timeDelta,totalBillAmt,bills)
                     // await delay(2000);
                 }
-            return res.status(201).json({"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable})
+            return {"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList,  selectedTable}
 }
+router.post("/break/:tableId",verify_token,async (req,res)=>{
+    //todo this will contains the logic to generate the billing and put on someones name
+    //body will contains the data of the selected user 
+    try{
+        const loggedInUser= await userModel.findById(req.tokendata._id)
+        let bill;
+        if(!loggedInUser) return res.status(500).json({message: "Logged In user not found!"})
+        console.log(loggedInUser.storeId)
+        const selectedTable= await tableModel.findById(req.params.tableId);
+        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        console.log(selectedTable.storeId)
+        const selectedStore= await storeModel.findById(selectedTable.storeId);
+        if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+        console.log(selectedTable.gameData.gameType)
+        if(selectedTable.gameData.gameType=="Minute Billing"){
+            bill= console.log(minuteBilling(res,selectedTable,selectedStore))
+         }
+         if(selectedTable.gameData.gameType=="Slot Billing"){
+            bill= console.log(slotBilling(res,selectedTable,selectedStore))
+         }
+        const asigneedCustomer= customerModel.findById(req.body.customerId)
+        if(!asigneedCustomer) return res.status(500).json({message: "Client not found!"})
+        const breakCustomer= {
+            customerId:asigneedCustomer._id,
+            customerName:asigneedCustomer.fullName,
+            billingAmount:bill.totalBillAmt,
+            gameTime:bill.timeDelta,
+            logs:bill.billBreakup
+        }
+        selectedTable.pauseTime=new Date()
+        selectedTable.breakPlayers=[...selectedTable.breakPlayers,breakCustomer]
+        await selectedTable.save(); 
+        res.status(201).json({message: "Billing assign to the"})                     
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+router.post("/resumeBreak/:tableId",verify_token,async (req,res)=>{
+    //todo this will contains the logic to resume the break game 
+    //body will return the data according to the resume api
+    try{
+        const loggedInUser= await userModel.findById(req.tokendata._id)
+        if(!loggedInUser) return res.status(500).json({message: "Logged In user not found!"})
+        console.log(loggedInUser.storeId)
+        const selectedTable= await tableModel.findById(req.params.tableId);
+        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        console.log(selectedTable.storeId)
+        const selectedStore= await storeModel.findById(selectedTable.storeId);
+        if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+        console.log(selectedTable.gameData.gameType)
+        if(!selectedTable.pauseTime)return res.status(500).json({message: "Error"})
+        let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
+        console.log(timeDelta)
+        let newPauseTime=(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)).toFixed(2)
+        console.log(newPauseTime)
+        selectedTable.pauseTime=null
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"1")
+        await selectedTable.save();
+        return res.status(200).json({message: `Table resumed after ${newPauseTime}`,resumeTimer:newPauseTime})
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
 router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
     console.log(req.params.tableId)
     try{
@@ -529,11 +592,14 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         console.log(selectedTable.gameData.gameType)
+        if(selectedTable.isBreakGame==true){
+            //todo this will contains the logic to generate the bill of break game 
+         }      
         if(selectedTable.gameData.gameType=="Minute Billing"){
-           return minuteBilling(res,selectedTable,selectedStore)
+           return res.status(201).json(minuteBilling(res,selectedTable,selectedStore))
         }
         if(selectedTable.gameData.gameType=="Slot Billing"){
-            return slotBilling(res,selectedTable,selectedStore)
+            return res.status(201).json(slotBilling(res,selectedTable,selectedStore))
         }
         if(selectedTable.gameData.gameType=="Countdown Billing"){
             let bills=[]
@@ -590,7 +656,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
             }
 
             return res.status(201).json({"timeDelta":timeDelta,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
-        }       
+        }
         console.log(selectedTable.gameData,selectedTable._id)
         res.status(502).json({message: "Billing not supported"})
 
