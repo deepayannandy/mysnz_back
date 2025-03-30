@@ -23,7 +23,8 @@ router.post("/",verify_token,async(req,res)=>{
         minuteWiseRules:req.body.minuteWiseRules,
         slotWiseRules:req.body.slotWiseRules,
         countdownRules:req.body.countdownRules,
-        fixedBillingRules:req.body.fixedBillingRules
+        fixedBillingRules:req.body.fixedBillingRules,
+        isBreakGame:req.body.isBreakGame
     })
     try{
         console.log(newTable)
