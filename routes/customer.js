@@ -73,6 +73,20 @@ router.get("/myCustomers/",verify_token,async (req,res)=>{
         res.status(500).json({message: error.message})
     }
 })
+router.get("/myCustomers/:searchPar",verify_token,async (req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+    // console.log(loggedInUser)
+    try{
+        console.log("search Par: "+req.params.searchPar)
+        console.log("search Par: "+loggedInUser.storeId)
+        const customers=await customerModel.find({$and:[{storeId:loggedInUser.storeId},{isDeleted: {$ne:true}},{ fullName: { $regex : req.params.searchPar , $options : "i"}}]});
+        res.status(201).json(customers.reverse())
+
+    }catch{
+        res.status(500).json({message: error.message})
+    }
+})
 
 
 router.get("/",async (req,res)=>{

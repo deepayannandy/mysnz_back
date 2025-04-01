@@ -528,15 +528,18 @@ router.post("/break/:tableId",verify_token,async (req,res)=>{
         console.log(selectedTable.storeId)
         const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+        selectedTable.gameData.endTime=new Date();
         console.log(selectedTable.gameData.gameType)
         if(selectedTable.gameData.gameType=="Minute Billing"){
-            bill= console.log(minuteBilling(res,selectedTable,selectedStore))
+            bill=await minuteBilling(res,selectedTable,selectedStore)
          }
          if(selectedTable.gameData.gameType=="Slot Billing"){
-            bill= console.log(slotBilling(res,selectedTable,selectedStore))
+            bill=await slotBilling(res,selectedTable,selectedStore)
          }
-        const asigneedCustomer= customerModel.findById(req.body.customerId)
+         console.log("generated bill",bill)
+        const asigneedCustomer=await customerModel.findById(req.body.customerId)
         if(!asigneedCustomer) return res.status(500).json({message: "Client not found!"})
+            console.log("customer: "+asigneedCustomer)
         const breakCustomer= {
             customerId:asigneedCustomer._id,
             customerName:asigneedCustomer.fullName,
@@ -547,12 +550,13 @@ router.post("/break/:tableId",verify_token,async (req,res)=>{
         selectedTable.pauseTime=new Date()
         selectedTable.breakPlayers=[...selectedTable.breakPlayers,breakCustomer]
         await selectedTable.save(); 
-        res.status(201).json({message: "Billing assign to the"})                     
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
+        res.status(201).json({message: "Billing assign to "+asigneedCustomer.fullName})                     
     }catch(error){
         res.status(500).json({message: error.message})
     }
 })
-router.post("/resumeBreak/:tableId",verify_token,async (req,res)=>{
+router.get("/resumeBreak/:tableId",verify_token,async (req,res)=>{
     //todo this will contains the logic to resume the break game 
     //body will return the data according to the resume api
     try{
@@ -565,15 +569,14 @@ router.post("/resumeBreak/:tableId",verify_token,async (req,res)=>{
         const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         console.log(selectedTable.gameData.gameType)
-        if(!selectedTable.pauseTime)return res.status(500).json({message: "Error"})
-        let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
+
+        if(!selectedTable.gameData.endTime)return res.status(500).json({message: "Error"})
+        let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
         console.log(timeDelta)
-        let newPauseTime=(parseFloat(timeDelta)+parseFloat(selectedTable.pauseMin??0)).toFixed(2)
-        console.log(newPauseTime)
-        selectedTable.pauseTime=null
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"1")
+        selectedTable.gameData.endTime=null;
         await selectedTable.save();
-        return res.status(200).json({message: `Table resumed after ${newPauseTime}`,resumeTimer:newPauseTime})
+        return res.status(200).json({message: `Table resumed after ${timeDelta}`,resumeTimer:timeDelta})
     }catch(error){
         res.status(500).json({message: error.message})
     }
