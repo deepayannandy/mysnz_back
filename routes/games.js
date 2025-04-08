@@ -230,6 +230,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         const selectedStore= await storeModel.findById(selectedTable.storeId)
         if(!selectedStore) return res.status(500).json({message: "Store not found!"})
+        if(selectedTable.isBooked) if(req.body.players.length<2 )return res.status(500).json({message: `Need to choose minimum 2 players!`})
         if(selectedStore.requiredCustomerCount) if(req.body.players.length<selectedStore.requiredCustomerCount || req.body.players[0].fullName=="CASH") return res.status(500).json({message: `Need to choose minimum ${selectedStore.requiredCustomerCount} players!`})
         let finalPlayerList=[];
         for(count in req.body.players){
@@ -537,46 +538,79 @@ router.post("/break/:tableId",verify_token,async (req,res)=>{
             bill=await slotBilling(res,selectedTable,selectedStore)
          }
          console.log("generated bill",bill)
+         selectedTable.isBreakHold=true;
+         if(selectedTable.breakStartTime==null) selectedTable.breakStartTime=new Date();
+         await selectedTable.save(); 
+         res.status(201).json({"totalAmount":bill.totalBillAmt,"time":bill.timeDelta})      
+        // const asigneedCustomer=await customerModel.findById(req.body.customerId)
+        // if(!asigneedCustomer) return res.status(500).json({message: "Client not found!"})
+        //     console.log("customer: "+asigneedCustomer)
+        // const breakCustomer= {
+        //     customerId:asigneedCustomer._id,
+        //     customerName:asigneedCustomer.fullName,
+        //     billingAmount:bill.totalBillAmt,
+        //     gameTime:bill.timeDelta,
+        //     logs:bill.billBreakup
+        // }
+        // selectedTable.pauseTime=new Date()
+        // selectedTable.breakPlayers=[...selectedTable.breakPlayers,breakCustomer]
+        // await selectedTable.save(); 
+        // mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
+                       
+    }catch(error){
+        res.status(500).json({message: error.message})
+    }
+})
+router.post("/resumeBreak/:tableId",verify_token,async (req,res)=>{
+    //todo this will contains the logic to resume the break game 
+    //body will return the data according to the resume api
+    try{
+        const loggedInUser= await userModel.findById(req.tokendata._id)
+        let bill;
+        if(!loggedInUser) return res.status(500).json({message: "Logged In user not found!"})
+        const selectedTable= await tableModel.findById(req.params.tableId);
+        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
+        const selectedStore= await storeModel.findById(selectedTable.storeId);
+        if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
+        if(selectedTable.gameData.gameType=="Minute Billing"){
+            bill=await minuteBilling(res,selectedTable,selectedStore)
+         }
+         if(selectedTable.gameData.gameType=="Slot Billing"){
+            bill=await slotBilling(res,selectedTable,selectedStore)
+         }
+        console.log("generated bill",bill)
         const asigneedCustomer=await customerModel.findById(req.body.customerId)
         if(!asigneedCustomer) return res.status(500).json({message: "Client not found!"})
             console.log("customer: "+asigneedCustomer)
         const breakCustomer= {
-            customerId:asigneedCustomer._id,
+            customerId:req.body.customerId,
             customerName:asigneedCustomer.fullName,
             billingAmount:bill.totalBillAmt,
             gameTime:bill.timeDelta,
             logs:bill.billBreakup
         }
-        selectedTable.pauseTime=new Date()
-        selectedTable.breakPlayers=[...selectedTable.breakPlayers,breakCustomer]
-        await selectedTable.save(); 
-        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
-        res.status(201).json({message: "Billing assign to "+asigneedCustomer.fullName})                     
-    }catch(error){
-        res.status(500).json({message: error.message})
-    }
-})
-router.get("/resumeBreak/:tableId",verify_token,async (req,res)=>{
-    //todo this will contains the logic to resume the break game 
-    //body will return the data according to the resume api
-    try{
-        const loggedInUser= await userModel.findById(req.tokendata._id)
-        if(!loggedInUser) return res.status(500).json({message: "Logged In user not found!"})
-        console.log(loggedInUser.storeId)
-        const selectedTable= await tableModel.findById(req.params.tableId);
-        if(!selectedTable) return res.status(500).json({message: "Table not found!"})
-        console.log(selectedTable.storeId)
-        const selectedStore= await storeModel.findById(selectedTable.storeId);
-        if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
-        console.log(selectedTable.gameData.gameType)
-
-        if(!selectedTable.gameData.endTime)return res.status(500).json({message: "Error"})
-        let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000));
-        console.log(timeDelta)
-        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"1")
+       if(selectedTable.breakPlayers==null || selectedTable.breakPlayers.length<1 ){
+            selectedTable.breakPlayers=[breakCustomer]
+        }
+        else{
+            let flag=true
+            selectedTable.breakPlayers.forEach((player)=>{
+               if(player.customerId==req.body.customerId){
+                player.billingAmount=parseFloat(player.billingAmount)+parseFloat(breakCustomer.billingAmount)
+                player.gameTime=player.gameTime+breakCustomer.gameTime
+                player.logs=[...player.logs,...breakCustomer.logs]
+                flag=false
+               }
+            })
+            if(flag){
+                selectedTable.breakPlayers=[...selectedTable.breakPlayers,breakCustomer]
+            }
+        }
+        selectedTable.gameData.startTime=new Date();
         selectedTable.gameData.endTime=null;
-        await selectedTable.save();
-        return res.status(200).json({message: `Table resumed after ${timeDelta}`,resumeTimer:timeDelta})
+        selectedTable.isBreakHold=false;
+        await selectedTable.save(); 
+        res.status(200).json({message: "Success"})
     }catch(error){
         res.status(500).json({message: error.message})
     }
@@ -595,8 +629,20 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         console.log(selectedTable.gameData.gameType)
-        if(selectedTable.isBreakGame==true){
+        if(selectedTable.isBreak==true){
             //todo this will contains the logic to generate the bill of break game 
+            selectedTable.gameData.startTime=selectedTable.breakStartTime
+            if(selectedTable.gameData.endTime==null) selectedTable.gameData.endTime=new Date()
+            await selectedTable.save();
+            let timeDelta=0;
+            let totalBillAmt=0;
+            let bills=[];
+            selectedTable.breakPlayers.forEach((player)=>{
+                timeDelta=timeDelta+parseInt(player.gameTime);
+                totalBillAmt=totalBillAmt+parseFloat(player.billingAmount);
+                bills=[...bills,...player.logs]
+            })
+            return res.status(201).json({"timeDelta":timeDelta,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable})
          }      
         if(selectedTable.gameData.gameType=="Minute Billing"){
            return res.status(201).json(minuteBilling(res,selectedTable,selectedStore))
@@ -858,7 +904,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 selectedTable.productList=null
                 selectedTable.isOccupied=false;
             }
-       
+        selectedTable.breakStartTime=null;
         const updatedTable = await selectedTable.save();
         res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id,"UpdatedStoreData":updatedStore._id})
 

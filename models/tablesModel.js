@@ -209,9 +209,13 @@ const tablesSchema= new mongoos.Schema({
         type:Boolean,
         required:false
     },
-    isBreakGame:{
+    isBreakHold:{
         type:Boolean,
         required:false
+    },
+    breakStartTime:{
+        type: Date,
+        required: false,
     },
     breakPlayers:[
         {
