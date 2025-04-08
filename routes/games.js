@@ -905,6 +905,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                 selectedTable.isOccupied=false;
             }
         selectedTable.breakStartTime=null;
+        selectedTable.breakPlayers=null;
         const updatedTable = await selectedTable.save();
         res.status(201).json({"HistoryId":newGameHistory._id,"TableId":updatedTable._id,"UpdatedStoreData":updatedStore._id})
 
