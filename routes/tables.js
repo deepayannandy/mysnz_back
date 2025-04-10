@@ -24,7 +24,7 @@ router.post("/",verify_token,async(req,res)=>{
         slotWiseRules:req.body.slotWiseRules,
         countdownRules:req.body.countdownRules,
         fixedBillingRules:req.body.fixedBillingRules,
-        isBreakGame:req.body.isBreakGame
+        isBreak:req.body.isBreak
     })
     try{
         console.log(newTable)
@@ -78,8 +78,8 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
         if(req.body.fixedBillingRules!=null){
             table.fixedBillingRules=req.body.fixedBillingRules
         }
-        if(req.body.isBreakGame!=null){
-            table.isBreakGame=req.body.isBreakGame
+        if(req.body.isBreak!=null){
+            table.isBreak=req.body.isBreak
         }
         try{
             const tab=await table.save();
