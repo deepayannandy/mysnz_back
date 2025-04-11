@@ -529,7 +529,7 @@ router.post("/break/:tableId",verify_token,async (req,res)=>{
         console.log(selectedTable.storeId)
         const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
-        selectedTable.gameData.endTime=new Date();
+        if(! selectedTable.gameData.endTime) selectedTable.gameData.endTime=new Date();
         console.log(selectedTable.gameData.gameType)
         if(selectedTable.gameData.gameType=="Minute Billing"){
             bill=await minuteBilling(res,selectedTable,selectedStore)
@@ -541,7 +541,7 @@ router.post("/break/:tableId",verify_token,async (req,res)=>{
          selectedTable.isBreakHold=true;
          if(selectedTable.breakStartTime==null) selectedTable.breakStartTime=new Date();
          await selectedTable.save(); 
-         res.status(201).json({"totalAmount":bill.totalBillAmt,"time":bill.timeDelta})      
+         res.status(201).json({"totalAmount":bill.totalBillAmt,"time":bill.timeDelta,"startTime":selectedTable.gameData.startTime,"endTime":selectedTable.gameData.startTime})      
         // const asigneedCustomer=await customerModel.findById(req.body.customerId)
         // if(!asigneedCustomer) return res.status(500).json({message: "Client not found!"})
         //     console.log("customer: "+asigneedCustomer)
