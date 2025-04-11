@@ -541,7 +541,7 @@ router.post("/break/:tableId",verify_token,async (req,res)=>{
          selectedTable.isBreakHold=true;
          if(selectedTable.breakStartTime==null) selectedTable.breakStartTime=new Date();
          await selectedTable.save(); 
-         res.status(201).json({"totalAmount":bill.totalBillAmt,"time":bill.timeDelta,"startTime":selectedTable.gameData.startTime,"endTime":selectedTable.gameData.startTime})      
+         res.status(201).json({"totalAmount":bill.totalBillAmt,"time":bill.timeDelta,"startTime":selectedTable.gameData.startTime,"endTime":selectedTable.gameData.endTime})      
         // const asigneedCustomer=await customerModel.findById(req.body.customerId)
         // if(!asigneedCustomer) return res.status(500).json({message: "Client not found!"})
         //     console.log("customer: "+asigneedCustomer)
@@ -629,7 +629,7 @@ router.get("/getBilling/:tableId",verify_token,async (req,res)=>{
         const selectedStore= await storeModel.findById(selectedTable.storeId);
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         console.log(selectedTable.gameData.gameType)
-        if(selectedTable.isBreak==true){
+        if(selectedTable.isBreak==true && selectedTable.breakPlayers!=null){
             //todo this will contains the logic to generate the bill of break game 
             selectedTable.gameData.startTime=selectedTable.breakStartTime
             if(selectedTable.gameData.endTime==null) selectedTable.gameData.endTime=new Date()
