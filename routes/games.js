@@ -541,7 +541,7 @@ router.post("/break/:tableId",verify_token,async (req,res)=>{
          selectedTable.isBreakHold=true;
          if(selectedTable.breakStartTime==null) selectedTable.breakStartTime=new Date();
          await selectedTable.save(); 
-         res.status(201).json({"totalAmount":bill.totalBillAmt,"time":bill.timeDelta,"startTime":selectedTable.gameData.startTime,"endTime":selectedTable.gameData.endTime})      
+         res.status(201).json({"totalAmount":bill.totalBillAmt,"time":bill.timeDelta,"gameData":selectedTable.gameData})      
         // const asigneedCustomer=await customerModel.findById(req.body.customerId)
         // if(!asigneedCustomer) return res.status(500).json({message: "Client not found!"})
         //     console.log("customer: "+asigneedCustomer)
