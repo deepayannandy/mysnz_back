@@ -59,6 +59,10 @@ const historySchema= new mongoos.Schema({
     empId:{
         type:String,
         required:false
+    },
+    isDeleted:{
+        type:Boolean,
+        required:false
     }
 })
 module.exports=mongoos.model('History',historySchema )

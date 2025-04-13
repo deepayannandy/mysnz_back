@@ -15,7 +15,7 @@ router.get("/transactionReport/:storeId/",verify_token, async(req,res)=>{
     let allTransactions;
     if(req.query.startDate==undefined || req.query.endDate==undefined){ 
         console.log("All data")
-        allTransactions= await customerHistoryModel.find({storeId:req.params.storeId})
+        allTransactions= await customerHistoryModel.find({$and:[{storeId:req.params.storeId},{isDeleted :{$ne:true}}]})
     }else{
         console.log("custom date range")
         const today= new Date()
