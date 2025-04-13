@@ -24,7 +24,7 @@ router.delete("/:transactionId",verify_token, async(req,res)=>{
     try{
     const loggedInUser= await userModel.findById(req.tokendata._id)
     if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
-    if(!loggedInUser.userDesignation=="Admin")return res.status(500).json({message: "Access Denied! This action is only allowed by an Admin user."})
+    if(loggedInUser.userDesignation!="Admin")return res.status(500).json({message: "Access Denied! This action is only allowed by an Admin user."})
     const transactionData= await historyModel.findOne({transactionId:req.params.transactionId})
     if(!transactionData)return res.status(500).json({message: "TransactionData not available"})
     if(transactionData.transactionId.length>0){
