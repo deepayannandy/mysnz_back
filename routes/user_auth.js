@@ -32,7 +32,7 @@ router.post('/login',async (req,res)=>{
     };
     let user=await userModel.findOne({$or:[{email:req.body.userId},{mobile:req.body.userId}]});
     if(!user) return res.status(400).send({"message":"User dose not exist!"});
-    if(!user.isSuperAdmin) return res.status(401).send({"message":"This user is not a SuperAdmin!"});
+    if(user.userDesignation!="SuperAdmin") return res.status(401).send({"message":"This user is not a SuperAdmin!"});
     // if(user.loginIndex!=undefined ||user.loginIndex>0)  return res.status(400).send({"message":"User is already logged in!"});
     // validate password
     const validPass=await bcrypt.compare(req.body.password,user.password);

@@ -92,6 +92,16 @@ const storeSchema= new mongoos.Schema({
     isHoldEnable:{
         type:Boolean,
         required:false
+    },
+    isPrintNeeded:{
+        type:Boolean,
+        required:false,
+        default:false
+    },
+    paperType:{
+        type:String,
+        required:false,
+        default:"3inch"
     }
 
 

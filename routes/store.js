@@ -100,6 +100,12 @@ router.patch('/:sid',async (req,res)=>{
     if(req.body.isHoldEnable!=null){
         Store.isHoldEnable=req.body.isHoldEnable;
     }
+    if(req.body.isPrintNeeded!=null){
+        Store.isPrintNeeded=req.body.isPrintNeeded;
+    }
+    if(req.body.paperType!=null){
+        Store.paperType=req.body.paperType;
+    }
     try{
         const str=await Store.save();
         res.status(201).json(str)

@@ -24,7 +24,8 @@ router.post("/",verify_token,async(req,res)=>{
         slotWiseRules:req.body.slotWiseRules,
         countdownRules:req.body.countdownRules,
         fixedBillingRules:req.body.fixedBillingRules,
-        isBreak:req.body.isBreak
+        isBreak:req.body.isBreak,
+        tableType:req.body.tableType
     })
     try{
         console.log(newTable)
@@ -81,6 +82,9 @@ router.patch("/:tableId",verify_token,async (req,res)=>{
         if(req.body.isBreak!=null){
             table.isBreak=req.body.isBreak
         }
+        if(req.body.tableType!=null){
+            table.tableType= req.body.tableType
+        }
         try{
             const tab=await table.save();
             res.status(201).json(tab)
@@ -115,6 +119,7 @@ router.patch("/switchTable/switch",async(req,res)=>{
     if(!newTable) return res.status(404).json({message: "To Table not found"})
     if(!newTable.gameTypes.includes(oldTable.gameData.gameType)) return res.status(404).json({message: `This game type is not available on ${newTable.tableName}`})
     if(newTable.isOccupied) return res.status(404).json({message: `${newTable.tableName} is already occupied`})
+    if(oldTable.tableType!=newTable.tableType) return res.status(404).json({message: `${newTable.tableName} is not a ${oldTable.tableType} Table`})
     mqttAgent.client.publish(oldTable.deviceId+"/"+oldTable.nodeID,"0")
     mqttAgent.client.publish(newTable.deviceId+"/"+newTable.nodeID,"1")
         newTable.gameData=oldTable.gameData
