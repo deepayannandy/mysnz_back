@@ -10,10 +10,6 @@ const tablesSchema= new mongoos.Schema({
         type:String,
         required:true
     },
-    tableType:{
-        type:String,
-        required:false
-    },
     deviceId:{
         type:String,
         required:false
