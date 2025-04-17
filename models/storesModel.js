@@ -93,9 +93,5 @@ const storeSchema= new mongoos.Schema({
         type:Boolean,
         required:false
     }
-
-
-
-
 })
 module.exports=mongoos.model('Store',storeSchema )
