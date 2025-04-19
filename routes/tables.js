@@ -119,7 +119,12 @@ router.patch("/switchTable/switch",async(req,res)=>{
     if(!newTable) return res.status(404).json({message: "To Table not found"})
     if(!newTable.gameTypes.includes(oldTable.gameData.gameType)) return res.status(404).json({message: `This game type is not available on ${newTable.tableName}`})
     if(newTable.isOccupied) return res.status(404).json({message: `${newTable.tableName} is already occupied`})
-    if(oldTable.tableType!=newTable.tableType) return res.status(404).json({message: `${newTable.tableName} is not a ${oldTable.tableType} Table`})
+    if(!oldTable.tableType){
+        return res.status(404).json({message: `Please setup a table type for ${newTable.tableName} `}) 
+    }
+    else {
+        if(oldTable.tableType!=newTable.tableType) return res.status(404).json({message: `${newTable.tableName} is not a ${oldTable.tableType} Table`})
+        }
     mqttAgent.client.publish(oldTable.deviceId+"/"+oldTable.nodeID,"0")
     mqttAgent.client.publish(newTable.deviceId+"/"+newTable.nodeID,"1")
         newTable.gameData=oldTable.gameData

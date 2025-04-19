@@ -92,6 +92,10 @@ const storeSchema= new mongoos.Schema({
     isHoldEnable:{
         type:Boolean,
         required:false
+    },
+    isPrintEnable:{
+        type:Boolean,
+        required:false
     }
 })
 module.exports=mongoos.model('Store',storeSchema )

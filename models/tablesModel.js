@@ -240,7 +240,11 @@ const tablesSchema= new mongoos.Schema({
                 required:false
             }
         }
-    ]
+    ],
+    tableType:{
+        type: String,
+        required: false,
+    },
 
 })
 module.exports=mongoos.model('Table',tablesSchema )
