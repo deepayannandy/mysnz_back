@@ -173,11 +173,11 @@ router.post("/addMeal/:tableId",async (req,res)=>{
     }
 })
 
-async function countdownGame(tableId){
+async function countdownGame(tableId, startTime){
     console.log(tableId)
     const selectedTable= await tableModel.findById(tableId);
     if(!selectedTable) return console.log("Table not found!")
-    if(selectedTable.gameData.endTime==undefined){
+    if(selectedTable.gameData.endTime==undefined && startTime==selectedTable.gameData.startTime){
     // if(selectedTable.isOccupied){
     //     // let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
     //     // console.log(timeDelta)
@@ -186,7 +186,7 @@ async function countdownGame(tableId){
     //     // selectedTable.pauseMin=newPauseTime
     //     // selectedTable.pauseTime=null
     //     // selectedTable.gameData.endTime=new Date();
-    // }   
+    // } 
         selectedTable.gameData.countdownGameEndTime=undefined;
         selectedTable.gameData.endTime=new Date();
         const updatedTable = await selectedTable.save();
@@ -288,7 +288,7 @@ router.post("/startGame/:tableId",async (req,res)=>{
             selectedTable.gameData.countdownGameEndTime=new Date(new Date().getTime() + parseInt(req.body.countdownMin)*60000)
             console.log(selectedTable.countdownGameEndTime)
             let tableId=req.params.tableId
-            var timerID = setTimeout(function(){countdownGame(tableId)}, (parseInt(req.body.countdownMin)*60 * 1000)); 
+            var timerID = setTimeout(function(){countdownGame(tableId, selectedTable.gameData.startTime)}, (parseInt(req.body.countdownMin)*60 * 1000)); 
             selectedTable.gameData.countdownMin=req.body.countdownMin
             console.log(">>>>>>>>>>>>Schedular" )
             console.log("Schedule created",timerID)
