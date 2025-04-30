@@ -174,10 +174,10 @@ router.post("/addMeal/:tableId",async (req,res)=>{
 })
 
 async function countdownGame(tableId, startTime){
-    console.log(tableId)
+    console.log(tableId+">>>> Starts at "+startTime)
     const selectedTable= await tableModel.findById(tableId);
     if(!selectedTable) return console.log("Table not found!")
-    if(selectedTable.gameData.endTime==undefined && startTime==selectedTable.gameData.startTime){
+    if(selectedTable.gameData.endTime==undefined && startTime==selectedTable.gameData.startTime.getTime()){
     // if(selectedTable.isOccupied){
     //     // let timeDelta=((new Date()- selectedTable.pauseTime)/60000).toFixed(2);
     //     // console.log(timeDelta)
@@ -193,6 +193,8 @@ async function countdownGame(tableId, startTime){
         console.log("Game Stopped "+updatedTable._id)
         mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
         console.log("sending message to: "+selectedTable.deviceId+"/"+selectedTable.nodeID )
+    }else{
+        console.log("Start Time mismatch >>>> This task Starts at "+startTime+" But start time found in table now is: "+selectedTable.gameData.startTime.getTime())
     }
 }
 router.post("/validatePlayers/:tableId",async (req,res)=>{
@@ -283,12 +285,12 @@ router.post("/startGame/:tableId",async (req,res)=>{
         selectedTable.isOccupied=true;
         selectedTable.gameData.startTime=new Date();
         selectedTable.gameData.gameType=req.body.gameType;
-        console.log(selectedTable.gameData.startTime.toLocaleTimeString())
+        console.log("Start Time >>>"+selectedTable.gameData.startTime.getTime())
         if(req.body.gameType=="Countdown Billing"){
             selectedTable.gameData.countdownGameEndTime=new Date(new Date().getTime() + parseInt(req.body.countdownMin)*60000)
             console.log(selectedTable.countdownGameEndTime)
             let tableId=req.params.tableId
-            var timerID = setTimeout(function(){countdownGame(tableId, selectedTable.gameData.startTime)}, (parseInt(req.body.countdownMin)*60 * 1000)); 
+            var timerID = setTimeout(function(){countdownGame(tableId, selectedTable.gameData.startTime.getTime())}, (parseInt(req.body.countdownMin)*60 * 1000)); 
             selectedTable.gameData.countdownMin=req.body.countdownMin
             console.log(">>>>>>>>>>>>Schedular" )
             console.log("Schedule created",timerID)
