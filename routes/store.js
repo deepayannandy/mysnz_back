@@ -5,13 +5,15 @@ const storeModel=require("../models/storesModel")
 const storeSubscriptionModel= require("../models/storeSubscriptionModel")
 const verify_token= require("../validators/verifyToken")
 const userModel=require("../models/userModel")
+const subscriptionModel=require("../models/subscriptionModel")
 
 router.post('/',async (req,res)=>{
     var today = new Date();
     console.log("Onboarding Date:"+today)
     today.setDate(today.getDate() + req.body.valid_days);
     console.log("End Date:"+today)
-
+    const selectedSubscription= await subscriptionModel.findById(req.body.subscriptionId);
+    if(!selectedSubscription) return  res.status(404).json({message:"Subscription not found!"})
     const newStore= new storeModel({
         storeName:req.body.storeName,
         contact:req.body.contact,
@@ -24,10 +26,26 @@ router.post('/',async (req,res)=>{
     })
     try{
         const str=await newStore.save()
+        let StartDate= new Date()
+        let EndDate= new Date()
+        EndDate.setDate(EndDate.getDate() + selectedSubs.subscriptionValidity);
+        const storeSubs= new storeSubscriptionModel({
+            storeId:str._id,
+            isActive:true,
+            subscriptionName:selectedSubscription.subscriptionName,
+            subscriptionId:req.body.subscriptionId,
+            subscriptionValidity:selectedSubscription.subscriptionValidity,
+            startDate:StartDate,
+            endDate:EndDate,
+            isYearly:selectedSubscription.isYearly,
+            subscriptionAmount:selectedSubscription.subscriptionPrice,
+            transactionRef:"From SuperAdmin Dashboard"
+        })
+        const newSSubs=await storeSubs.save()
         res.status(201).json({"_id":str.id})
     }
     catch(error){
-        res.status(400).json({message:error.message})
+       
     }
 })
 router.patch('/renew/:sid',async (req,res)=>{
