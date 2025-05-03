@@ -12,7 +12,7 @@ const subscriptionSchema= new mongoos.Schema({
     },
     subscriptionGlobalPrice:{
         type:Number,
-        required:true
+        required:false
     },
     subscriptionDescription:{
         type:String,
