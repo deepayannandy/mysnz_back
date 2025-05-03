@@ -39,8 +39,14 @@ router.patch("/:transactionId",verify_token, async(req,res)=>{
     if(req.body.discount!=null){
         transactionData.discount=req.body.discount;
     }
+    if(req.body.booking!=null){
+        transactionData.booking=req.body.booking;
+    }
     if(req.body.netPay!=null){
         transactionData.netPay=req.body.netPay;
+    }
+    if(req.body.credit!=null){
+        transactionData.credit=req.body.credit;
     }
     await transactionData.save();
     return res.status(201).json({message: `${transactionData._id} updated successfully!`})
