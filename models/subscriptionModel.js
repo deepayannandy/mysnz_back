@@ -10,6 +10,10 @@ const subscriptionSchema= new mongoos.Schema({
         type:Number,
         required:true
     },
+    subscriptionGlobalPrice:{
+        type:Number,
+        required:true
+    },
     subscriptionDescription:{
         type:String,
         required:true

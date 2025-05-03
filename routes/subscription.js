@@ -12,6 +12,7 @@ router.post("/",verify_token, async(req,res)=>{
             subscriptionName:req.body.subscriptionName,
             subscriptionDescription:req.body.subscriptionDescription,
             subscriptionValidity:req.body.subscriptionValidity,
+            subscriptionGlobalPrice:req.body.subscriptionGlobalPrice,
             access:req.body.access,
             billings:req.body.billings,
             subscriptionPrice:req.body.subscriptionPrice,
@@ -52,8 +53,12 @@ router.patch("/:sid",verify_token,async(req,res)=>{
     const selectedSubscription= await subscriptionModel.findById(req.params.sid)
     if(!selectedSubscription)
        return res.status(500).json({message: "Subscription not found"})
+    
     if(req.body.subscriptionPrice!=null){
         selectedSubscription.subscriptionPrice=req.body.subscriptionPrice;
+    } 
+    if(req.body.subscriptionGlobalPrice!=null){
+        selectedSubscription.subscriptionGlobalPrice=req.body.subscriptionGlobalPrice;
     }
     if(req.body.subscriptionValidity!=null){
         selectedSubscription.subscriptionValidity=req.body.subscriptionValidity;

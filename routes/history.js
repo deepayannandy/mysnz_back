@@ -20,6 +20,34 @@ router.get("/",verify_token,async(req,res)=>{
         res.status(500).json({message: e.message})
     }
 })
+router.patch("/:transactionId",verify_token, async(req,res)=>{
+    try{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+    if(loggedInUser.userDesignation!="Admin")return res.status(500).json({message: "Access Denied! This action is only allowed by an Admin user."})
+    const transactionData= await historyModel.findOne({transactionId:req.params.transactionId})
+    if(!transactionData)return res.status(500).json({message: "TransactionData not available"})
+    if(req.body.startTime!=null){
+        transactionData.startTime=req.body.startTime;
+    }
+    if(req.body.endTime!=null){
+        transactionData.endTime=req.body.endTime;
+    }
+    if(req.body.time!=null){
+        transactionData.time=req.body.time;
+    }
+    if(req.body.discount!=null){
+        transactionData.discount=req.body.discount;
+    }
+    if(req.body.netPay!=null){
+        transactionData.netPay=req.body.netPay;
+    }
+    await transactionData.save();
+    return res.status(201).json({message: `${transactionData._id} updated successfully!`})
+    }catch(e){
+        res.status(500).json({message: e.message})
+    }
+})
 router.delete("/:transactionId",verify_token, async(req,res)=>{
     try{
     const loggedInUser= await userModel.findById(req.tokendata._id)
