@@ -782,6 +782,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
         if(!selectedTable) return res.status(500).json({message: "Table not found!"})
         if(selectedTable.storeId!=loggedInUser.storeId)return res.status(401).json({message: "Access denied!"})
         let players= req.body.fromHold?selectedTable.holdData.selectedTable.gameData.players:selectedTable.gameData.players;
+        mqttAgent.client.publish(selectedTable.deviceId+"/"+selectedTable.nodeID,"0")
         for (index in req.body.checkoutPlayers){
             if(req.body.checkoutPlayers[index].customerId==undefined){
                 console.log("Need to create an customer id for : "+req.body.checkoutPlayers[index].fullName)

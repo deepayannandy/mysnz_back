@@ -2,6 +2,7 @@ const express = require("express")
 const router= express.Router()
 const storeModel=require("../models/storesModel")
 const customerHistoryModel=require("../models/customerHistoryModel")
+const orderHistoryModel=require("../models/orderHistoryModel")
 const customerModel= require("../models/customersModel")
 const userModel= require("../models/userModel")
 const historyModel= require("../models/historyModel")
@@ -79,4 +80,62 @@ router.get("/collectionReport/:sId",async(req,res)=>{
         res.status(400).json({message:error.message})
     }
 })
+
+
+router.get("/duesReport/:sId",verify_token, async(req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+    console.log(req.query.startDate,req.query.endDate,req.params.sId)
+    try{
+        if(req.query.startDate==undefined || req.query.endDate==undefined){ 
+        const dues= await historyModel.find({$and:[{storeId:req.params.sId},{credit:{ $gt: 0 }}]})
+        res.status(201).json(dues.reverse())
+        }
+        else{
+            console.log("custom date range")
+            const today= new Date()
+            const startDate=new Date(req.query.startDate)
+            startDate.setHours(0,0,0,0);
+            const endDate=new Date(req.query.endDate)
+            endDate.setHours(23,59,59,999);
+            console.log(startDate,endDate)
+            const dues= await historyModel.find({$and:[{storeId:req.params.sId},{credit:{ $gt: 0 }},{date:{
+               $gt: startDate,
+               $lt: endDate
+           }}]})
+            res.status(201).json(dues.reverse())
+        }
+    }catch(error){
+        res.status(400).json({message:error.message})
+    }
+})
+router.get("/cafeReport/:sId",verify_token, async(req,res)=>{
+    const loggedInUser= await userModel.findById(req.tokendata._id)
+    if(!loggedInUser)return res.status(500).json({message: "Access Denied! Not able to validate the user."})
+    console.log(req.query.startDate,req.query.endDate,req.params.sId)
+    try{
+        if(req.query.startDate==undefined || req.query.endDate==undefined){ 
+        const dues= await orderHistoryModel.find({$and:[{storeId:req.params.sId}]})
+        res.status(201).json(dues.reverse())
+        }
+        else{
+            console.log("custom date range")
+            const today= new Date()
+            const startDate=new Date(req.query.startDate)
+            startDate.setHours(0,0,0,0);
+            const endDate=new Date(req.query.endDate)
+            endDate.setHours(23,59,59,999);
+            console.log(startDate,endDate)
+            const dues= await orderHistoryModel.find({$and:[{storeId:req.params.sId},{date:{
+               $gt: startDate,
+               $lt: endDate
+           }}]})
+            res.status(201).json(dues.reverse())
+        }
+    }catch(error){
+        res.status(400).json({message:error.message})
+    }
+})
+
+
 module.exports=router

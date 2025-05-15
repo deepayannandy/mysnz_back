@@ -121,6 +121,12 @@ router.patch('/:sid',async (req,res)=>{
     if(req.body.isPrintEnable!=null){
         Store.isPrintEnable=req.body.isPrintEnable;
     }
+    if(req.body.isPrintEnableCheckOut!=null){
+        Store.isPrintEnableCheckOut=req.body.isPrintEnableCheckOut;
+    }
+    if(req.body.isPrintEnableCafe!=null){
+        Store.isPrintEnableCafe=req.body.isPrintEnableCafe;
+    }
     try{
         const str=await Store.save();
         res.status(201).json(str)

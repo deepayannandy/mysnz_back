@@ -96,6 +96,14 @@ const storeSchema= new mongoos.Schema({
     isPrintEnable:{
         type:Boolean,
         required:false
+    },
+    isPrintEnableCheckOut:{
+        type:Boolean,
+        required:false
+    },
+    isPrintEnableCafe:{
+        type:Boolean,
+        required:false
     }
 })
 module.exports=mongoos.model('Store',storeSchema )
