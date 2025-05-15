@@ -92,7 +92,7 @@ router.post("/",verify_token,async (req,res)=>{
         const createdOrderHistory= await newOrderHistory.save();
         const createdCustomerHistory= await newCustomerHistory.save();
         const createdHistory= await newHistory.save();
-        res.status(201).json({"_id":createdOrderHistory.id})
+        res.status(201).json({"_id":createdOrderHistory.id,"transactionId":transId})
     }catch(error){
         res.status(400).json({message:error.message})
     }
