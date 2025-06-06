@@ -391,6 +391,8 @@ function isNight(storeData, gameStartTime){
 function minuteBilling(res,selectedTable,selectedStore){
     let bills=[]
     let totalBillAmt=0;
+    let totalPlayer=selectedTable.gameData.players.length;
+    console.log("Players Count>>>",totalPlayer)
     let timeDelta=Math.ceil(((selectedTable.gameData.endTime- selectedTable.gameData.startTime)/60000)-parseFloat(selectedTable.pauseMin??0));
     if(timeDelta==NaN)return res.status(502).json({message: "Something went wrong min"})
     const totalGameTime=timeDelta;
@@ -415,6 +417,10 @@ function minuteBilling(res,selectedTable,selectedStore){
                 bills.push({"title":"Night minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.nightMinAmt})
                 totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt
             }
+            if(selectedTable.minuteWiseRules?.nightUpToPerson>totalPlayer){
+                bills.push({"title":`Night Extra Person (${selectedTable.minuteWiseRules.nightUpToPerson}X${selectedTable.minuteWiseRules.nightExtraAmount})`,"Person":selectedTable.gameData.players.length,"amount":selectedTable.minuteWiseRules.nightExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.nightUpToPerson)})
+                totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.nightExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.nightUpToPerson))
+            }
         }else {
             if(selectedTable.minuteWiseRules.dayUptoMin < timeDelta){
                 let uptoTime=selectedTable.minuteWiseRules.dayUptoMin 
@@ -429,6 +435,10 @@ function minuteBilling(res,selectedTable,selectedStore){
                 console.log("I am called")
                 bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
                 totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
+            }
+            if(selectedTable.minuteWiseRules?.dayUpToPerson<totalPlayer){
+                bills.push({"title":`Day Extra Person (${totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson}X${selectedTable.minuteWiseRules.nightExtraAmount})`,"Person":totalPlayer,"amount":selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson)})
+                totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson))
             }
         }
     }
@@ -447,6 +457,10 @@ function minuteBilling(res,selectedTable,selectedStore){
             bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
             totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
         }
+        if(selectedTable.minuteWiseRules?.dayUpToPerson<totalPlayer){
+                bills.push({"title":`Day Extra Person (${totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson}X${selectedTable.minuteWiseRules.dayExtraAmount})`,"Person":totalPlayer,"amount":selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson)})
+                totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson))
+            }
     }
     return {"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable}
 

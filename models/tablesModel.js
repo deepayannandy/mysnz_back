@@ -86,6 +86,14 @@ const tablesSchema= new mongoos.Schema({
             type:Number,
             required:false
         },
+        dayExtraAmount:{
+            type:Number,
+            required:false
+        },
+        dayUpToPerson:{
+            type:Number,
+            required:false
+        },
         nightUptoMin:{
             type:Number,
             required:false
@@ -95,6 +103,14 @@ const tablesSchema= new mongoos.Schema({
             required:false
         },
         nightPerMin:{
+            type:Number,
+            required:false
+        },
+        nightExtraAmount:{
+            type:Number,
+            required:false
+        },
+        nightUpToPerson:{
             type:Number,
             required:false
         },
