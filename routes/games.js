@@ -417,9 +417,13 @@ function minuteBilling(res,selectedTable,selectedStore){
                 bills.push({"title":"Night minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.nightMinAmt})
                 totalBillAmt=selectedTable.minuteWiseRules.nightMinAmt
             }
-            if(selectedTable.minuteWiseRules?.nightUpToPerson>totalPlayer){
+            if(selectedTable.minuteWiseRules?.nightUpToPerson>totalPlayer && selectedTable.minuteWiseRules?.isNightExtraChargePerPerson==true ){
                 bills.push({"title":`Night Extra Person (${selectedTable.minuteWiseRules.nightUpToPerson}X${selectedTable.minuteWiseRules.nightExtraAmount})`,"Person":selectedTable.gameData.players.length,"amount":selectedTable.minuteWiseRules.nightExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.nightUpToPerson)})
                 totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.nightExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.nightUpToPerson))
+            }
+             if(selectedTable.minuteWiseRules?.nightUpToPerson>totalPlayer && selectedTable.minuteWiseRules?.isNightExtraChargePerPerson==false ){
+                bills.push({"title":`Night Extra Minute (${timeDelta}X${selectedTable.minuteWiseRules.nightExtraAmount})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.nightExtraAmount*timeDelta})
+                totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.nightExtraAmount*timeDelta)
             }
         }else {
             if(selectedTable.minuteWiseRules.dayUptoMin < timeDelta){
@@ -436,9 +440,13 @@ function minuteBilling(res,selectedTable,selectedStore){
                 bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
                 totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
             }
-            if(selectedTable.minuteWiseRules?.dayUpToPerson<totalPlayer){
-                bills.push({"title":`Day Extra Person (${totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson}X${selectedTable.minuteWiseRules.nightExtraAmount})`,"Person":totalPlayer,"amount":selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson)})
+            if(selectedTable.minuteWiseRules?.dayUpToPerson<totalPlayer && selectedTable.minuteWiseRules?.isDayExtraChargePerPerson==true){
+                bills.push({"title":`Day Extra Person (${totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson}X${selectedTable.minuteWiseRules.dayExtraAmount})`,"Person":totalPlayer,"amount":selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson)})
                 totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson))
+            }
+            if(selectedTable.minuteWiseRules?.dayUpToPerson<totalPlayer && selectedTable.minuteWiseRules?.isDayExtraChargePerPerson==false){
+                bills.push({"title":`Day Extra Minute (${timeDelta}X${selectedTable.minuteWiseRules.dayExtraAmount})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.dayExtraAmount*timeDelta})
+                totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayExtraAmount*timeDelta)
             }
         }
     }
@@ -457,9 +465,13 @@ function minuteBilling(res,selectedTable,selectedStore){
             bills.push({"title":"Day minimum","time":timeDelta,"amount":selectedTable.minuteWiseRules.dayMinAmt})
             totalBillAmt=selectedTable.minuteWiseRules.dayMinAmt
         }
-        if(selectedTable.minuteWiseRules?.dayUpToPerson<totalPlayer){
+        if(selectedTable.minuteWiseRules?.dayUpToPerson<totalPlayer && selectedTable.minuteWiseRules?.isDayExtraChargePerPerson==true){
                 bills.push({"title":`Day Extra Person (${totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson}X${selectedTable.minuteWiseRules.dayExtraAmount})`,"Person":totalPlayer,"amount":selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson)})
                 totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayExtraAmount*(totalPlayer-selectedTable.minuteWiseRules?.dayUpToPerson))
+            }
+         if(selectedTable.minuteWiseRules?.dayUpToPerson<totalPlayer && selectedTable.minuteWiseRules?.isDayExtraChargePerPerson==false){
+                bills.push({"title":`Day Extra Minute (${timeDelta}X${selectedTable.minuteWiseRules.dayExtraAmount})`,"time":timeDelta,"amount":selectedTable.minuteWiseRules.dayExtraAmount*timeDelta})
+                totalBillAmt=totalBillAmt+(selectedTable.minuteWiseRules.dayExtraAmount*timeDelta)
             }
     }
     return {"timeDelta":totalGameTime,"billBreakup":bills,"totalBillAmt":selectedStore.isRoundOff?Math.round(totalBillAmt.toFixed(2)):totalBillAmt.toFixed(2),"mealTotal":selectedTable.mealAmount,"productList":selectedTable.productList, selectedTable}
@@ -895,6 +907,7 @@ router.patch("/checkoutTable/:tableId",verify_token,async (req,res)=>{
                     storeId:selectedTable.storeId,
                     empId:loggedInUser._id
                 })
+                //need to add the wallet logic
                 if((parseFloat(req.body.mealSettlement[index].payable)-parseFloat(req.body.mealSettlement[index].paid))>0)
                     {
                     const pickedCustomer= await customerModel.findById(req.body.mealSettlement[index].customerDetails.customerId)

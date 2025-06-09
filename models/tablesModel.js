@@ -114,6 +114,14 @@ const tablesSchema= new mongoos.Schema({
             type:Number,
             required:false
         },
+        isDayExtraChargePerPerson:{
+            type:Boolean,
+            required:false
+        },
+        isNightExtraChargePerPerson:{
+            type:Boolean,
+            required:false
+        }
     },
     fixedBillingRules:{
         dayAmt:{
