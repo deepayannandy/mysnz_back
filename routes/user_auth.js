@@ -349,9 +349,9 @@ router.patch("/changeStore/:id", getUser, async (req, res) => {
       return res.status(400).json({ message: "Old Store not found" });
     res.user.storeId = newStore._id;
     const newStores = res.user.secondaryStoreId.filter((store) => {
-      console.log(store, oldStore);
-      console.log(store.storeId !== oldStore._id.toString());
-      return store.storeId !== oldStore._id.toString();
+      console.log(store, newStore);
+      console.log(store.storeId !== newStore._id.toString());
+      return store.storeId !== newStore._id.toString();
     });
     res.user.secondaryStoreId = [
       ...newStores,
@@ -361,7 +361,7 @@ router.patch("/changeStore/:id", getUser, async (req, res) => {
       },
     ];
     const newUser = await res.user.save();
-    res.status(201).json({ _id: newUser.id });
+    res.status(201).json({ userid: newUser.id, newStoreId: newStore._id });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
