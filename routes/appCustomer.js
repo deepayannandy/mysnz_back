@@ -9,7 +9,7 @@ const verify_token = require("../validators/verifyToken");
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "appsdny@gmail.com",
+    user: "otp.cuekeeper@gmail.com",
     pass: process.env.SECREAT_TOKEN,
   },
   port: 465,
@@ -73,7 +73,7 @@ router.post("/generateOTP/", async (req, res) => {
     selectedCustomer.otpExpire = fiveMinutesLater;
     // Add the code to send the otp via mail / phone
     let mailOptions = {
-      from: "appsdny@gmail.com", // Sender address
+      from: "otp.cuekeeper@gmail.com", // Sender address
       to: selectedCustomer.email, // List of recipients
       subject: "Cuekeeper|| Your one-time-password", // Subject line
       html: `<p>Your onetime password is : ${selectedCustomer.OTP}</p>`, // HTML body
