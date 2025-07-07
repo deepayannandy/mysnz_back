@@ -102,6 +102,8 @@ router.get("/collectionReport/:sId", async (req, res) => {
 
 router.get("/duesReport/:sId", verify_token, async (req, res) => {
   const loggedInUser = await userModel.findById(req.tokendata._id);
+  let tableDue = 0;
+  let cafeDue = 0;
   if (!loggedInUser)
     return res
       .status(500)
@@ -112,7 +114,22 @@ router.get("/duesReport/:sId", verify_token, async (req, res) => {
       const dues = await historyModel.find({
         $and: [{ storeId: req.params.sId }, { credit: { $gt: 0 } }],
       });
-      res.status(201).json(dues.reverse());
+      const detaileddues = await customerHistoryModel.find({
+        $and: [{ storeId: req.params.sId }, { due: { $gt: 0 } }],
+      });
+      detaileddues.forEach((item) => {
+        if (item.description.includes("Meal Order")) {
+          cafeDue += parseFloat(item.due);
+        } else {
+          tableDue += parseFloat(item.due);
+        }
+      });
+      res.status(201).json({
+        tableDue,
+        cafeDue,
+        totaldue: tableDue + cafeDue,
+        lineItems: dues.reverse(),
+      });
     } else {
       console.log("custom date range");
       const today = new Date();
@@ -121,6 +138,7 @@ router.get("/duesReport/:sId", verify_token, async (req, res) => {
       const endDate = new Date(req.query.endDate);
       endDate.setHours(23, 59, 59, 999);
       console.log(startDate, endDate);
+
       const dues = await historyModel.find({
         $and: [
           { storeId: req.params.sId },
@@ -133,7 +151,31 @@ router.get("/duesReport/:sId", verify_token, async (req, res) => {
           },
         ],
       });
-      res.status(201).json(dues.reverse());
+      const detaileddues = await customerHistoryModel.find({
+        $and: [
+          { storeId: req.params.sId },
+          { due: { $gt: 0 } },
+          {
+            date: {
+              $gt: startDate,
+              $lt: endDate,
+            },
+          },
+        ],
+      });
+      detaileddues.forEach((item) => {
+        if (item.description.includes("Meal Order")) {
+          cafeDue += parseFloat(item.due);
+        } else {
+          tableDue += parseFloat(item.due);
+        }
+      });
+      res.status(201).json({
+        tableDue,
+        cafeDue,
+        totaldue: tableDue + cafeDue,
+        lineItems: dues.reverse(),
+      });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
