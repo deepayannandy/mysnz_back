@@ -1278,6 +1278,11 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
       );
     }
     let dis = req.body.discount == undefined ? 0 : req.body.discount;
+    console.log(
+      `>>>>>>> credit amount: ${
+        req.body.totalBillAmt - dis - req.body.cashIn
+      } breakup:  ${req.body.totalBillAmt} ${dis} ${req.body.cashIn}`
+    );
     const gHistory = new historyModel({
       storeId: selectedTable.storeId,
       date: new Date(),
@@ -1353,10 +1358,6 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
                 pickedCustomer.rewardPoint +
                 parseInt(req.body.checkoutPlayers[index].cashIn / 100));
           const updatedCustomer = await pickedCustomer.save();
-          gHistory.credit =
-            gHistory.credit +
-            (req.body.checkoutPlayers[index].amount -
-              req.body.checkoutPlayers[index].cashIn);
         } else {
           const pickedCustomer = await customerModel.findById(
             req.body.checkoutPlayers[index].customerId
