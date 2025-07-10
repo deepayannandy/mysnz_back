@@ -8,6 +8,7 @@ const userModel = require("../models/userModel");
 const historyModel = require("../models/historyModel");
 const verify_token = require("../validators/verifyToken");
 const dailyReportModel = require("../models/dailyReportModel");
+const purchaseModel = require("../models/purchaseModel");
 
 router.get("/transactionReport/:storeId/", verify_token, async (req, res) => {
   const loggedInUser = await userModel.findById(req.tokendata._id);
@@ -100,6 +101,73 @@ router.get("/collectionReport/:sId", async (req, res) => {
   }
 });
 
+router.get("/poReport/:sId", verify_token, async (req, res) => {
+  const loggedInUser = await userModel.findById(req.tokendata._id);
+  let totalAmount = 0;
+  if (!loggedInUser)
+    return res
+      .status(500)
+      .json({ message: "Access Denied! Not able to validate the user." });
+  console.log(req.query.startDate, req.query.endDate, req.params.sId);
+  try {
+    if (req.query.startDate == undefined || req.query.endDate == undefined) {
+      const pos = await purchaseModel.find({
+        storeId: req.params.sId,
+      });
+      pos.forEach((item) => {
+        totalAmount += item.poValue;
+      });
+      return res.status(200).json({
+        totalPo: pos.length,
+        totalAmount,
+        lineItems: pos.reverse(),
+      });
+    } else {
+      console.log("custom date range");
+      const today = new Date();
+      const startDate = new Date(req.query.startDate);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(req.query.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      console.log(startDate, endDate);
+
+      const dues = await historyModel.find({
+        $and: [
+          { storeId: req.params.sId },
+          { credit: { $gt: 0 } },
+          {
+            date: {
+              $gt: startDate,
+              $lt: endDate,
+            },
+          },
+        ],
+      });
+      const pos = await purchaseModel.find({
+        $and: [
+          { storeId: req.params.sId },
+          {
+            purchaseDate: {
+              $gt: startDate,
+              $lt: endDate,
+            },
+          },
+        ],
+      });
+      pos.forEach((item) => {
+        totalAmount += item.poValue;
+      });
+      return res.status(200).json({
+        totalPo: pos.length,
+        totalAmount,
+        lineItems: pos.reverse(),
+      });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 router.get("/duesReport/:sId", verify_token, async (req, res) => {
   const loggedInUser = await userModel.findById(req.tokendata._id);
   let tableDue = 0;
@@ -181,6 +249,7 @@ router.get("/duesReport/:sId", verify_token, async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
 router.get("/cafeReport/:sId", verify_token, async (req, res) => {
   const loggedInUser = await userModel.findById(req.tokendata._id);
   if (!loggedInUser)

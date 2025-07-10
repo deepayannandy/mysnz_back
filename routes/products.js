@@ -5,6 +5,7 @@ const verify_token = require("../validators/verifyToken");
 const userModel = require("../models/userModel");
 const mongodb = require("mongodb");
 const categoryModel = require("../models/categoryModel");
+const purchaseModel = require("../models/purchaseModel");
 
 router.post("/", verify_token, async (req, res) => {
   const loggedInUser = await userModel.findById(req.tokendata._id);
@@ -36,7 +37,7 @@ router.post("/", verify_token, async (req, res) => {
     salePrice: req.body.salePrice,
     quantity: req.body.quantity,
     //if isQntRequired== false then it product will be by default in stock else it checks the quantity
-    isOutOfStock: !isQntRequired
+    isOutOfStock: !req.body.isQntRequired
       ? true
       : parseInt(req.body.quantity) > 0
       ? false
@@ -48,6 +49,22 @@ router.post("/", verify_token, async (req, res) => {
   });
   try {
     const product = await newProduct.save();
+    if (req.body.isQntRequired) {
+      const newPurchase = new purchaseModel({
+        productName: product.productName,
+        productId: product._id,
+        storeId: product.storeId,
+        description: "Opening Stocks",
+        category: product.category,
+        sku: product.sku,
+        purchasePrice: product.basePrice,
+        quantity: product.quantity,
+        salePrice: product.salePrice,
+        tax: product.tax,
+        poValue: parseFloat(req.body.quantity) * parseFloat(req.body.basePrice),
+      });
+      const newPurchaseRecord = await newPurchase.save();
+    }
     res.status(201).json({ _id: product.id });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -129,10 +146,10 @@ router.patch("/:pId", verify_token, async (req, res) => {
   if (req.body.isOutOfStock != null) {
     selectedProduct.isOutOfStock = req.body.isOutOfStock;
   }
-  if (req.body.quantity != null) {
-    selectedProduct.quantity = selectedProduct.quantity;
-    if (selectedProduct.quantity > 0) selectedProduct.isOutOfStock = false;
-  }
+  // if (req.body.quantity != null) {
+  //   selectedProduct.quantity = selectedProduct.quantity;
+  //   if (selectedProduct.quantity > 0) selectedProduct.isOutOfStock = false;
+  // }
   if (req.body.barcode != null) {
     selectedProduct.barcode = req.body.barcode;
   }
@@ -164,6 +181,41 @@ router.patch("/:pId", verify_token, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+});
+router.patch("/restock/:pId", verify_token, async (req, res) => {
+  const loggedInUser = await userModel.findById(req.tokendata._id);
+  if (!loggedInUser)
+    return res
+      .status(500)
+      .json({ message: "Access Denied! Not able to validate the user." });
+  console.log(loggedInUser);
+  const selectedProduct = await productModel.findById(req.params.pId);
+  if (!selectedProduct)
+    return res.status(500).json({ message: "Product dose not exist!" });
+  try {
+    const newPurchase = new purchaseModel({
+      productName: selectedProduct.productName,
+      productId: selectedProduct._id,
+      storeId: selectedProduct.storeId,
+      description: req.body.description,
+      category: selectedProduct.category,
+      sku: selectedProduct.sku,
+      purchasePrice: req.body.purchasePrice,
+      quantity: req.body.quantity,
+      salePrice: selectedProduct.salePrice,
+      tax: selectedProduct.tax,
+      poValue:
+        parseFloat(req.body.quantity) * parseFloat(req.body.purchasePrice),
+    });
+    selectedProduct.quantity += parseInt(req.body.quantity);
+    if (selectedProduct.quantity > 0) selectedProduct.isOutOfStock = false;
+    const updatedProduct = await selectedProduct.save();
+    const newPurchaseRecord = await newPurchase.save();
+    return res.status(201).json({
+      updateProductId: updatedProduct._id,
+      purchaseOrder: newPurchaseRecord._id,
+    });
+  } catch (error) {}
 });
 router.delete("/:pId", verify_token, async (req, res) => {
   const loggedInUser = await userModel.findById(req.tokendata._id);
