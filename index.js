@@ -41,6 +41,7 @@ const expenseRouter = require("./routes/expense");
 const duesRouter = require("./routes/dues");
 const paymentRouter = require("./routes/paymentLogs");
 const appCustomerRouter = require("./routes/appCustomer");
+const memberships = require("./routes/memberships");
 
 app.use("/api/user", userRouter);
 app.use("/api/store", storeRouter);
@@ -63,6 +64,7 @@ app.use("/api/expense", expenseRouter);
 app.use("/api/dues", duesRouter);
 app.use("/api/paymentLogs", paymentRouter);
 app.use("/api/appCustomer", appCustomerRouter);
+app.use("/api/membership", memberships);
 
 app.listen(4455, () => {
   console.log("Http Server is listening!");
