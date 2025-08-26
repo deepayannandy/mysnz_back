@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
     fullName: req.body.fullName,
     contact: req.body.contact,
     email: req.body.email,
-    credit: 0,
+    credit: req.body.oldCredit ?? 0,
     maxCredit: 999,
     dob: req.body.dob,
     profileImage: req.body.profileImage,

@@ -12,10 +12,87 @@ const customerHistoryModel = require("../models/customerHistoryModel");
 const productModel = require("../models/productModel");
 const mqttAgent = require("../utils/mqtt");
 
+async function sendMqttByTable(send_topic, message) {
+  let data = send_topic.split("/");
+  const selectedDevice = await deviceModel.findOne({ deviceId: data[0] });
+  let topic = `Send_data/${data[0]}`;
+  let messageBody = {
+    mac_id: data[0],
+    Relay_1:
+      data[1] == "l1"
+        ? message == "1"
+          ? true
+          : false
+        : selectedDevice.nodeStatus[0] == "0"
+        ? false
+        : true,
+    Relay_2:
+      data[1] == "l2"
+        ? message == "1"
+          ? true
+          : false
+        : selectedDevice.nodeStatus[1] == "0"
+        ? false
+        : true,
+    Relay_3:
+      data[1] == "l3"
+        ? message == "1"
+          ? true
+          : false
+        : selectedDevice.nodeStatus[2] == "0"
+        ? false
+        : true,
+    Relay_4:
+      data[1] == "l4"
+        ? message == "1"
+          ? true
+          : false
+        : selectedDevice.nodeStatus[3] == "0"
+        ? false
+        : true,
+    Relay_5:
+      data[1] == "l5"
+        ? message == "1"
+          ? true
+          : false
+        : selectedDevice.nodeStatus[4] == "0"
+        ? false
+        : true,
+    Relay_6:
+      data[1] == "l6"
+        ? message == "1"
+          ? true
+          : false
+        : selectedDevice.nodeStatus[5] == "0"
+        ? false
+        : true,
+    Relay_7:
+      data[1] == "l7"
+        ? message == "1"
+          ? true
+          : false
+        : selectedDevice.nodeStatus[6] == "0"
+        ? false
+        : true,
+    Relay_8:
+      data[1] == "l8"
+        ? message == "1"
+          ? true
+          : false
+        : selectedDevice.nodeStatus[7] == "0"
+        ? false
+        : true,
+    Auto_SW_status: selectedDevice.isAutoEnable == "0" ? false : true,
+    Manual_SW_status: selectedDevice.isManualEnable == "0" ? false : true,
+  };
+  const jsonStringPayload = JSON.stringify(messageBody);
+  mqttAgent.client.publish(topic, jsonStringPayload);
+}
 router.post("/SendMqtt", async (req, res) => {
   try {
     let sendAll = false;
     let data = req.body.topic.split("/");
+    let topic = `Send_data/${data[0]}`;
     const selectedDevice = await deviceModel.findOne({ deviceId: data[0] });
     if (!selectedDevice)
       return res.status(500).json({ message: "Device not found!" });
@@ -42,15 +119,24 @@ router.post("/SendMqtt", async (req, res) => {
     }
     await selectedDevice.save();
     if (sendAll) {
-      mqttAgent.client.publish(`${data[0]}/l1`, req.body.message);
-      mqttAgent.client.publish(`${data[0]}/l2`, req.body.message);
-      mqttAgent.client.publish(`${data[0]}/l3`, req.body.message);
-      mqttAgent.client.publish(`${data[0]}/l4`, req.body.message);
-      mqttAgent.client.publish(`${data[0]}/l5`, req.body.message);
-      mqttAgent.client.publish(`${data[0]}/l6`, req.body.message);
-      mqttAgent.client.publish(`${data[0]}/l7`, req.body.message);
-      mqttAgent.client.publish(`${data[0]}/l8`, req.body.message);
-    } else mqttAgent.client.publish(req.body.topic, req.body.message);
+      let messageBody = {
+        mac_id: data[0],
+        Relay_1: selectedDevice.nodeStatus[0] == "0" ? false : true,
+        Relay_2: selectedDevice.nodeStatus[1] == "0" ? false : true,
+        Relay_3: selectedDevice.nodeStatus[2] == "0" ? false : true,
+        Relay_4: selectedDevice.nodeStatus[3] == "0" ? false : true,
+        Relay_5: selectedDevice.nodeStatus[4] == "0" ? false : true,
+        Relay_6: selectedDevice.nodeStatus[5] == "0" ? false : true,
+        Relay_7: selectedDevice.nodeStatus[6] == "0" ? false : true,
+        Relay_8: selectedDevice.nodeStatus[7] == "0" ? false : true,
+        Auto_SW_status: selectedDevice.isAutoEnable == "0" ? false : true,
+        Manual_SW_status: selectedDevice.isManualEnable == "0" ? false : true,
+      };
+      const jsonStringPayload = JSON.stringify(messageBody);
+      mqttAgent.client.publish(topic, jsonStringPayload);
+    } else {
+      await sendMqttByTable(req.body.topic, req.body.message);
+    }
     res.status(200).json({ message: "message sent" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -85,7 +171,7 @@ router.post("/pause/:tableId", async (req, res) => {
     return res.status(500).json({ message: "Table not found!" });
   try {
     selectedTable.pauseTime = new Date();
-    mqttAgent.client.publish(
+    await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
       "0"
     );
@@ -110,7 +196,7 @@ router.post("/resume/:tableId", async (req, res) => {
     console.log(newPauseTime);
     selectedTable.pauseMin = newPauseTime;
     selectedTable.pauseTime = null;
-    mqttAgent.client.publish(
+    await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
       "1"
     );
@@ -398,7 +484,7 @@ router.post("/startGame/:tableId", async (req, res) => {
         "/" +
         selectedTable.nodeID
     );
-    mqttAgent.client.publish(
+    await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
       "1"
     );
@@ -453,7 +539,7 @@ router.patch("/stopGame/:tableId", verify_token, async (req, res) => {
         selectedTable.productList = null;
         selectedTable.isOccupied = false;
         const updatedTable = await selectedTable.save();
-        mqttAgent.client.publish(
+        await sendMqttByTable(
           selectedTable.deviceId + "/" + selectedTable.nodeID,
           "0"
         );
@@ -466,7 +552,7 @@ router.patch("/stopGame/:tableId", verify_token, async (req, res) => {
     }
     selectedTable.gameData.endTime = new Date();
     const updatedTable = await selectedTable.save();
-    mqttAgent.client.publish(
+    await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
       "0"
     );
