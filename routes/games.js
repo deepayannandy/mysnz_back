@@ -15,76 +15,35 @@ const mqttAgent = require("../utils/mqtt");
 async function sendMqttByTable(send_topic, message) {
   let data = send_topic.split("/");
   const selectedDevice = await deviceModel.findOne({ deviceId: data[0] });
-  let topic = `Receive_data/${data[0]}`;
   let messageBody = {
     mac_id: data[0],
-    Relay_1:
-      data[1] == "l1"
-        ? message == "1"
-          ? true
-          : false
-        : selectedDevice.nodeStatus[0] == "0"
-        ? false
-        : true,
-    Relay_2:
-      data[1] == "l2"
-        ? message == "1"
-          ? true
-          : false
-        : selectedDevice.nodeStatus[1] == "0"
-        ? false
-        : true,
-    Relay_3:
-      data[1] == "l3"
-        ? message == "1"
-          ? true
-          : false
-        : selectedDevice.nodeStatus[2] == "0"
-        ? false
-        : true,
-    Relay_4:
-      data[1] == "l4"
-        ? message == "1"
-          ? true
-          : false
-        : selectedDevice.nodeStatus[3] == "0"
-        ? false
-        : true,
-    Relay_5:
-      data[1] == "l5"
-        ? message == "1"
-          ? true
-          : false
-        : selectedDevice.nodeStatus[4] == "0"
-        ? false
-        : true,
-    Relay_6:
-      data[1] == "l6"
-        ? message == "1"
-          ? true
-          : false
-        : selectedDevice.nodeStatus[5] == "0"
-        ? false
-        : true,
-    Relay_7:
-      data[1] == "l7"
-        ? message == "1"
-          ? true
-          : false
-        : selectedDevice.nodeStatus[6] == "0"
-        ? false
-        : true,
-    Relay_8:
-      data[1] == "l8"
-        ? message == "1"
-          ? true
-          : false
-        : selectedDevice.nodeStatus[7] == "0"
-        ? false
-        : true,
-    Auto_SW_status: selectedDevice.isAutoEnable == "0" ? false : true,
-    Manual_SW_status: selectedDevice.isManualEnable == "0" ? false : true,
   };
+  let topic = `Receive_data/${data[0]}`;
+  if (data[1] == "l1") {
+    messageBody.Relay_1 = message == "1" ? true : false;
+  }
+  if (data[1] == "l2") {
+    messageBody.Relay_2 = message == "1" ? true : false;
+  }
+  if (data[1] == "l3") {
+    messageBody.Relay_3 = message == "1" ? true : false;
+  }
+  if (data[1] == "l4") {
+    messageBody.Relay_4 = message == "1" ? true : false;
+  }
+  if (data[1] == "l5") {
+    messageBody.Relay_5 = message == "1" ? true : false;
+  }
+  if (data[1] == "l6") {
+    messageBody.Relay_6 = message == "1" ? true : false;
+  }
+  if (data[1] == "l7") {
+    messageBody.Relay_7 = message == "1" ? true : false;
+  }
+  if (data[1] == "l8") {
+    messageBody.Relay_8 = message == "1" ? true : false;
+  }
+
   const jsonStringPayload = JSON.stringify(messageBody);
   mqttAgent.client.publish(topic, jsonStringPayload);
 }
