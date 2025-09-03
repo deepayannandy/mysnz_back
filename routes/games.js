@@ -15,7 +15,7 @@ const mqttAgent = require("../utils/mqtt");
 async function sendMqttByTable(send_topic, message) {
   let data = send_topic.split("/");
   const selectedDevice = await deviceModel.findOne({ deviceId: data[0] });
-  let topic = `Send_data/${data[0]}`;
+  let topic = `Receive_data/${data[0]}`;
   let messageBody = {
     mac_id: data[0],
     Relay_1:
@@ -92,7 +92,7 @@ router.post("/SendMqtt", async (req, res) => {
   try {
     let sendAll = false;
     let data = req.body.topic.split("/");
-    let topic = `Send_data/${data[0]}`;
+    let topic = `Receive_data/${data[0]}`;
     const selectedDevice = await deviceModel.findOne({ deviceId: data[0] });
     if (!selectedDevice)
       return res.status(500).json({ message: "Device not found!" });
