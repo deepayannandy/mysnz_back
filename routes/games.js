@@ -177,6 +177,10 @@ router.post("/restart/:tableId", async (req, res) => {
       selectedTable.deviceId + "/" + selectedTable.nodeID,
       "1"
     );
+    await sendMqttByTable(
+      selectedTable.deviceId + "/" + selectedTable.nodeID,
+      "1"
+    );
     await selectedTable.save();
     return res.status(200).json({ message: `Table restarted` });
   } catch (error) {
