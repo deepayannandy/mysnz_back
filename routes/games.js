@@ -43,6 +43,12 @@ async function sendMqttByTable(send_topic, message) {
   if (data[1] == "l8") {
     messageBody.Relay_8 = message == "1" ? true : false;
   }
+  if (data[1] == "manualenable") {
+    messageBody.Manual_SW_status = message == "1" ? true : false;
+  }
+  if (data[1] == "autoenable") {
+    messageBody.Auto_SW_status = message == "1" ? true : false;
+  }
 
   const jsonStringPayload = JSON.stringify(messageBody);
   mqttAgent.client.publish(topic, jsonStringPayload);
@@ -123,6 +129,7 @@ async function updateCustomerDetails(customerId, status, duration, isCheckout) {
     console.log(error);
   }
 }
+// ToDo: Bill adjustment API which will take the table id and the membership id and adjust the bill.
 
 router.post("/pause/:tableId", async (req, res) => {
   const selectedTable = await tableModel.findById(req.params.tableId);

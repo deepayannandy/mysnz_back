@@ -127,6 +127,7 @@ router.get("/blackListedCustomers/", verify_token, async (req, res) => {
 });
 
 router.get("/myCustomers/", verify_token, async (req, res) => {
+  //Need to fix this api
   const loggedInUser = await userModel.findById(req.tokendata._id);
   if (!loggedInUser)
     return res
@@ -138,8 +139,20 @@ router.get("/myCustomers/", verify_token, async (req, res) => {
       storeId: loggedInUser.storeId,
       isDeleted: { $ne: true },
     });
+    var customer_final = [];
+    // await customers.forEach(async (eachCustomer) => {
+    //   if (eachCustomer.membershipId) {
+    //     console.log(">>>Customer>>>>", eachCustomer.fullName);
+    //     eachCustomer.membershipDetails = await customerMembershipModel.findById(
+    //       eachCustomer.membershipId
+    //     );
+    //     console.log(">>>Done>>>>");
+    //   }
+    //   customer_final.push(eachCustomer);
+    // });
+
     res.status(201).json(customers.reverse());
-  } catch {
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
