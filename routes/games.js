@@ -288,10 +288,7 @@ async function countdownGame(tableId, startTime) {
     selectedTable.gameData.endTime = new Date();
     const updatedTable = await selectedTable.save();
     console.log("Game Stopped " + updatedTable._id);
-    mqttAgent.client.publish(
-      selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "0"
-    );
+    sendMqttByTable(selectedTable.deviceId + "/" + selectedTable.nodeID, "0");
     console.log(
       "sending message to: " +
         selectedTable.deviceId +
