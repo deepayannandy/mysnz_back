@@ -1,66 +1,68 @@
-const mongoos=require("mongoose")
-const customerHistorySchema= new mongoos.Schema({
-    customerId:{
-        type:String,
-        required:true
-    },
-    date:{
-        type:Date,
-        required:true
-    },
-    customerName:{
-        type:String,
-        required:true
-    },
-    description:{
-        type:String,
-        required:true
-    },
-    quantity:{
-        type:Number,
-        required:false
-    },
-    discount:{
-        type:Number,
-        require:false
-    },
-    netPay:{
-        type:Number,
-        required:false
-    },
-    paid:{
-        type:Number,
-        required:false
-    },
-    due:{
-        type:Number,
-        required:false
-    },
-    startTime:{
-        type:Date,
-        required:false
-    },
-    endTime:{
-        type:Date,
-        required:false
-    },
-    transactionId:
-    {
-        type:String,
-        required:false
-    },
-    storeId:
-    {
-        type:String,
-        required:false
-    },
-    empId:{
-        type:String,
-        required:false
-    },
-    isDeleted:{
-        type:Boolean,
-        required:false
-    }
-})
-module.exports=mongoos.model('CustomerHistory',customerHistorySchema)
+const mongoos = require("mongoose");
+const customerHistorySchema = new mongoos.Schema({
+  customerId: {
+    type: String,
+    required: true,
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
+  customerName: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  billType: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: false,
+  },
+  discount: {
+    type: Number,
+    require: false,
+  },
+  netPay: {
+    type: Number,
+    required: false,
+  },
+  paid: {
+    type: Number,
+    required: false,
+  },
+  due: {
+    type: Number,
+    required: false,
+  },
+  startTime: {
+    type: Date,
+    required: false,
+  },
+  endTime: {
+    type: Date,
+    required: false,
+  },
+  transactionId: {
+    type: String,
+    required: false,
+  },
+  storeId: {
+    type: String,
+    required: false,
+  },
+  empId: {
+    type: String,
+    required: false,
+  },
+  isDeleted: {
+    type: Boolean,
+    required: false,
+  },
+});
+module.exports = mongoos.model("CustomerHistory", customerHistorySchema);
