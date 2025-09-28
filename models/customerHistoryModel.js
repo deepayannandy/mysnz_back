@@ -18,7 +18,7 @@ const customerHistorySchema = new mongoos.Schema({
   },
   billType: {
     type: String,
-    required: true,
+    required: false,
   },
   quantity: {
     type: Number,
