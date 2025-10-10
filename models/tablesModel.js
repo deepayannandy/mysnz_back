@@ -1,274 +1,286 @@
-const { string, object, bool } = require("joi")
-const mongoos=require("mongoose")
+const { string, object, bool } = require("joi");
+const mongoos = require("mongoose");
 
-const tablesSchema= new mongoos.Schema({
-    storeId:{
-        type:String,
-        required:true
-    },
-    tableName:{
-        type:String,
-        required:true
-    },
-    deviceId:{
-        type:String,
-        required:false
-    },
-    nodeID:{
-        type:String,
-        required:false
-    },
-    isOccupied:{
-        type:Boolean,
-        required:true
-    },
-    gameTypes:{
-        type:Array,
-        required:true
-    },
-    netAmount:{
-        type:Number,
-        required:false
-    },
-    pauseTime:{
-        type:Date,
-        required:false
-    },
-    pauseMin:{
-        type:Number,
-        required:false
-    },
-    gameData:
-        {
-            players: [
-                {
-                    fullName:{
-                        type:String,
-                        required:true
-                    },
-                    customerId:{
-                        type:String,
-                        required:false
-                    }
-                }
-            ],
-            startTime: {
-              type: Date,
-              required: false,
-            },
-            endTime: {
-              type: Date,
-              required: false,
-            },
-            gameType:{
-                type:String,
-                required:false
-            },
-            countdownMin:{
-                type:Number,
-                required:false
-            },
-            countdownGameEndTime:{
-                type:Date,
-                required:false
-            }
-          },
-    minuteWiseRules:{
-        dayUptoMin:{
-            type:Number,
-            required:false
+const tablesSchema = new mongoos.Schema({
+  storeId: {
+    type: String,
+    required: true,
+  },
+  tableName: {
+    type: String,
+    required: true,
+  },
+  deviceId: {
+    type: String,
+    required: false,
+  },
+  nodeID: {
+    type: String,
+    required: false,
+  },
+  isOccupied: {
+    type: Boolean,
+    required: true,
+  },
+  gameTypes: {
+    type: Array,
+    required: true,
+  },
+  netAmount: {
+    type: Number,
+    required: false,
+  },
+  pauseTime: {
+    type: Date,
+    required: false,
+  },
+  pauseMin: {
+    type: Number,
+    required: false,
+  },
+  gameData: {
+    players: [
+      {
+        fullName: {
+          type: String,
+          required: true,
         },
-        dayMinAmt:{
-            type:Number,
-            required:false
+        customerId: {
+          type: String,
+          required: false,
         },
-        dayPerMin:{
-            type:Number,
-            required:false
-        },
-        dayExtraAmount:{
-            type:Number,
-            required:false
-        },
-        dayUpToPerson:{
-            type:Number,
-            required:false
-        },
-        nightUptoMin:{
-            type:Number,
-            required:false
-        },
-        nightMinAmt:{
-            type:Number,
-            required:false
-        },
-        nightPerMin:{
-            type:Number,
-            required:false
-        },
-        nightExtraAmount:{
-            type:Number,
-            required:false
-        },
-        nightUpToPerson:{
-            type:Number,
-            required:false
-        },
-        isDayExtraChargePerPerson:{
-            type:Boolean,
-            required:false
-        },
-        isNightExtraChargePerPerson:{
-            type:Boolean,
-            required:false
-        }
-    },
-    fixedBillingRules:{
-        dayAmt:{
-            type:Number,
-            required:false
-        },
-        nightAmt:{
-            type:Number,
-            required:false
-        },
-    },
-    slotWiseRules:[
-        {
-            uptoMin:{
-                type:Number,
-                required:false
-            },
-            slotCharge:{
-                type:Number,
-                required:false
-            },
-            nightSlotCharge:{
-                type:Number,
-                required:false
-            }
-        }
+      },
     ],
-    countdownRules:[
-        {   
-            uptoMin:{
-                type:Number,
-                required:false
-            },
-            countdownDayCharge:{
-                type:Number,
-                required:false
-            },
-            countdownNightCharge:{
-                type:Number,
-                required:false
-            }
-        }
-    ],
-    isBooked:{
-        type:Boolean,
-        required:true
+    startTime: {
+      type: Date,
+      required: false,
     },
-    productList:[
-        {
-            customerDetails:{
-                fullName:{
-                    type:String,
-                    required:true
-                },
-                customerId:{
-                    type:String,
-                    required:false
-                }
-            },
-            orders:[
-                {
-                    productId:{
-                        type:String,
-                        required:false
-                    },
-                    productName:{
-                        type:String,
-                        required:false
-                    },
-                    productSalePrice:{
-                        type:Number,
-                        required:false
-                    },
-                    qnt:{
-                        type:Number,
-                        required:false
-                    }
-                }
-            ],
-            orderTotal:
-            {
-                type:Number,
-                required:false
-            },
-            Qnt:{
-                type:Number,
-                required:false
-            },
-        }
-        
-    ],
-    mealAmount:{
-        type:Number,
-        required:false
+    endTime: {
+      type: Date,
+      required: false,
     },
-    countdownId:{
-        type:Object,
-        required:false
+    gameType: {
+      type: String,
+      required: false,
     },
-    holdData:{
-        type:Object,
-        required:false
+    countdownMin: {
+      type: Number,
+      required: false,
     },
-    isHold:{
-        type:Boolean,
-        required:false
+    countdownGameEndTime: {
+      type: Date,
+      required: false,
     },
-    isBreak:{
-        type:Boolean,
-        required:false
+  },
+  minuteWiseRules: {
+    dayUptoMin: {
+      type: Number,
+      required: false,
     },
-    isBreakHold:{
-        type:Boolean,
-        required:false
+    dayMinAmt: {
+      type: Number,
+      required: false,
     },
-    breakStartTime:{
-        type: Date,
+    dayPerMin: {
+      type: Number,
+      required: false,
+    },
+    dayExtraAmount: {
+      type: Number,
+      required: false,
+    },
+    dayUpToPerson: {
+      type: Number,
+      required: false,
+    },
+    nightUptoMin: {
+      type: Number,
+      required: false,
+    },
+    nightMinAmt: {
+      type: Number,
+      required: false,
+    },
+    nightPerMin: {
+      type: Number,
+      required: false,
+    },
+    nightExtraAmount: {
+      type: Number,
+      required: false,
+    },
+    nightUpToPerson: {
+      type: Number,
+      required: false,
+    },
+    isDayExtraChargePerPerson: {
+      type: Boolean,
+      required: false,
+    },
+    isNightExtraChargePerPerson: {
+      type: Boolean,
+      required: false,
+    },
+  },
+  fixedBillingRules: {
+    dayAmt: {
+      type: Number,
+      required: false,
+    },
+    nightAmt: {
+      type: Number,
+      required: false,
+    },
+  },
+  slotWiseRules: [
+    {
+      uptoMin: {
+        type: Number,
         required: false,
+      },
+      slotCharge: {
+        type: Number,
+        required: false,
+      },
+      nightSlotCharge: {
+        type: Number,
+        required: false,
+      },
     },
-    breakPlayers:[
+  ],
+  countdownRules: [
+    {
+      uptoMin: {
+        type: Number,
+        required: false,
+      },
+      countdownDayCharge: {
+        type: Number,
+        required: false,
+      },
+      countdownNightCharge: {
+        type: Number,
+        required: false,
+      },
+      nightUpToPerson: {
+        type: Number,
+        required: false,
+      },
+      dayUpToPerson: {
+        type: Number,
+        required: false,
+      },
+      nightExtraAmount: {
+        type: Number,
+        required: false,
+      },
+      dayExtraAmount: {
+        type: Number,
+        required: false,
+      },
+    },
+  ],
+  isBooked: {
+    type: Boolean,
+    required: true,
+  },
+  productList: [
+    {
+      customerDetails: {
+        fullName: {
+          type: String,
+          required: true,
+        },
+        customerId: {
+          type: String,
+          required: false,
+        },
+      },
+      orders: [
         {
-            customerId:{
-                type:String,
-                required:false
-            },
-            customerName:{
-                type:String,
-                required:false
-            },
-            billingAmount:{
-                type:Number,
-                required:false
-            },
-            gameTime:{
-                type:Number,
-                required:false
-            },
-            logs:{
-                type:Object,
-                required:false
-            }
-        }
-    ],
-    tableType:{
+          productId: {
+            type: String,
+            required: false,
+          },
+          productName: {
+            type: String,
+            required: false,
+          },
+          productSalePrice: {
+            type: Number,
+            required: false,
+          },
+          qnt: {
+            type: Number,
+            required: false,
+          },
+        },
+      ],
+      orderTotal: {
+        type: Number,
+        required: false,
+      },
+      Qnt: {
+        type: Number,
+        required: false,
+      },
+    },
+  ],
+  mealAmount: {
+    type: Number,
+    required: false,
+  },
+  countdownId: {
+    type: Object,
+    required: false,
+  },
+  holdData: {
+    type: Object,
+    required: false,
+  },
+  isHold: {
+    type: Boolean,
+    required: false,
+  },
+  isBreak: {
+    type: Boolean,
+    required: false,
+  },
+  isBreakHold: {
+    type: Boolean,
+    required: false,
+  },
+  breakStartTime: {
+    type: Date,
+    required: false,
+  },
+  breakPlayers: [
+    {
+      customerId: {
         type: String,
         required: false,
+      },
+      customerName: {
+        type: String,
+        required: false,
+      },
+      billingAmount: {
+        type: Number,
+        required: false,
+      },
+      gameTime: {
+        type: Number,
+        required: false,
+      },
+      logs: {
+        type: Object,
+        required: false,
+      },
     },
-
-})
-module.exports=mongoos.model('Table',tablesSchema )
+  ],
+  tableType: {
+    type: String,
+    required: false,
+  },
+});
+module.exports = mongoos.model("Table", tablesSchema);
