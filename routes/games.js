@@ -337,8 +337,8 @@ router.post("/validatePlayers/:tableId", async (req, res) => {
         selectedPlayer.save();
       } else {
         if (
-          selectedPlayer.maxCredit <
-          selectedPlayer.credit + minimumBalanceCredit
+          selectedPlayer.maxCredit >
+          selectedPlayer.credit - minimumBalanceCredit
         )
           return res.status(403).json({
             message: `${selectedPlayer.fullName} hits his maximum credit limit!`,
@@ -1331,11 +1331,23 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
       );
     }
     let dis = req.body.discount == undefined ? 0 : req.body.discount;
-    console.log(
-      `>>>>>>> credit amount: ${
-        req.body.totalBillAmt - dis - req.body.cashIn
-      } breakup:  ${req.body.totalBillAmt} ${dis} ${req.body.cashIn}`
-    );
+    // console.log(
+    //   `>>>>>>> credit amount: ${
+    //     req.body.totalBillAmt - dis - req.body.cashIn
+    //   } breakup:  ${req.body.totalBillAmt} ${dis} ${req.body.cashIn}`
+    // );
+
+    // add balance to wallet
+    if (req.body.addToWallet) {
+      const selectedCustomer = await customerModel.findById(
+        req.body.checkoutPlayers[0].customerId
+      );
+      if (selectedCustomer) {
+        selectedCustomer.credit =
+          selectedCustomer.credit ?? 0 + req.body.cashOut;
+        await selectedCustomer.save();
+      }
+    }
     const gHistory = new historyModel({
       storeId: selectedTable.storeId,
       date: new Date(),
@@ -1363,10 +1375,12 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
     });
     selectedStore.transactionCounter = selectedStore.transactionCounter + 1;
     for (let index in req.body.checkoutPlayers) {
+      // console.log(`billing a >>>${req.body.checkoutPlayers[index].toString()}`);
       if (req.body.checkoutPlayers[index].customerId) {
         const custHistory = new customerHistoryModel({
           customerId: req.body.checkoutPlayers[index].customerId,
           date: new Date(),
+          billType: "table",
           customerName: req.body.checkoutPlayers[index].fullName.split("(")[0],
           description:
             selectedTable.tableName +
@@ -1399,7 +1413,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
           if (pickedCustomer) {
             // console.log("I am called")
             pickedCustomer.credit =
-              pickedCustomer.credit +
+              pickedCustomer.credit -
               (req.body.checkoutPlayers[index].amount -
                 req.body.checkoutPlayers[index].cashIn);
           }
@@ -1435,6 +1449,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
         console.log(">>>>> meal", req.body.mealSettlement[index]);
         const custHistory = new customerHistoryModel({
           customerId: req.body.mealSettlement[index].customerDetails.customerId,
+          billType: "meal",
           date: new Date(),
           customerName:
             req.body.mealSettlement[index].customerDetails.fullName.split(
@@ -1464,7 +1479,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
           );
           if (pickedCustomer) {
             pickedCustomer.credit =
-              pickedCustomer.credit +
+              pickedCustomer.credit -
               (parseFloat(req.body.mealSettlement[index].payable) -
                 parseFloat(req.body.mealSettlement[index].paid));
           }

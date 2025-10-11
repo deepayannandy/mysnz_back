@@ -309,12 +309,12 @@ router.patch("/:cid", verify_token, async (req, res) => {
       paid:
         req.body.description == "Pay Dues"
           ? req.body.settlementAmount != null
-            ? customers.credit - req.body.credit - req.body.settlementAmount
-            : customers.credit - req.body.credit
+            ? customers.credit + (req.body.credit - req.body.settlementAmount)
+            : customers.credit + req.body.credit
           : 0,
       due:
         req.body.description == "Add Old Credit"
-          ? req.body.credit - customers.credit
+          ? req.body.credit + customers.credit
           : 0,
       storeId: customers.storeId,
       empId: User._id,
