@@ -162,10 +162,6 @@ const tablesSchema = new mongoos.Schema({
         type: Number,
         required: false,
       },
-      nightUpToPerson: {
-        type: Number,
-        required: false,
-      },
       dayUpToPerson: {
         type: Number,
         required: false,

@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
     contact: req.body.contact,
     email: req.body.email,
     credit: req.body.oldCredit ?? 0,
-    maxCredit: 999,
+    maxCredit: -999,
     dob: req.body.dob,
     profileImage: req.body.profileImage,
     rewardPoint: !req.body.rewardPoint > 0 ? req.body.rewardPoint : 0,

@@ -21,14 +21,11 @@ const customerSchema = new mongoos.Schema({
     type: Number,
     required: false,
   },
-  wallet: {
-    type: Number,
-    required: false,
-    default: 0,
-  },
+
   maxCredit: {
     type: Number,
     required: false,
+    default: -999,
   },
   dob: {
     type: Date,

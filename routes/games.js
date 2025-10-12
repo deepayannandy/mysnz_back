@@ -333,7 +333,7 @@ router.post("/validatePlayers/:tableId", async (req, res) => {
           .status(403)
           .json({ message: `${selectedPlayer.fullName} is already occupied!` });
       if (selectedPlayer.maxCredit == undefined) {
-        selectedPlayer.maxCredit = 999;
+        selectedPlayer.maxCredit = -999;
         selectedPlayer.save();
       } else {
         if (
@@ -384,7 +384,7 @@ router.post("/startGame/:tableId", async (req, res) => {
           isBlackListed: false,
           credit: 0,
           contact: "+910000000000",
-          maxCredit: 999,
+          maxCredit: -999,
           rewardPoint: 0,
         });
         const cli = await newCustomer.save();
@@ -1123,6 +1123,22 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
                 time: selectedTable.gameData.countdownMin,
                 amount: selectedTable.countdownRules[i].countdownNightCharge,
               });
+              console.log(
+                `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`
+              );
+              if (
+                selectedTable.countdownRules[i].dayUpToPerson <
+                selectedTable.gameData.players.length
+              ) {
+                totalBillAmt =
+                  totalBillAmt +
+                  selectedTable.countdownRules[i].nightExtraAmount;
+                bills.push({
+                  title: "Night Countdown extra person",
+                  time: selectedTable.gameData.countdownMin,
+                  amount: selectedTable.countdownRules[i].nightExtraAmount,
+                });
+              }
             } else {
               totalBillAmt = selectedTable.countdownRules[i].countdownDayCharge;
               bills.push({
@@ -1130,6 +1146,21 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
                 time: selectedTable.gameData.countdownMin,
                 amount: selectedTable.countdownRules[i].countdownDayCharge,
               });
+              console.log(
+                `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`
+              );
+              if (
+                selectedTable.countdownRules[i].dayUpToPerson <
+                selectedTable.gameData.players.length
+              ) {
+                totalBillAmt =
+                  totalBillAmt + selectedTable.countdownRules[i].dayExtraAmount;
+                bills.push({
+                  title: "Day Countdown extra person",
+                  time: selectedTable.gameData.countdownMin,
+                  amount: selectedTable.countdownRules[i].dayExtraAmount,
+                });
+              }
             }
           }
         }
@@ -1146,6 +1177,21 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
               time: selectedTable.gameData.countdownMin,
               amount: selectedTable.countdownRules[i].countdownDayCharge,
             });
+            console.log(
+              `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`
+            );
+            if (
+              selectedTable.countdownRules[i].dayUpToPerson <
+              selectedTable.gameData.players.length
+            ) {
+              totalBillAmt =
+                totalBillAmt + selectedTable.countdownRules[i].dayExtraAmount;
+              bills.push({
+                title: "Day Countdown extra person",
+                time: selectedTable.gameData.countdownMin,
+                amount: selectedTable.countdownRules[i].dayExtraAmount,
+              });
+            }
           }
         }
       }
@@ -1315,7 +1361,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
           isBlackListed: false,
           credit: 0,
           contact: "+910000000000",
-          maxCredit: 999,
+          maxCredit: -999,
           rewardPoint: 0,
         });
         const cli = await newCustomer.save();
@@ -1344,7 +1390,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
       );
       if (selectedCustomer) {
         selectedCustomer.credit =
-          selectedCustomer.credit ?? 0 + req.body.cashOut;
+          selectedCustomer.credit + parseFloat(req.body.cashOut);
         await selectedCustomer.save();
       }
     }

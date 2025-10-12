@@ -74,7 +74,7 @@ router.get("/today/:sid", async (req, res) => {
     if (!Store)
       return res.status(400).send({ message: "Store dose not exist!" });
     const allCustomers = await customerModel.find({
-      $and: [{ credit: { $gt: 0 } }, { storeId: req.params.sid }],
+      $and: [{ credit: { $lt: 0 } }, { storeId: req.params.sid }],
     });
     try {
       res.status(201).json(allCustomers.reverse());
