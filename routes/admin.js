@@ -149,11 +149,17 @@ router.get("/Dashboard/:sid", async (req, res) => {
     let upi = 0;
     for (let index in allTransactionToday) {
       console.log(allTransactionToday[index]);
-      if (allTransactionToday[index].billType.toLowerCase().includes("table")) {
-        tableCollection = tableCollection + allTransactionToday[index].paid;
-      }
-      if (allTransactionToday[index].billType.toLowerCase().includes("meal")) {
-        mealCollection = mealCollection + allTransactionToday[index].paid;
+      if (allTransactionToday[index].billType) {
+        if (
+          allTransactionToday[index].billType.toLowerCase().includes("table")
+        ) {
+          tableCollection = tableCollection + allTransactionToday[index].paid;
+        }
+        if (
+          allTransactionToday[index].billType.toLowerCase().includes("meal")
+        ) {
+          mealCollection = mealCollection + allTransactionToday[index].paid;
+        }
       }
       if (
         allTransactionToday[index].description.toLowerCase().includes("cash") ||

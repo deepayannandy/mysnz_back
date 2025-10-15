@@ -12,7 +12,7 @@ const customerMembershipModel = require("../models/customerMembershipModel");
 router.post("/", async (req, res) => {
   let store = await storeModel.findOne({ _id: req.body.storeId });
   if (!store) return res.status(400).send({ message: "Store dose not exist!" });
-  console.log(req.body.contact, req.body.email, req.body.storeId);
+  // console.log(req.body.contact, req.body.email, req.body.storeId);
   const sameCustomers = await customerModel.findOne({
     $and: [
       {
@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
       { storeId: req.body.storeId },
     ],
   });
-  console.log(sameCustomers);
+  // console.log(sameCustomers);
   if (sameCustomers)
     return res.status(400).send({
       message: `${req.body.contact} or ${
@@ -164,8 +164,8 @@ router.get("/myCustomers/:searchPar", verify_token, async (req, res) => {
       .json({ message: "Access Denied! Not able to validate the user." });
   // console.log(loggedInUser)
   try {
-    console.log("search Par: " + req.params.searchPar);
-    console.log("search Par: " + loggedInUser.storeId);
+    // console.log("search Par: " + req.params.searchPar);
+    // console.log("search Par: " + loggedInUser.storeId);
     const customers = await customerModel.find({
       $and: [
         { storeId: loggedInUser.storeId },
@@ -208,7 +208,7 @@ router.get("/:cid", async (req, res) => {
     };
     if (gameCount) winner = gameCount;
     for (let i in customerHistory) {
-      console.log(customerHistory[i]);
+      // console.log(customerHistory[i]);
       if (customerHistory[i].description.includes("Table"))
         winner = winner == 0 ? 0 : winner - 1;
       totalSpend =
@@ -295,63 +295,69 @@ router.patch("/:cid", verify_token, async (req, res) => {
       customers.reasonOfBlackList = req.body.reasonOfBlackList ?? "";
     }
   }
-  if (req.body.credit != null && req.body.credit != customers.credit) {
-    // if(!customers.contact.length()>0) return res.status(400).send({"message":"Please update the contact details for this user"});
-    const newCustomerHistory = new customerHistoryModel({
-      customerId: req.params.cid,
-      date: new Date(),
-      customerName: customers.fullName,
-      description:
-        req.body.description == "Add Old Credit"
-          ? "Add Old Credit"
-          : req.body.description + " " + req.body.paymentMethods ??
-            "Due Clearance",
-      paid:
-        req.body.description == "Pay Dues"
-          ? req.body.settlementAmount != null
-            ? customers.credit + (req.body.credit - req.body.settlementAmount)
-            : customers.credit + req.body.credit
-          : 0,
-      due:
-        req.body.description == "Add Old Credit"
-          ? req.body.credit + customers.credit
-          : 0,
-      storeId: customers.storeId,
-      empId: User._id,
-    });
-    try {
-      const savedHistory = await newCustomerHistory.save();
-    } catch (error) {
-      console.log(error);
+  console.log(req.body);
+  if (req.body.description == "Pay Dues") {
+    if (req.body.settlementAmount) {
+      console.log("Pay due called + settlement");
+      const custHistory = new customerHistoryModel({
+        customerId: customers._id,
+        date: new Date(),
+        billType: `Pay due + Settlement ${req.body.paymentMethods}`,
+        customerName: customers.fullName,
+        description: `Pay due ${req.body.paymentMethods}`,
+        quantity: 0,
+        discount: req.body.settlementAmount,
+        netPay: 0,
+        paid: req.body.deltaAmount,
+        due: "0",
+        transactionId: "NA",
+        storeId: customers.storeId,
+        empId: User._id,
+      });
+      await custHistory.save();
+      customers.credit = req.body.credit;
+    } else {
+      console.log("Pay due called");
+      const custHistory = new customerHistoryModel({
+        customerId: customers._id,
+        date: new Date(),
+        billType: `Pay due ${req.body.paymentMethods}`,
+        customerName: customers.fullName,
+        description: `Pay due ${req.body.paymentMethods}`,
+        quantity: 0,
+        discount: 0,
+        netPay: 0,
+        paid: req.body.deltaAmount,
+        due: "0",
+        transactionId: "NA",
+        storeId: customers.storeId,
+        empId: User._id,
+      });
+      await custHistory.save();
+      customers.credit = req.body.credit;
     }
-    customers.credit = req.body.credit;
   }
-  if (req.body.settlementAmount != null) {
-    const newCustomerHistory = new customerHistoryModel({
-      customerId: req.params.cid,
+  if (req.body.description == "Add Old Credit") {
+    console.log("Add old Credit");
+    const custHistory = new customerHistoryModel({
+      customerId: customers._id,
       date: new Date(),
+      billType: `Add old Credit`,
       customerName: customers.fullName,
-      description: "Settlement Due Clearance",
-      discount: req.body.settlementAmount,
+      description: "Add old Credit",
+      quantity: 0,
+      discount: 0,
+      netPay: 0,
       paid: 0,
-      due: 0,
+      due: req.body.deltaAmount * -1,
+      transactionId: "NA",
       storeId: customers.storeId,
       empId: User._id,
     });
-    try {
-      const savedHistory = await newCustomerHistory.save();
-    } catch (error) {
-      console.log(error);
-    }
+    await custHistory.save();
     customers.credit = req.body.credit;
   }
-  if (req.body.maxCredit != null) {
-    if (!customers.contact.length > 0)
-      return res
-        .status(400)
-        .send({ message: "Please update the contact details for this user" });
-    customers.maxCredit = req.body.maxCredit;
-  }
+
   try {
     const cli = await customers.save();
     res.status(201).json(cli);
