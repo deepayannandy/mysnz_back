@@ -125,9 +125,9 @@ router.post("/", verify_token, async (req, res) => {
       req.body.customer.customerId
     );
     if (pickedCustomer) {
-      console.log("I am called");
+      // console.log("I am called");
       pickedCustomer.credit =
-        pickedCustomer.credit + (req.body.netPay - req.body.cashIn);
+        pickedCustomer.credit - (req.body.netPay - req.body.cashIn);
     }
     const updatedCustomer = await pickedCustomer.save();
   }
