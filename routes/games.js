@@ -1128,15 +1128,24 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
               );
               if (
                 selectedTable.countdownRules[i].dayUpToPerson <
-                selectedTable.gameData.players.length
+                  selectedTable.gameData.players.length &&
+                selectedTable.countdownRules[i].dayExtraAmount
               ) {
                 totalBillAmt =
                   totalBillAmt +
-                  selectedTable.countdownRules[i].nightExtraAmount;
+                  selectedTable.countdownRules[i].dayExtraAmount *
+                    (selectedTable.gameData.players.length -
+                      selectedTable.countdownRules[i].dayUpToPerson);
                 bills.push({
-                  title: "Night Countdown extra person",
+                  title:
+                    "Night Countdown extra person X" +
+                    (selectedTable.gameData.players.length -
+                      selectedTable.countdownRules[i].dayUpToPerson),
                   time: selectedTable.gameData.countdownMin,
-                  amount: selectedTable.countdownRules[i].nightExtraAmount,
+                  amount:
+                    selectedTable.countdownRules[i].dayExtraAmount *
+                    (selectedTable.gameData.players.length -
+                      selectedTable.countdownRules[i].dayUpToPerson),
                 });
               }
             } else {
@@ -1151,14 +1160,24 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
               );
               if (
                 selectedTable.countdownRules[i].dayUpToPerson <
-                selectedTable.gameData.players.length
+                  selectedTable.gameData.players.length &&
+                selectedTable.countdownRules[i].dayExtraAmount
               ) {
                 totalBillAmt =
-                  totalBillAmt + selectedTable.countdownRules[i].dayExtraAmount;
+                  totalBillAmt +
+                  selectedTable.countdownRules[i].dayExtraAmount *
+                    (selectedTable.gameData.players.length -
+                      selectedTable.countdownRules[i].dayUpToPerson);
                 bills.push({
-                  title: "Day Countdown extra person",
+                  title:
+                    "Day Countdown extra person x " +
+                    (selectedTable.gameData.players.length -
+                      selectedTable.countdownRules[i].dayUpToPerson),
                   time: selectedTable.gameData.countdownMin,
-                  amount: selectedTable.countdownRules[i].dayExtraAmount,
+                  amount:
+                    selectedTable.countdownRules[i].dayExtraAmount *
+                    (selectedTable.gameData.players.length -
+                      selectedTable.countdownRules[i].dayUpToPerson),
                 });
               }
             }
@@ -1185,11 +1204,20 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
               selectedTable.gameData.players.length
             ) {
               totalBillAmt =
-                totalBillAmt + selectedTable.countdownRules[i].dayExtraAmount;
+                totalBillAmt +
+                selectedTable.countdownRules[i].dayExtraAmount *
+                  (selectedTable.gameData.players.length -
+                    selectedTable.countdownRules[i].dayUpToPerson);
               bills.push({
-                title: "Day Countdown extra person",
+                title:
+                  "Day Countdown extra person x " +
+                  (selectedTable.gameData.players.length -
+                    selectedTable.countdownRules[i].dayUpToPerson),
                 time: selectedTable.gameData.countdownMin,
-                amount: selectedTable.countdownRules[i].dayExtraAmount,
+                amount:
+                  selectedTable.countdownRules[i].dayExtraAmount *
+                  (selectedTable.gameData.players.length -
+                    selectedTable.countdownRules[i].dayUpToPerson),
               });
             }
           }
