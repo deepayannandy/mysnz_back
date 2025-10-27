@@ -357,6 +357,9 @@ router.patch("/:cid", verify_token, async (req, res) => {
     await custHistory.save();
     customers.credit = req.body.credit;
   }
+  if (req.body.maxCredit) {
+    customers.maxCredit = req.body.maxCredit;
+  }
 
   try {
     const cli = await customers.save();
