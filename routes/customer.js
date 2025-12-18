@@ -298,6 +298,8 @@ router.patch("/:cid", verify_token, async (req, res) => {
   console.log(req.body);
   if (req.body.description == "Pay Dues") {
     if (req.body.settlementAmount) {
+      if (req.tokendata.userDesignation == "Staff")
+        return res.status(500).json({ message: "Access Denied!" });
       console.log("Pay due called + settlement");
       const custHistory = new customerHistoryModel({
         customerId: customers._id,
