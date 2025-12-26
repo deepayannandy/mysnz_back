@@ -1368,6 +1368,10 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
     const selectedStore = await storeModel.findById(selectedTable.storeId);
     if (!selectedTable)
       return res.status(500).json({ message: "Table not found!" });
+    await sendMqttByTable(
+      selectedTable.deviceId + "/" + selectedTable.nodeID,
+      "0"
+    );
     if (selectedTable.storeId != loggedInUser.storeId)
       return res.status(401).json({ message: "Access denied!" });
     let players = req.body.fromHold
