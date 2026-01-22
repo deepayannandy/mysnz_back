@@ -176,6 +176,25 @@ const tablesSchema = new mongoos.Schema({
       },
     },
   ],
+  slotWiseMinuteRules: {
+    data: [
+      {
+        startTime: {
+          type: String,
+          required: false,
+        },
+        endTime: {
+          type: String,
+          required: false,
+        },
+        amount: {
+          type: Number,
+          required: false,
+        },
+      },
+    ],
+    defaultAmount: { type: Number, required: false },
+  },
   isBooked: {
     type: Boolean,
     required: true,

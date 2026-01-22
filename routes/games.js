@@ -139,7 +139,7 @@ router.post("/pause/:tableId", async (req, res) => {
     selectedTable.pauseTime = new Date();
     await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "0"
+      "0",
     );
     await selectedTable.save();
     return res.status(200).json({ message: "Table paused" });
@@ -164,7 +164,7 @@ router.post("/resume/:tableId", async (req, res) => {
     selectedTable.pauseTime = null;
     await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "1"
+      "1",
     );
     await selectedTable.save();
     return res
@@ -182,11 +182,11 @@ router.post("/restart/:tableId", async (req, res) => {
     selectedTable.gameData.endTime = null;
     mqttAgent.client.publish(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "1"
+      "1",
     );
     await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "1"
+      "1",
     );
     await selectedTable.save();
     return res.status(200).json({ message: `Table restarted` });
@@ -220,7 +220,7 @@ router.post("/addMeal/:tableId", async (req, res) => {
     for (let i in req.body.productList.orders) {
       let message = await updateProductCount(
         req.body.productList.orders[i].productId,
-        req.body.productList.orders[i].qnt
+        req.body.productList.orders[i].qnt,
       );
       if (message != "ok") return res.status(500).json({ message: message });
     }
@@ -293,14 +293,14 @@ async function countdownGame(tableId, startTime) {
       "sending message to: " +
         selectedTable.deviceId +
         "/" +
-        selectedTable.nodeID
+        selectedTable.nodeID,
     );
   } else {
     console.log(
       "Start Time mismatch >>>> This task Starts at " +
         startTime +
         " But start time found in table now is: " +
-        selectedTable.gameData.startTime.getTime()
+        selectedTable.gameData.startTime.getTime(),
     );
   }
 }
@@ -322,7 +322,7 @@ router.post("/validatePlayers/:tableId", async (req, res) => {
   for (let index in req.body.players) {
     if (req.body.players[index].customerId) {
       const selectedPlayer = await customerModel.findById(
-        req.body.players[index].customerId
+        req.body.players[index].customerId,
       );
       if (selectedPlayer.isBlackListed)
         return res
@@ -419,7 +419,7 @@ router.post("/startGame/:tableId", async (req, res) => {
         true,
         0,
         false,
-        false
+        false,
       );
       console.log(finalPlayerList[index].customerId);
     }
@@ -433,13 +433,16 @@ router.post("/startGame/:tableId", async (req, res) => {
     console.log("Start Time >>>" + selectedTable.gameData.startTime.getTime());
     if (req.body.gameType == "Countdown Billing") {
       selectedTable.gameData.countdownGameEndTime = new Date(
-        new Date().getTime() + parseInt(req.body.countdownMin) * 60000
+        new Date().getTime() + parseInt(req.body.countdownMin) * 60000,
       );
       console.log(selectedTable.countdownGameEndTime);
       let tableId = req.params.tableId;
-      var timerID = setTimeout(function () {
-        countdownGame(tableId, selectedTable.gameData.startTime.getTime());
-      }, parseInt(req.body.countdownMin) * 60 * 1000);
+      var timerID = setTimeout(
+        function () {
+          countdownGame(tableId, selectedTable.gameData.startTime.getTime());
+        },
+        parseInt(req.body.countdownMin) * 60 * 1000,
+      );
       selectedTable.gameData.countdownMin = req.body.countdownMin;
       console.log(">>>>>>>>>>>>Schedular");
       console.log("Schedule created", timerID);
@@ -449,11 +452,11 @@ router.post("/startGame/:tableId", async (req, res) => {
       "sending message to: " +
         selectedTable.deviceId +
         "/" +
-        selectedTable.nodeID
+        selectedTable.nodeID,
     );
     await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "1"
+      "1",
     );
 
     res.status(201).json({ _id: updatedTable._id });
@@ -475,7 +478,7 @@ router.patch("/stopGame/:tableId", verify_token, async (req, res) => {
       return res.status(401).json({ message: "Game already stopped" });
     if (selectedTable.pauseTime != null) {
       let timeDelta = ((new Date() - selectedTable.pauseTime) / 60000).toFixed(
-        2
+        2,
       );
       console.log(timeDelta);
       let newPauseTime = (
@@ -508,7 +511,7 @@ router.patch("/stopGame/:tableId", verify_token, async (req, res) => {
         const updatedTable = await selectedTable.save();
         await sendMqttByTable(
           selectedTable.deviceId + "/" + selectedTable.nodeID,
-          "0"
+          "0",
         );
         for (let index in players) {
           updateCustomerDetails(players[index].customerId, false, 0, true);
@@ -521,7 +524,7 @@ router.patch("/stopGame/:tableId", verify_token, async (req, res) => {
     const updatedTable = await selectedTable.save();
     await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "0"
+      "0",
     );
     res.status(201).json({ _id: updatedTable._id });
   } catch (error) {
@@ -537,7 +540,7 @@ function isNight(storeData, gameStartTime) {
     console.log(
       storeData.nightStartTime,
       storeData.nightEndTime,
-      gameStartTime
+      gameStartTime,
     );
     console.log("next day", gameStartTime < storeData.nightEndTime);
     if (
@@ -547,7 +550,7 @@ function isNight(storeData, gameStartTime) {
       console.log(
         "Game after 12",
         storeData.nightStartTime > gameStartTime,
-        storeData.nightEndTime > gameStartTime
+        storeData.nightEndTime > gameStartTime,
       );
       if (
         storeData.nightStartTime > gameStartTime &&
@@ -559,7 +562,7 @@ function isNight(storeData, gameStartTime) {
       console.log(
         "Game Before 12",
         storeData.nightStartTime < gameStartTime,
-        storeData.nightEndTime < gameStartTime
+        storeData.nightEndTime < gameStartTime,
       );
       if (
         storeData.nightStartTime < gameStartTime &&
@@ -573,7 +576,7 @@ function isNight(storeData, gameStartTime) {
     console.log(
       storeData.nightStartTime,
       storeData.nightEndTime,
-      gameStartTime
+      gameStartTime,
     );
     if (
       storeData.nightStartTime < gameStartTime &&
@@ -592,7 +595,7 @@ function minuteBilling(res, selectedTable, selectedStore) {
   let timeDelta = Math.ceil(
     (selectedTable.gameData.endTime - selectedTable.gameData.startTime) /
       60000 -
-      parseFloat(selectedTable.pauseMin ?? 0)
+      parseFloat(selectedTable.pauseMin ?? 0),
   );
   if (timeDelta == NaN)
     return res.status(502).json({ message: "Something went wrong min" });
@@ -600,7 +603,7 @@ function minuteBilling(res, selectedTable, selectedStore) {
   console.log(timeDelta);
   const indianStartTime = selectedTable.gameData.startTime.toLocaleTimeString(
     "en-US",
-    { timeZone: "Asia/Kolkata", hour12: false }
+    { timeZone: "Asia/Kolkata", hour12: false },
   );
   console.log(indianStartTime);
   const isnightTime = isNight(selectedStore, indianStartTime);
@@ -819,7 +822,7 @@ function slotBilling(res, selectedTable, selectedStore) {
   let timeDelta = Math.ceil(
     (selectedTable.gameData.endTime - selectedTable.gameData.startTime) /
       60000 -
-      parseFloat(selectedTable.pauseMin ?? 0)
+      parseFloat(selectedTable.pauseMin ?? 0),
   );
   if (timeDelta == NaN)
     return res.status(502).json({ message: "Something went wrong slot" });
@@ -827,7 +830,7 @@ function slotBilling(res, selectedTable, selectedStore) {
   console.log(timeDelta);
   const indianStartTime = selectedTable.gameData.startTime.toLocaleTimeString(
     undefined,
-    { timeZone: "Asia/Kolkata", hour12: false }
+    { timeZone: "Asia/Kolkata", hour12: false },
   );
   console.log(indianStartTime);
   let isNightTime = isNight(selectedStore, indianStartTime);
@@ -876,7 +879,7 @@ function slotBilling(res, selectedTable, selectedStore) {
           " Copairing with ",
           slotRule[index].uptoMin,
           timeDelta > slotRule[index].uptoMin,
-          timeDelta == slotRule[index].uptoMin
+          timeDelta == slotRule[index].uptoMin,
         );
         if (
           timeDelta > slotRule[index].uptoMin ||
@@ -1124,7 +1127,7 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
                 amount: selectedTable.countdownRules[i].countdownNightCharge,
               });
               console.log(
-                `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`
+                `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
               );
               if (
                 selectedTable.countdownRules[i].dayUpToPerson <
@@ -1156,7 +1159,7 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
                 amount: selectedTable.countdownRules[i].countdownDayCharge,
               });
               console.log(
-                `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`
+                `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
               );
               if (
                 selectedTable.countdownRules[i].dayUpToPerson <
@@ -1197,7 +1200,7 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
               amount: selectedTable.countdownRules[i].countdownDayCharge,
             });
             console.log(
-              `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`
+              `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
             );
             if (
               selectedTable.countdownRules[i].dayUpToPerson <
@@ -1240,7 +1243,7 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
       let timeDelta = Math.ceil(
         (selectedTable.gameData.endTime - selectedTable.gameData.startTime) /
           60000 -
-          parseFloat(selectedTable.pauseMin ?? 0)
+          parseFloat(selectedTable.pauseMin ?? 0),
       );
       if (timeDelta == NaN)
         return res.status(502).json({ message: "Something went wrong slot" });
@@ -1370,7 +1373,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
       return res.status(500).json({ message: "Table not found!" });
     await sendMqttByTable(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "0"
+      "0",
     );
     if (selectedTable.storeId != loggedInUser.storeId)
       return res.status(401).json({ message: "Access denied!" });
@@ -1379,13 +1382,13 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
       : selectedTable.gameData.players;
     mqttAgent.client.publish(
       selectedTable.deviceId + "/" + selectedTable.nodeID,
-      "0"
+      "0",
     );
     for (index in req.body.checkoutPlayers) {
       if (req.body.checkoutPlayers[index].customerId == undefined) {
         console.log(
           "Need to create an customer id for : " +
-            req.body.checkoutPlayers[index].fullName
+            req.body.checkoutPlayers[index].fullName,
         );
         const newCustomer = new customerModel({
           fullName: req.body.checkoutPlayers[index].fullName,
@@ -1405,7 +1408,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
         players[index].customerId,
         false,
         req.body.timeDelta,
-        true
+        true,
       );
     }
     let dis = req.body.discount == undefined ? 0 : req.body.discount;
@@ -1418,7 +1421,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
     // add balance to wallet
     if (req.body.addToWallet) {
       const selectedCustomer = await customerModel.findById(
-        req.body.checkoutPlayers[0].customerId
+        req.body.checkoutPlayers[0].customerId,
       );
       if (selectedCustomer) {
         selectedCustomer.credit =
@@ -1486,7 +1489,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
           0
         ) {
           const pickedCustomer = await customerModel.findById(
-            req.body.checkoutPlayers[index].customerId
+            req.body.checkoutPlayers[index].customerId,
           );
           if (pickedCustomer) {
             // console.log("I am called")
@@ -1497,7 +1500,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
           }
           pickedCustomer.rewardPoint == undefined
             ? (pickedCustomer.rewardPoint = parseInt(
-                req.body.checkoutPlayers[index].cashIn / 100
+                req.body.checkoutPlayers[index].cashIn / 100,
               ))
             : (pickedCustomer.rewardPoint =
                 pickedCustomer.rewardPoint +
@@ -1505,7 +1508,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
           const updatedCustomer = await pickedCustomer.save();
         } else {
           const pickedCustomer = await customerModel.findById(
-            req.body.checkoutPlayers[index].customerId
+            req.body.checkoutPlayers[index].customerId,
           );
           pickedCustomer.rewardPoint == undefined
             ? (pickedCustomer.rewardPoint =
@@ -1531,7 +1534,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
           date: new Date(),
           customerName:
             req.body.mealSettlement[index].customerDetails.fullName.split(
-              "("
+              "(",
             )[0],
           description:
             "Meal Order " + req.body.mealSettlement[index].paymentMethod,
@@ -1553,7 +1556,7 @@ router.patch("/checkoutTable/:tableId", verify_token, async (req, res) => {
           0
         ) {
           const pickedCustomer = await customerModel.findById(
-            req.body.mealSettlement[index].customerDetails.customerId
+            req.body.mealSettlement[index].customerDetails.customerId,
           );
           if (pickedCustomer) {
             pickedCustomer.credit =
