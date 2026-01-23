@@ -12,6 +12,8 @@ const customerHistoryModel = require("../models/customerHistoryModel");
 const productModel = require("../models/productModel");
 const mqttAgent = require("../utils/mqtt");
 
+const istOffsetMinutes = 330;
+
 async function sendMqttByTable(send_topic, message) {
   let data = send_topic.split("/");
   const selectedDevice = await deviceModel.findOne({ deviceId: data[0] });
@@ -587,6 +589,89 @@ function isNight(storeData, gameStartTime) {
   }
   return false;
 }
+function getTodayWithTimeString(timeStr, gameDate) {
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  const time = new Date(gameDate.getTime());
+  time.setHours(hours + 5, minutes + 30, 0, 0);
+  // console.log("Date after rule: ", time);
+  return time;
+}
+function getMinuteDifference(date1, date2) {
+  console.log(date1, date2);
+  var diffInMs = Math.abs(date2 - date1);
+  return Math.floor(diffInMs / (1000 * 60));
+}
+function getBillingBySlots(starttime, endTime, rule) {
+  const ruleStartTime = getTodayWithTimeString(rule.startTime, starttime);
+  const ruleEndTime = getTodayWithTimeString(rule.endTime, starttime);
+  console.log(">>>>>>>>>>>", starttime, endTime);
+  if (ruleStartTime <= starttime && endTime <= ruleEndTime) {
+    console.log("Game Start and Ends inside the window");
+    var mins = getMinuteDifference(starttime, endTime);
+    return { mins, newstarttime: starttime };
+  } else if (ruleStartTime >= starttime && !(endTime <= ruleEndTime)) {
+    console.log("Game start inside the window but not ends");
+    let mins = getMinuteDifference(
+      starttime < ruleStartTime ? ruleStartTime : starttime,
+      ruleEndTime,
+    );
+    return { mins, newstarttime: ruleEndTime };
+  } else {
+    console.log("Game didn't inside the window");
+    return { mins: 0, newstarttime: starttime };
+  }
+}
+function slotMinuteBilling(res, selectedTable, selectedStore) {
+  let bills = [];
+  let totalBillAmt = 0;
+  let timeDelta = Math.ceil(
+    (selectedTable.gameData.endTime - selectedTable.gameData.startTime) /
+      60000 -
+      parseFloat(selectedTable.pauseMin ?? 0),
+  );
+  if (timeDelta == NaN)
+    return res.status(502).json({ message: "Something went wrong min" });
+  const totalGameTime = timeDelta;
+  var tempStartTime = new Date(
+    selectedTable.gameData.startTime.getTime() + istOffsetMinutes * 60 * 1000,
+  );
+  if (selectedTable.slotWiseMinuteRules.data.length) {
+    for (let i = 0; i < selectedTable.slotWiseMinuteRules.data.length; i++) {
+      const { mins, newstarttime, exitLoop } = getBillingBySlots(
+        tempStartTime,
+        new Date(
+          selectedTable.gameData.endTime.getTime() +
+            istOffsetMinutes * 60 * 1000,
+        ),
+        selectedTable.slotWiseMinuteRules.data[i],
+      );
+      tempStartTime = newstarttime;
+      bills.push({
+        title: `Slot ${i + 1}`,
+        time: mins,
+        amount: selectedTable.slotWiseMinuteRules.data[i].amount * mins,
+      });
+      totalBillAmt += selectedTable.slotWiseMinuteRules.data[i].amount * mins;
+      timeDelta -= mins;
+      console.log("Play mins:", mins, "New Start Time:", newstarttime);
+    }
+    bills.push({
+      title: `Default Slot`,
+      time: timeDelta,
+      amount: selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta,
+    });
+  }
+  return {
+    timeDelta: totalGameTime,
+    billBreakup: bills,
+    totalBillAmt: selectedStore.isRoundOff
+      ? Math.round(totalBillAmt.toFixed(2))
+      : totalBillAmt.toFixed(2),
+    mealTotal: selectedTable.mealAmount,
+    productList: selectedTable.productList,
+    selectedTable,
+  };
+}
 function minuteBilling(res, selectedTable, selectedStore) {
   let bills = [];
   let totalBillAmt = 0;
@@ -1088,6 +1173,11 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
         productList: selectedTable.productList,
         selectedTable,
       });
+    }
+    if (selectedTable.gameData.gameType == "Slot Wise Minute Billing") {
+      return res
+        .status(201)
+        .json(slotMinuteBilling(res, selectedTable, selectedStore));
     }
     if (selectedTable.gameData.gameType == "Minute Billing") {
       return res
