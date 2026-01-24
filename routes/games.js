@@ -660,6 +660,7 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
       time: timeDelta,
       amount: selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta,
     });
+    totalBillAmt = selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta;
   }
   return {
     timeDelta: totalGameTime,
