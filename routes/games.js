@@ -599,15 +599,15 @@ function getTodayWithTimeString(timeStr, gameDate) {
 function getMinuteDifference(date1, date2) {
   console.log(date1, date2);
   var diffInMs = Math.abs(date2 - date1);
-  return Math.floor(diffInMs / (1000 * 60));
+  return Math.ceil(diffInMs / (1000 * 60));
 }
 function getBillingBySlots(starttime, endTime, rule) {
   const ruleStartTime = getTodayWithTimeString(rule.startTime, starttime);
   const ruleEndTime = getTodayWithTimeString(rule.endTime, starttime);
   console.log(">>>>>>>>>>>", starttime, endTime);
   if (ruleStartTime <= starttime && endTime <= ruleEndTime) {
-    console.log("Game Start and Ends inside the window");
     var mins = getMinuteDifference(starttime, endTime);
+    console.log("Game Start and Ends inside the window", mins);
     return { mins, newstarttime: starttime };
   } else if (ruleStartTime >= starttime && !(endTime <= ruleEndTime)) {
     console.log("Game start inside the window but not ends");
@@ -660,7 +660,7 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
       time: timeDelta,
       amount: selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta,
     });
-    totalBillAmt = selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta;
+    totalBillAmt += selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta;
   }
   return {
     timeDelta: totalGameTime,
