@@ -590,21 +590,27 @@ function isNight(storeData, gameStartTime) {
   return false;
 }
 function getTodayWithTimeString(timeStr, gameDate) {
+  // console.log("Game Date: ", gameDate, gameDate.getTimezoneOffset());
   const [hours, minutes] = timeStr.split(":").map(Number);
-  const time = new Date(gameDate.getTime());
-  time.setHours(hours + 5, minutes + 30, 0, 0);
-  // console.log("Date after rule: ", time);
+  const time = new Date(gameDate.toISOString().split("T")[0]);
+  // console.log("Before rule: ", time);
+  time.setHours(hours, minutes, 0, 0);
+  time.setTime(time.getTime() + (5 * 60 + 30) * 60 * 1000);
+  // console.log("Date after rule: ", time, time.getTimezoneOffset());
   return time;
 }
 function getMinuteDifference(date1, date2) {
   console.log(date1, date2);
   var diffInMs = Math.abs(date2 - date1);
+  console.log(diffInMs);
   return Math.ceil(diffInMs / (1000 * 60));
 }
 function getBillingBySlots(starttime, endTime, rule) {
   const ruleStartTime = getTodayWithTimeString(rule.startTime, starttime);
   const ruleEndTime = getTodayWithTimeString(rule.endTime, starttime);
-  console.log(">>>>>>>>>>>", starttime, endTime);
+  // console.log(">>>>>>>>>>>", starttime, endTime);
+  // console.log(">>>>>>>>>>>", ruleStartTime, ruleEndTime);
+  console.log(ruleStartTime <= starttime, endTime <= ruleEndTime);
   if (ruleStartTime <= starttime && endTime <= ruleEndTime) {
     var mins = getMinuteDifference(starttime, endTime);
     console.log("Game Start and Ends inside the window", mins);
