@@ -605,27 +605,38 @@ function getMinuteDifference(date1, date2) {
   console.log(diffInMs);
   return Math.ceil(diffInMs / (1000 * 60));
 }
+function overlappingMinutes(gameStart, gameEnd, windowStart, windowEnd) {
+  const gs = new Date(gameStart);
+  const ge = new Date(gameEnd);
+  const ws = new Date(windowStart);
+  const we = new Date(windowEnd);
+
+  // Validate dates
+  if ([gs, ge, ws, we].some((d) => isNaN(d.getTime()))) {
+    throw new Error("Invalid timestamps provided");
+  }
+
+  // Ensure proper order (swap if needed)
+  if (gs > ge) [gs, ge] = [ge, gs];
+  if (ws > we) [ws, we] = [we, ws];
+
+  // Overlap bounds: max(starts) to min(ends)
+  const overlapStart = Math.max(gs.getTime(), ws.getTime());
+  const overlapEnd = Math.min(ge.getTime(), we.getTime());
+
+  // No overlap if end <= start
+  if (overlapEnd <= overlapStart) return 0;
+
+  // Minutes in overlap
+  const diffMs = overlapEnd - overlapStart;
+  return Math.ceil(diffMs / (1000 * 60));
+}
 function getBillingBySlots(starttime, endTime, rule) {
   const ruleStartTime = getTodayWithTimeString(rule.startTime, starttime);
   const ruleEndTime = getTodayWithTimeString(rule.endTime, starttime);
-  // console.log(">>>>>>>>>>>", starttime, endTime);
-  // console.log(">>>>>>>>>>>", ruleStartTime, ruleEndTime);
-  console.log(ruleStartTime <= starttime, endTime <= ruleEndTime);
-  if (ruleStartTime <= starttime && endTime <= ruleEndTime) {
-    var mins = getMinuteDifference(starttime, endTime);
-    console.log("Game Start and Ends inside the window", mins);
-    return { mins, newstarttime: starttime };
-  } else if (ruleStartTime >= starttime && !(endTime <= ruleEndTime)) {
-    console.log("Game start inside the window but not ends");
-    let mins = getMinuteDifference(
-      starttime < ruleStartTime ? ruleStartTime : starttime,
-      ruleEndTime,
-    );
-    return { mins, newstarttime: ruleEndTime };
-  } else {
-    console.log("Game didn't inside the window");
-    return { mins: 0, newstarttime: starttime };
-  }
+  console.log("\n\nRule >>>>>>>>>>>", ruleStartTime, ruleEndTime);
+  console.log("Game >>>>>>>>>>>", starttime, endTime);
+  return overlappingMinutes(starttime, endTime, ruleStartTime, ruleEndTime);
 }
 function slotMinuteBilling(res, selectedTable, selectedStore) {
   let bills = [];
@@ -643,7 +654,7 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
   );
   if (selectedTable.slotWiseMinuteRules.data.length) {
     for (let i = 0; i < selectedTable.slotWiseMinuteRules.data.length; i++) {
-      const { mins, newstarttime, exitLoop } = getBillingBySlots(
+      const mins = getBillingBySlots(
         tempStartTime,
         new Date(
           selectedTable.gameData.endTime.getTime() +
@@ -651,7 +662,7 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
         ),
         selectedTable.slotWiseMinuteRules.data[i],
       );
-      tempStartTime = newstarttime;
+      console.log(`Slot ${i + 1}`, mins);
       bills.push({
         title: `Slot ${i + 1}`,
         time: mins,
@@ -659,7 +670,6 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
       });
       totalBillAmt += selectedTable.slotWiseMinuteRules.data[i].amount * mins;
       timeDelta -= mins;
-      console.log("Play mins:", mins, "New Start Time:", newstarttime);
     }
     bills.push({
       title: `Default Slot`,
