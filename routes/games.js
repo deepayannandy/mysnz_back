@@ -671,12 +671,15 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
       totalBillAmt += selectedTable.slotWiseMinuteRules.data[i].amount * mins;
       timeDelta -= mins;
     }
-    bills.push({
-      title: `Default Slot`,
-      time: timeDelta,
-      amount: selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta,
-    });
-    totalBillAmt += selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta;
+    if (timeDelta > 0) {
+      bills.push({
+        title: `Default Slot`,
+        time: timeDelta,
+        amount: selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta,
+      });
+      totalBillAmt +=
+        selectedTable.slotWiseMinuteRules.defaultAmount * timeDelta;
+    }
   }
   return {
     timeDelta: totalGameTime,
