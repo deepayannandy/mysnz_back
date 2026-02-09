@@ -606,10 +606,10 @@ function getMinuteDifference(date1, date2) {
   return Math.ceil(diffInMs / (1000 * 60));
 }
 function overlappingMinutes(gameStart, gameEnd, windowStart, windowEnd) {
-  const gs = new Date(gameStart);
-  const ge = new Date(gameEnd);
-  const ws = new Date(windowStart);
-  const we = new Date(windowEnd);
+  let gs = new Date(gameStart);
+  let ge = new Date(gameEnd);
+  let ws = new Date(windowStart);
+  let we = new Date(windowEnd);
 
   // Validate dates
   if ([gs, ge, ws, we].some((d) => isNaN(d.getTime()))) {
@@ -1406,6 +1406,7 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
     console.log(selectedTable.gameData, selectedTable._id);
     res.status(502).json({ message: "Billing not supported" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 });
