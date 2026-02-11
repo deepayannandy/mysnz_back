@@ -641,6 +641,7 @@ function getBillingBySlots(starttime, endTime, rule) {
 function slotMinuteBilling(res, selectedTable, selectedStore) {
   let bills = [];
   let totalBillAmt = 0;
+  let timeAsperGame = 0;
   let timeDelta = Math.ceil(
     (selectedTable.gameData.endTime - selectedTable.gameData.startTime) /
       60000 -
@@ -670,8 +671,10 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
       });
       totalBillAmt += selectedTable.slotWiseMinuteRules.data[i].amount * mins;
       timeDelta -= mins;
+      timeAsperGame += mins;
     }
     if (timeDelta > 0) {
+      timeAsperGame += timeDelta;
       bills.push({
         title: `Default Slot`,
         time: timeDelta,
@@ -682,7 +685,7 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
     }
   }
   return {
-    timeDelta: totalGameTime,
+    timeDelta: timeAsperGame,
     billBreakup: bills,
     totalBillAmt: selectedStore.isRoundOff
       ? Math.round(totalBillAmt.toFixed(2))
