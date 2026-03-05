@@ -672,6 +672,7 @@ function slotMinuteBilling(res, selectedTable, selectedStore) {
       totalBillAmt += selectedTable.slotWiseMinuteRules.data[i].amount * mins;
       timeDelta -= mins;
       timeAsperGame += mins;
+      console.log("Time left after slot calculation: ", timeAsperGame);
     }
     if (timeDelta > 0) {
       timeAsperGame += timeDelta;
@@ -1233,14 +1234,15 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
               selectedTable.countdownRules[i].countdownNightCharge != 0
             ) {
               totalBillAmt =
-                selectedTable.countdownRules[i].countdownNightCharge;
+                selectedTable.countdownRules[i].countdownNightCharge ??
+                selectedTable.countdownRules[i].countdownDayCharge;
               bills.push({
                 title: "Night Countdown",
                 time: selectedTable.gameData.countdownMin,
                 amount: selectedTable.countdownRules[i].countdownNightCharge,
               });
               console.log(
-                `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
+                `>>>>>> c playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
               );
               if (
                 selectedTable.countdownRules[i].dayUpToPerson <
@@ -1272,7 +1274,7 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
                 amount: selectedTable.countdownRules[i].countdownDayCharge,
               });
               console.log(
-                `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
+                `>>>>>> b playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
               );
               if (
                 selectedTable.countdownRules[i].dayUpToPerson <
@@ -1313,7 +1315,7 @@ router.get("/getBilling/:tableId", verify_token, async (req, res) => {
               amount: selectedTable.countdownRules[i].countdownDayCharge,
             });
             console.log(
-              `>>>>>> playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
+              `>>>>>> a playerCount: ${selectedTable.gameData.players.length} playerLimit: ${selectedTable.countdownRules[i].dayUpToPerson}`,
             );
             if (
               selectedTable.countdownRules[i].dayUpToPerson <
